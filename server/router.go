@@ -9,4 +9,10 @@ func LoadRouter(router *gin.Engine) {
 	router.GET("/whoami", func(context *gin.Context) {
 		context.String(http.StatusOK, "I am %s", server.ServerName)
 	})
+
+	myRouter := router.Group("/jifengou")
+	myRouter.Any("/query_product", QueryProduct)
+	myRouter.POST("/query_coupon", QueryCouponInfo)
+	myRouter.POST("/update_coupon", UpdateCouponStatus)
+	myRouter.POST("/query_count", QueryCouponCount)
 }
