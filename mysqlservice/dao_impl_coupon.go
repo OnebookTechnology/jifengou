@@ -14,7 +14,7 @@ func (m *MysqlService) UpdateCouponStatusByCouponCode(code string, status int, u
 		return err
 	}
 	// s1. update online book's last_op_time、last_op_phone_number、online_status
-	_, err = tx.Exec("UPDATE coupon SET coupon_status=?, update_time=? WHERE coupon_code=?", status, updateTime,code)
+	_, err = tx.Exec("UPDATE coupon SET coupon_status=?, update_time=? WHERE coupon_code=?", status, updateTime, code)
 	if err != nil {
 		rollBackErr := tx.Rollback()
 		if rollBackErr != nil {

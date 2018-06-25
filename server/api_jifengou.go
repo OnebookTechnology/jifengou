@@ -1,8 +1,8 @@
 package server
 
 import (
-	"errors"
 	"encoding/hex"
+	"errors"
 	"github.com/gin-gonic/gin"
 	"sort"
 	"strconv"
@@ -35,8 +35,8 @@ type ItemData struct {
 type RequestJson struct {
 	Code       string `json:"code,omitempty"`
 	CardId     string `json:"card_id,omitempty"`
-	SpId       int    `json:"sp_id,omitempty"`
-	Status     int    `json:"status,omitempty"`
+	SpId       string `json:"sp_id,omitempty"`
+	Status     string `json:"status,omitempty"`
 	UpdateTime string `json:"update_time"`
 }
 
@@ -147,7 +147,7 @@ func UpdateCouponStatus(ctx *gin.Context) {
 	crossDomain(ctx)
 	// status可能为0，所以初值设置为-99
 	// 以此来判断华易是否发送了status参数
-	var requestJson = RequestJson{Status: -99}
+	var requestJson RequestJson
 	err := ctx.BindJSON(&requestJson)
 	if err != nil {
 		handleError(ctx, err)
@@ -161,7 +161,7 @@ func UpdateCouponStatus(ctx *gin.Context) {
 		handleError(ctx, errors.New("华易发起状态更新请求时缺少参数update_time"))
 		return
 	}
-	if requestJson.Status == -99 {
+	if requestJson.Status == "" {
 		handleError(ctx, errors.New("华易发起状态更新请求时缺少参数status"))
 		return
 	}
@@ -177,17 +177,22 @@ func UpdateCouponStatus(ctx *gin.Context) {
 		handleError(ctx, err)
 		return
 	}
-	err = server.DB.UpdateCouponStatusByCouponCode(coupon.CouponCode, requestJson.Status, requestJson.UpdateTime)
+	status, err := strconv.Atoi(requestJson.Status)
+	if err != nil {
+		handleError(ctx, err)
+		return
+	}
+	err = server.DB.UpdateCouponStatusByCouponCode(coupon.CouponCode, status, requestJson.UpdateTime)
 	if err != nil {
 		handleError(ctx, err)
 		return
 	}
 	ctx.JSON(200, &JFGResponse{
-		StatusCode:RequestOK,
-		Message:"请求成功",
+		StatusCode: RequestOK,
+		Message:    "请求成功",
 		Data: &ResponseData{
-			Result:ResultOK,
-			FailReason:""}})
+			Result:     ResultOK,
+			FailReason: ""}})
 	return
 }
 
