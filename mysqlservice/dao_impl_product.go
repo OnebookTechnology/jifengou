@@ -15,7 +15,7 @@ func (m *MysqlService) FindProductById(productId string) (*models.Product, error
 }
 
 // 根据ItemStatement查询商品
-func (m *MysqlService) FindProductByItemStatement(itemStatement string)(p *models.Product, err error){
+func (m *MysqlService) FindProductByItemStatement(itemStatement string) (p *models.Product, err error) {
 	row := m.Db.QueryRow("SELECT product_name, product_info FROM product WHERE product_item_statement = ?", itemStatement)
 	p = new(models.Product)
 	err = row.Scan(&p.ProductName, &p.ProductInfo)

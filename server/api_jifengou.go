@@ -27,7 +27,7 @@ type ResponseData struct {
 	Status    int        `json:"status, omitempty"`
 
 	//券码信息查询
-	Statement   string     `json:"statement,omitempty"`
+	Statement   string       `json:"statement,omitempty"`
 	CouponCount int          `json:"coupon_count,omitempty"`
 	CouponList  []CouponData `json:"coupon_list,omitempty"`
 
@@ -36,19 +36,13 @@ type ResponseData struct {
 }
 
 type CouponData struct {
-	Code        string     `json:"code,omitempty"`
-	CreateTime  string     `json:"create_time,omitempty"`
-	Status      int        `json:"status, omitempty"`
-	ExpireStart string     `json:"expire_start,omitempty"`
-	ExpireEnd   string     `json:"expire_end,omitempty"`
-	Result      int        `json:"result"`
-	FailReason  string     `json:"fail_reason"`
-	ItemCount   int        `json:"item_count,omitempty"`
-	ItemList    []ItemData `json:"item_list,omitempty"`
-	StockCount  int        `json:"stock_count"`
+	CouponId    int    `json:"coupon_id,omitempty"`
+	Code        string `json:"code,omitempty"`
+	CreateTime  string `json:"create_time,omitempty"`
+	Status      int    `json:"status, omitempty"`
+	ExpireStart string `json:"expire_start,omitempty"`
+	ExpireEnd   string `json:"expire_end,omitempty"`
 }
-
-
 
 type ItemData struct {
 	ItemStatement string  `json:"item_statement"`
@@ -163,21 +157,28 @@ func QueryCouponInfo(ctx *gin.Context) {
 	}
 
 	var cList []CouponData
-	for i,c := range coupons {
+	for _, c := range coupons {
+		code, _ := AESEncryptToHexString([]byte(c.CouponCode), []byte(BusinessKey))
 		coupon := CouponData{
-
+			CouponId:    c.CouponId,
+			Code:        code,
+			CreateTime:  c.UpdateTime,
+			ExpireStart: c.CouponStartTime,
+			ExpireEnd:   c.CouponEndTime,
+			Status:      c.CouponStatus,
 		}
+		cList = append(cList, coupon)
 	}
 
 	ctx.JSON(200, &JFGResponse{
 		StatusCode: RequestOK,
 		Message:    "请求成功",
 		Data: &ResponseData{
-			Result:     ResultOK,
-			FailReason: "",
-			Statement: requestJson.Statement,
+			Result:      ResultOK,
+			FailReason:  "",
+			Statement:   requestJson.Statement,
 			CouponCount: count,
-			CouponList:
+			CouponList:  cList,
 		},
 	})
 	return
