@@ -211,6 +211,11 @@ func QueryCouponCount(ctx *gin.Context) {
 		handleError(ctx, errors.New("华易请求券码库存缺少参数item_statement"))
 		return
 	}
+	p, err := server.DB.FindProductByItemStatement(requestJson.ItemStatement)
+	if err != nil || p == nil {
+		handleError(ctx, err)
+		return
+	}
 	count, err := server.DB.FindCouponCountByItemStatement(requestJson.ItemStatement)
 	if err != nil {
 		handleError(ctx, err)
