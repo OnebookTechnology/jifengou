@@ -96,7 +96,7 @@ func (m *MysqlService) FindCouponsByItemStatement(itemStatement string, count in
 	var coupons []*models.Coupon
 	for rows.Next() {
 		c := new(models.Coupon)
-		err = rows.Scan(&c.CouponId, &c.CouponStatus, &c.CouponCode, &c.UpdateTime, &c.CouponStartTime, &c.CouponId)
+		err = rows.Scan(&c.CouponId, &c.CouponStatus, &c.CouponCode, &c.UpdateTime, &c.CouponStartTime, &c.CouponEndTime)
 		if err != nil {
 			return nil, err
 		}
