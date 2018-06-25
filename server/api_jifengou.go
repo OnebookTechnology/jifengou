@@ -1,7 +1,10 @@
 package server
 
 import (
+	"encoding/hex"
+	"fmt"
 	"github.com/gin-gonic/gin"
+	"sort"
 	"strconv"
 )
 
@@ -89,7 +92,7 @@ func QueryProduct(ctx *gin.Context) {
 
 //券码信息查询
 func QueryCouponInfo(ctx *gin.Context) {
-	ctx.BindJSON()
+
 }
 
 //券码状态查询
@@ -112,7 +115,6 @@ func QueryCouponStatus(ctx *gin.Context) {
 		sendFailedJsonResponse(ctx, RequestUrlErr)
 		return
 	}
-
 
 	ctx.JSON(200, &JFGResponse{
 		StatusCode: RequestOK,
@@ -139,4 +141,18 @@ func QueryCouponCount(ctx *gin.Context) {
 //券码使用通知
 func NotifyCouponUsed(ctx *gin.Context) {
 
+}
+
+//积分购平台签名算法
+func CalcSign(key, data, timestamp string) string {
+	md5Data := doMD5FromString(data)
+	var sa = sort.StringSlice{key, md5Data, timestamp}
+	sort.Strings(sa)
+	sa[0], sa[2] = sa[2], sa[0]
+	var str string
+	for _, s := range sa {
+		str += s
+	}
+	sha1 := doSHA1([]byte(str))
+	return hex.EncodeToString(sha1)
 }

@@ -60,6 +60,12 @@ func doMD5FromString(s string) string {
 	return fmt.Sprintf("%x", hash.Sum(nil))
 }
 
+func doSHA1(b []byte) []byte {
+	h := sha1.New()
+	h.Write(b)
+	return h.Sum(nil)
+}
+
 func doHmacSHA1(b, sKey []byte) []byte {
 	h := hmac.New(sha1.New, []byte(sKey))
 	h.Write([]byte(b))
