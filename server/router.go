@@ -11,6 +11,8 @@ func LoadRouter(router *gin.Engine) {
 	})
 
 	myRouter := router.Group("/jifengou")
+	myRouter.POST("/login", Login)
+
 	myRouter.Any("/query_product", QueryProduct)
 	myRouter.POST("/query_coupon", QueryCouponInfo)
 	myRouter.POST("/update_coupon", UpdateCouponStatus)

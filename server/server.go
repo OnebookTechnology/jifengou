@@ -2,6 +2,8 @@ package server
 
 import (
 	"fmt"
+	"github.com/OnebookTechnology/jifengou/mysqlservice"
+	"github.com/OnebookTechnology/jifengou/server/interface"
 	levelLogger "github.com/cxt90730/LevelLogger-go"
 	"github.com/gin-gonic/gin"
 	"github.com/robfig/config"
@@ -39,6 +41,7 @@ type Server struct {
 
 	HttpServer  *http.Server
 	TcpListener *net.TCPListener
+	DB          _interface.ServerDB
 
 	accessLog *os.File
 	errorLog  *os.File
@@ -74,6 +77,11 @@ func NewService(confPath, serverName string) (*Server, error) {
 	gin.DisableConsoleColor()
 	router := gin.New()
 	router.Use(gin.LoggerWithWriter(server.accessLog), gin.RecoveryWithWriter(server.errorLog))
+
+	//DB
+	db := new(mysql.MysqlService)
+	db.InitialDB(confPath, "DB")
+	server.DB = db
 
 	//Load router
 	LoadRouter(router)
@@ -162,4 +170,9 @@ func (s *Server) createLogs(logDir string) error {
 	s.Logger = logger
 
 	return nil
+}
+
+func crossDomain(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+	ctx.Header("Access-Control-Allow-Headers", "Authorization, Origin, No-Cache, X-Requested-With, Content-Range, X_FILENAME, If-Modified-Since, Pragma, Last-Modified, Cache-Control, Expires, Content-Type, X-E4M-With")
 }

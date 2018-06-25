@@ -4,6 +4,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+const BusinessId = "3866229787"
+const BusinessKey = "96e295d126829290dc6e906133d6a1cd"
+
 type JFGResponse struct {
 	StatusCode int           `json:"status_code"`
 	Message    string        `json:"message"`
