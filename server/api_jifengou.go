@@ -119,7 +119,6 @@ func QueryProduct(ctx *gin.Context) {
 //券码信息查询
 func QueryCouponInfo(ctx *gin.Context) {
 	crossDomain(ctx)
-	server.DB.
 }
 
 //券码状态查询

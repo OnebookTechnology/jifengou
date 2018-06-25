@@ -84,19 +84,21 @@ func (m *MysqlService) FindCouponByCode(couponCode string) (*models.Coupon, erro
 }
 
 // 查询所有券码
-func (m *MysqlService) FindCouponsByCount(count int, ) ([]*models.Coupon, error) {
-	rows, err := m.Db.Query("SELECT  FROM coupon WHERE coupon_status = ? AND ")
+func (m *MysqlService) FindCouponsByCount(count int, buyTime string, startTime, endTime string) ([]*models.Coupon, error) {
+	rows, err := m.Db.Query("SELECT coupon_id, coupon_status, coupon_code,update_time,coupon_start_time,coupon_end_time "+
+		"FROM coupon WHERE coupon_status = ? AND update_time=? AND coupon_start_time=? AND coupon_end_time = ? LIMIT ?",
+		models.CouponNotUsed, buyTime, startTime, endTime)
 	if err != nil {
 		return nil, nil
 	}
 	var coupons []*models.Coupon
 	for rows.Next() {
 		c := new(models.Coupon)
-		err = rows.Scan(&p.ProductName, &p.ProductInfo, &p.ProductItemStatement, &p.ProductPrice)
+		err = rows.Scan(&c.CouponId, &c.CouponStatus, &c.CouponCode, &c.UpdateTime, &c.CouponStartTime, &c.CouponId)
 		if err != nil {
 			return nil, err
 		}
-		products = append(products, p)
+		coupons = append(coupons, c)
 	}
-	return products, nil
+	return coupons, nil
 }
