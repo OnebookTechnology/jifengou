@@ -16,14 +16,14 @@ func (m *MysqlService) FindProductById(productId string) (*models.Product, error
 
 // 查找所有商品
 func (m *MysqlService) FindAllProducts() ([]*models.Product, error) {
-	rows, err := m.Db.Query("SELECT product_name, product_info, product_item_statement FROM product")
+	rows, err := m.Db.Query("SELECT product_name, product_info, product_item_statement, product_price FROM product")
 	if err != nil {
 		return nil, nil
 	}
 	var products []*models.Product
 	for rows.Next() {
 		p := new(models.Product)
-		err = rows.Scan(&p.ProductName, &p.ProductInfo, &p.ProductItemStatement)
+		err = rows.Scan(&p.ProductName, &p.ProductInfo ,&p.ProductItemStatement, &p.ProductPrice)
 		if err != nil {
 			return nil, err
 		}
