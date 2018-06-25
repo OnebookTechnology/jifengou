@@ -1,14 +1,10 @@
 package server
 
 import (
-	"bytes"
-	"crypto/aes"
-	"crypto/cipher"
 	"crypto/hmac"
 	"crypto/md5"
 	"crypto/sha1"
 	"encoding/base64"
-	"encoding/hex"
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -343,30 +339,4 @@ func YuanToFen(yuan float64) int {
 func FenToYuan(fen int) float64 {
 	yuan, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", float64(fen)/100), 64)
 	return yuan
-}
-
-func pKCS7Padding(ciphertext []byte, blockSize int) []byte {
-	padding := blockSize - len(ciphertext)%blockSize
-	padtext := bytes.Repeat([]byte{byte(padding)}, padding)
-	return append(ciphertext, padtext...)
-}
-
-func AESEncrypt(data string) string {
-	iv := []byte{0x31, 0x37, 0x36, 0x35, 0x34, 0x33, 0x32, 0x31, 0x38, 0x27, 0x36, 0x35, 0x33, 0x23, 0x32, 0x33}
-	key := []byte("96e295d126829290dc6e906133d6a1cd")
-	originData := []byte(data)
-	block, err := aes.NewCipher(key)
-	if err != nil {
-		panic(err)
-	}
-	blockSize := block.BlockSize()
-	blockMode := cipher.NewCBCEncrypter(block, iv)
-	originData = pKCS7Padding(originData, blockSize)
-
-	var cryptCode = make([]byte, len(originData))
-	blockMode.CryptBlocks(cryptCode, originData)
-	fmt.Println(string(cryptCode))
-	var out = make([]byte, 128)
-	hex.Encode(out, cryptCode)
-	return string(out)
 }
