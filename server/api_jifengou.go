@@ -97,6 +97,7 @@ func QueryCouponStatus(ctx *gin.Context) {
 			Message:    "请求失败，缺少code参数",
 			Data:       nil,
 		})
+		return
 	}
 
 	coupon, err := server.DB.FindCouponByCode(code)
