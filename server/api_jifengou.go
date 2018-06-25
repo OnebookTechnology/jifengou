@@ -1,6 +1,7 @@
 package server
 
 import (
+	"errors"
 	"github.com/gin-gonic/gin"
 	"strconv"
 )
@@ -142,12 +143,50 @@ func QueryCouponStatus(ctx *gin.Context) {
 //券码状态更新
 func UpdateCouponStatus(ctx *gin.Context) {
 	crossDomain(ctx)
-	//var requestJson *RequestJson
-	//err := ctx.BindJSON(&requestJson)
-	//if err != nil {
-	//	handleError(ctx, err)
-	//	return
-	//}
+	// status可能为0，所以初值设置为-99
+	// 以此来判断华易是否发送了status参数
+	var requestJson = RequestJson{Status: -99}
+	err := ctx.BindJSON(&requestJson)
+	if err != nil {
+		handleError(ctx, err)
+		return
+	}
+	if requestJson.Code == "" {
+		handleError(ctx, errors.New("华易发起状态更新请求时缺少参数code"))
+		return
+	}
+	if requestJson.UpdateTime == "" {
+		handleError(ctx, errors.New("华易发起状态更新请求时缺少参数update_time"))
+		return
+	}
+	if requestJson.Status == -99 {
+		handleError(ctx, errors.New("华易发起状态更新请求时缺少参数status"))
+		return
+	}
+	// 解密
+	code, err := AESDecryptHexStringToOrigin(requestJson.Code, []byte(BusinessKey))
+	if err != nil {
+		handleError(ctx, err)
+		return
+	}
+	// 从数据库查询coupon
+	coupon, err := server.DB.FindCouponByCode(code)
+	if err != nil {
+		handleError(ctx, err)
+		return
+	}
+	err = server.DB.UpdateCouponStatusByCouponCode(coupon.CouponCode, requestJson.Status, requestJson.UpdateTime)
+	if err != nil {
+		handleError(ctx, err)
+		return
+	}
+	ctx.JSON(200, &JFGResponse{
+		StatusCode:RequestOK,
+		Message:"请求成功",
+		Data: &ResponseData{
+			Result:ResultOK,
+			FailReason:""}})
+	return
 }
 
 //券码库存查询
@@ -160,7 +199,7 @@ func NotifyCouponUsed(ctx *gin.Context) {
 
 }
 
-func handleError(ctx *gin.Context, err error){
+func handleError(ctx *gin.Context, err error) {
 	logger.Error(err.Error())
 	sendFailedJsonResponse(ctx, RequestUrlErr)
 	return

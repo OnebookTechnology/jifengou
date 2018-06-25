@@ -6,7 +6,7 @@ type Coupon struct {
 	CouponStartTime string `json:"coupon_start_time"`
 	CouponEndTime   string `json:"coupon_end_time"`
 	CouponStatus    int    `json:"coupon_status"`
-	CouponUseTime   string `json:"coupon_use_time"`
+	UpdateTime      string `json:"updatetime"`
 }
 
 //券码状态码

@@ -8,13 +8,13 @@ import (
 )
 
 // 更新券码状态
-func (m *MysqlService) UpdateCouponStatusByCouponId(couponId uint, status int) error {
+func (m *MysqlService) UpdateCouponStatusByCouponCode(code string, status int, updateTime string) error {
 	tx, err := m.Db.Begin()
 	if err != nil {
 		return err
 	}
 	// s1. update online book's last_op_time、last_op_phone_number、online_status
-	_, err = tx.Exec("UPDATE coupon SET coupon_status=? WHERE coupon_id=?", status, couponId)
+	_, err = tx.Exec("UPDATE coupon SET coupon_status=?, update_time=? WHERE coupon_code=?", status, updateTime,code)
 	if err != nil {
 		rollBackErr := tx.Rollback()
 		if rollBackErr != nil {
