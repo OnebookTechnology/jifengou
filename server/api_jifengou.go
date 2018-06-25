@@ -27,18 +27,28 @@ type ResponseData struct {
 	Status    int        `json:"status, omitempty"`
 
 	//券码信息查询
+	Statement   string     `json:"statement,omitempty"`
 	CouponCount int          `json:"coupon_count,omitempty"`
 	CouponList  []CouponData `json:"coupon_list,omitempty"`
+
+	// 库存
+	StockCount int `json:"stock_count"`
 }
 
 type CouponData struct {
-	Statement   string `json:"statement,omitempty"`
-	Code        string `json:"code,omitempty"`
-	CreateTime  string `json:"create_time,omitempty"`
-	Status      int    `json:"status, omitempty"`
-	ExpireStart string `json:"expire_start,omitempty"`
-	ExpireEnd   string `json:"expire_end,omitempty"`
+	Code        string     `json:"code,omitempty"`
+	CreateTime  string     `json:"create_time,omitempty"`
+	Status      int        `json:"status, omitempty"`
+	ExpireStart string     `json:"expire_start,omitempty"`
+	ExpireEnd   string     `json:"expire_end,omitempty"`
+	Result      int        `json:"result"`
+	FailReason  string     `json:"fail_reason"`
+	ItemCount   int        `json:"item_count,omitempty"`
+	ItemList    []ItemData `json:"item_list,omitempty"`
+	StockCount  int        `json:"stock_count"`
 }
+
+
 
 type ItemData struct {
 	ItemStatement string  `json:"item_statement"`
@@ -46,7 +56,7 @@ type ItemData struct {
 	ItemPrice     float64 `json:"item_price"`
 }
 
-// 华易平台请求结构
+// 请求结构
 type RequestJson struct {
 	Code       string `json:"code,omitempty"`
 	CardId     string `json:"card_id,omitempty"`
@@ -119,6 +129,58 @@ func QueryProduct(ctx *gin.Context) {
 //券码信息查询
 func QueryCouponInfo(ctx *gin.Context) {
 	crossDomain(ctx)
+	var requestJson RequestJson
+	// 获取华易平台的请求参数
+	err := ctx.ShouldBindJSON(&requestJson)
+	if err != nil {
+		handleError(ctx, err)
+		return
+	}
+	// code必须非空
+	if requestJson.Code == "" {
+		ctx.JSON(200, &JFGResponse{
+			StatusCode: RequestFail,
+			Message:    "请求失败，缺少code参数",
+			Data:       nil,
+		})
+		return
+	}
+	count, err := strconv.Atoi(requestJson.Count)
+	if err != nil {
+		handleError(ctx, err)
+		return
+	}
+	coupons, err := server.DB.FindCouponsByCount(count, requestJson.BuyTime, requestJson.ExpireStart, requestJson.ExpireEnd)
+	if err != nil {
+		handleError(ctx, err)
+		return
+	}
+
+	// 检查数量
+	if len(coupons) < count {
+		sendFailedJsonResponse(ctx, CountNotEnoughErr)
+		return
+	}
+
+	var cList []CouponData
+	for i,c := range coupons {
+		coupon := CouponData{
+
+		}
+	}
+
+	ctx.JSON(200, &JFGResponse{
+		StatusCode: RequestOK,
+		Message:    "请求成功",
+		Data: &ResponseData{
+			Result:     ResultOK,
+			FailReason: "",
+			Statement: requestJson.Statement,
+			CouponCount: count,
+			CouponList:
+		},
+	})
+	return
 }
 
 //券码状态查询
@@ -221,7 +283,32 @@ func UpdateCouponStatus(ctx *gin.Context) {
 
 //券码库存查询
 func QueryCouponCount(ctx *gin.Context) {
-
+	crossDomain(ctx)
+	var requestJson RequestJson
+	err := ctx.BindJSON(&requestJson)
+	if err != nil {
+		handleError(ctx, err)
+		return
+	}
+	if requestJson.ItemStatement == "" {
+		handleError(ctx, errors.New("华易请求券码库存缺少参数item_statement"))
+		return
+	}
+	count, err := server.DB.FindCouponCountByItemStatement(requestJson.ItemStatement)
+	if err != nil {
+		handleError(ctx, err)
+		return
+	}
+	ctx.JSON(200, &JFGResponse{
+		StatusCode: RequestOK,
+		Message:    "请求成功",
+		Data: &ResponseData{
+			Result:     ResultOK,
+			FailReason: "",
+			StockCount: count,
+		},
+	})
+	return
 }
 
 //券码使用通知

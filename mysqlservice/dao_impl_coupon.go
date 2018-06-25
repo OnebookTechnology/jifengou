@@ -73,10 +73,10 @@ func (m *MysqlService) AddCoupon(cs []*models.Coupon) error {
 
 // 查询券码
 func (m *MysqlService) FindCouponByCode(couponCode string) (*models.Coupon, error) {
-	row := m.Db.QueryRow("SELECT coupon_code, coupon_end_time, coupon_status FROM coupon WHERE coupon_code=?",
+	row := m.Db.QueryRow("SELECT product_id ,coupon_code, coupon_end_time, coupon_status FROM coupon WHERE coupon_code=?",
 		couponCode)
 	c := new(models.Coupon)
-	err := row.Scan(&c.CouponCode, &c.CouponEndTime, &c.CouponStatus)
+	err := row.Scan(&c.ProductID, &c.CouponCode, &c.CouponEndTime, &c.CouponStatus)
 	if err != nil {
 		return nil, err
 	}
@@ -87,7 +87,7 @@ func (m *MysqlService) FindCouponByCode(couponCode string) (*models.Coupon, erro
 func (m *MysqlService) FindCouponsByCount(count int, buyTime string, startTime, endTime string) ([]*models.Coupon, error) {
 	rows, err := m.Db.Query("SELECT coupon_id, coupon_status, coupon_code,update_time,coupon_start_time,coupon_end_time "+
 		"FROM coupon WHERE coupon_status = ? AND update_time=? AND coupon_start_time=? AND coupon_end_time = ? LIMIT ?",
-		models.CouponNotUsed, buyTime, startTime, endTime)
+		models.CouponNotUsed, buyTime, startTime, endTime, count)
 	if err != nil {
 		return nil, nil
 	}
@@ -101,4 +101,12 @@ func (m *MysqlService) FindCouponsByCount(count int, buyTime string, startTime, 
 		coupons = append(coupons, c)
 	}
 	return coupons, nil
+}
+
+// 查询券码库存
+func (m *MysqlService) FindCouponCountByItemStatement(itemStatement string) (count int, err error) {
+	row := m.Db.QueryRow("SELECT COUNT(coupon_id) AS count 	FROM coupon c LEFT JOIN product p ON c.product_id=p.product_id 	WHERE p.product_item_statement = ?",
+		itemStatement)
+	err = row.Scan(&count)
+	return
 }
