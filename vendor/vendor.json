@@ -39,6 +39,12 @@
 			"revisionTime": "2017-11-02T13:48:54Z"
 		},
 		{
+			"checksumSHA1": "os4jdoOUjr86qvOwri8Ut1rXDrg=",
+			"path": "github.com/go-sql-driver/mysql",
+			"revision": "fade21009797158e7b79e04c340118a9220c6f9e",
+			"revisionTime": "2017-10-17T18:16:16Z"
+		},
+		{
 			"checksumSHA1": "yqF125xVSkmfLpIVGrLlfE05IUk=",
 			"path": "github.com/golang/protobuf/proto",
 			"revision": "1643683e1b54a9e88ad26d98f81400c8c9d9f4f9",
@@ -87,5 +93,5 @@
 			"revisionTime": "2017-08-12T16:00:11Z"
 		}
 	],
-	"rootPath": "github.com/OnebookTechnology/BigStone"
+	"rootPath": "github.com/OnebookTechnology/jifengou"
 }
