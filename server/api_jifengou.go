@@ -131,14 +131,15 @@ func QueryCouponInfo(ctx *gin.Context) {
 		return
 	}
 	// code必须非空
-	if requestJson.Code == "" {
+	if requestJson.ItemStatement == "" || requestJson.BuyTime == "" || requestJson.ExpireEnd == "" || requestJson.ExpireStart == "" {
 		ctx.JSON(200, &JFGResponse{
 			StatusCode: RequestFail,
-			Message:    "请求失败，缺少code参数",
+			Message:    "请求失败，缺少参数",
 			Data:       nil,
 		})
 		return
 	}
+
 	count, err := strconv.Atoi(requestJson.Count)
 	if err != nil {
 		handleError(ctx, err)
@@ -164,8 +165,8 @@ func QueryCouponInfo(ctx *gin.Context) {
 			CouponId:    c.CouponId,
 			Code:        code,
 			CreateTime:  c.UpdateTime,
-			ExpireStart: c.CouponStartTime,
-			ExpireEnd:   c.CouponEndTime,
+			ExpireStart: requestJson.ExpireStart,
+			ExpireEnd:   requestJson.ExpireEnd,
 			Status:      c.CouponStatus,
 		}
 		cList = append(cList, coupon)
