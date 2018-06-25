@@ -28,10 +28,13 @@ type ItemData struct {
 	ItemPrice     float64 `json:"item_price"`
 }
 
-type QueryJsonCouponStatus struct {
-	Code   string `json:"code,omitempty"`
-	CardId string `json:"card_id,omitempty"`
-	SpId   int    `json:"sp_id,omitempty"`
+// 华易平台请求结构
+type RequestJson struct {
+	Code       string `json:"code,omitempty"`
+	CardId     string `json:"card_id,omitempty"`
+	SpId       int    `json:"sp_id,omitempty"`
+	Status     int    `json:"status,omitempty"`
+	UpdateTime string `json:"update_time"`
 }
 
 func PlayGround() {
@@ -95,9 +98,13 @@ func QueryCouponInfo(ctx *gin.Context) {
 //券码状态查询
 func QueryCouponStatus(ctx *gin.Context) {
 	crossDomain(ctx)
-	var queryJson QueryJsonCouponStatus
-	ctx.ShouldBindJSON(&queryJson)
-	if queryJson.Code == "" {
+	var requestJson RequestJson
+	err := ctx.ShouldBindJSON(&requestJson)
+	if err != nil {
+		HandleError(ctx, err)
+		return
+	}
+	if requestJson.Code == "" {
 		ctx.JSON(200, &JFGResponse{
 			StatusCode: RequestFail,
 			Message:    "请求失败，缺少code参数",
@@ -105,14 +112,13 @@ func QueryCouponStatus(ctx *gin.Context) {
 		})
 		return
 	}
-	logger.Info("Get code query request.", queryJson.Code)
-	coupon, err := server.DB.FindCouponByCode(queryJson.Code)
+	logger.Info("Get code query request.", requestJson.Code)
+	coupon, err := server.DB.FindCouponByCode(requestJson.Code)
 	if err != nil {
 		logger.Error(err.Error())
 		sendFailedJsonResponse(ctx, RequestUrlErr)
 		return
 	}
-
 
 	ctx.JSON(200, &JFGResponse{
 		StatusCode: RequestOK,
@@ -128,7 +134,10 @@ func QueryCouponStatus(ctx *gin.Context) {
 
 //券码状态更新
 func UpdateCouponStatus(ctx *gin.Context) {
-
+	crossDomain(ctx)
+	var requestJson *RequestJson
+	err := ctx.BindJSON(&requestJson)
+	if requestJson
 }
 
 //券码库存查询
@@ -139,4 +148,10 @@ func QueryCouponCount(ctx *gin.Context) {
 //券码使用通知
 func NotifyCouponUsed(ctx *gin.Context) {
 
+}
+
+func HandleError(ctx *gin.Context, err error){
+	logger.Error(err.Error())
+	sendFailedJsonResponse(ctx, RequestUrlErr)
+	return
 }
