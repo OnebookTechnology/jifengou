@@ -23,7 +23,7 @@ func (m *MysqlService) FindAllProducts() ([]*models.Product, error) {
 	var products []*models.Product
 	for rows.Next() {
 		p := new(models.Product)
-		err = rows.Scan(&p.ProductName, &p.ProductInfo ,&p.ProductItemStatement, &p.ProductPrice)
+		err = rows.Scan(&p.ProductName, &p.ProductInfo, &p.ProductItemStatement, &p.ProductPrice)
 		if err != nil {
 			return nil, err
 		}

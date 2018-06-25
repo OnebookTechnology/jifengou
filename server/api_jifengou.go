@@ -94,24 +94,24 @@ func QueryCouponStatus(ctx *gin.Context) {
 	if code == "" {
 		ctx.JSON(200, &JFGResponse{
 			StatusCode: RequestFail,
-			Message:"请求失败，缺少code参数",
-			Data:nil,
+			Message:    "请求失败，缺少code参数",
+			Data:       nil,
 		})
 	}
 
 	coupon, err := server.DB.FindCouponByCode(code)
-	if err != nil{
+	if err != nil {
 		sendFailedJsonResponse(ctx, RequestUrlErr)
 		return
 	}
 
 	ctx.JSON(200, &JFGResponse{
-		StatusCode:RequestOK,
-		Message:"请求成功",
-		Data:&ResponseData{
-			Result: ResultOK,
+		StatusCode: RequestOK,
+		Message:    "请求成功",
+		Data: &ResponseData{
+			Result:     ResultOK,
 			FailReason: "",
-			Status: coupon.CouponStatus,
+			Status:     coupon.CouponStatus,
 		},
 	})
 	return
