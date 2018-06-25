@@ -92,7 +92,7 @@ func QueryProduct(ctx *gin.Context) {
 
 //券码信息查询
 func QueryCouponInfo(ctx *gin.Context) {
-
+	ctx.BindJSON()
 }
 
 //券码状态查询
