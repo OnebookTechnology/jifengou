@@ -84,7 +84,7 @@ func (m *MysqlService) FindCouponByCode(couponCode string) (*models.Coupon, erro
 }
 
 // 查询券码库存
-func (m *MysqlService) FindCouponCountByProductId(itemStatement string) (count int, err error) {
+func (m *MysqlService) FindCouponCountByItemStatement(itemStatement string) (count int, err error) {
 	row := m.Db.QueryRow("SELECT COUNT(coupon_id) AS count 	FROM coupon c LEFT JOIN product p ON c.product_id=p.product_id 	WHERE p.product_item_statement = ?",
 		itemStatement)
 	err = row.Scan(&count)
