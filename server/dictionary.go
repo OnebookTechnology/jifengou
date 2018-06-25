@@ -38,16 +38,6 @@ const (
 	OrderIdErr
 )
 
-//券码状态码
-const (
-	CouponNotReleased = iota - 1
-	CouponNotUsed
-	CouponUsed
-	CouponOverdue
-	CouponLocked
-	CouponLogOut
-)
-
 //订单状态
 const (
 	OrderCanceled = iota - 1

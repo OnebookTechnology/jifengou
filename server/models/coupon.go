@@ -8,3 +8,13 @@ type Coupon struct {
 	CouponStatus    int    `json:"coupon_status"`
 	CouponUseTime   string `json:"coupon_use_time"`
 }
+
+//券码状态码
+const (
+	CouponNotReleased = iota - 1
+	CouponNotUsed
+	CouponUsed
+	CouponOverdue
+	CouponLocked
+	CouponLogOut
+)
