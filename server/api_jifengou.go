@@ -22,7 +22,8 @@ type ResponseData struct {
 	FailReason string     `json:"fail_reason"`
 	ItemCount  int        `json:"item_count,omitempty"`
 	ItemList   []ItemData `json:"item_list,omitempty"`
-	Status     int        `json:"status, omitempty"`
+	Status     int        `json:"status,omitempty"`
+	StockCount int        `json:"stock_count"`
 }
 
 type ItemData struct {
@@ -31,13 +32,14 @@ type ItemData struct {
 	ItemPrice     float64 `json:"item_price"`
 }
 
-// 华易平台请求结构
+// 请求结构
 type RequestJson struct {
-	Code       string `json:"code,omitempty"`
-	CardId     string `json:"card_id,omitempty"`
-	SpId       string `json:"sp_id,omitempty"`
-	Status     string `json:"status,omitempty"`
-	UpdateTime string `json:"update_time"`
+	Code          string `json:"code,omitempty"`
+	CardId        string `json:"card_id,omitempty"`
+	SpId          string `json:"sp_id,omitempty"`
+	Status        string `json:"status,omitempty"`
+	UpdateTime    string `json:"update_time,omitempty"`
+	ItemStatement string `json:"item_statement"`
 }
 
 func PlayGround() {
@@ -198,7 +200,32 @@ func UpdateCouponStatus(ctx *gin.Context) {
 
 //券码库存查询
 func QueryCouponCount(ctx *gin.Context) {
-
+	crossDomain(ctx)
+	var requestJson RequestJson
+	err := ctx.BindJSON(&requestJson)
+	if err != nil {
+		handleError(ctx, err)
+		return
+	}
+	if requestJson.ItemStatement == "" {
+		handleError(ctx, errors.New("华易请求券码库存缺少参数item_statement"))
+		return
+	}
+	count, err := server.DB.FindCouponCountByItemStatement(requestJson.ItemStatement)
+	if err != nil {
+		handleError(ctx, err)
+		return
+	}
+	ctx.JSON(200, &JFGResponse{
+		StatusCode: RequestOK,
+		Message:    "请求成功",
+		Data: &ResponseData{
+			Result:     ResultOK,
+			FailReason: "",
+			StockCount: count,
+		},
+	})
+	return
 }
 
 //券码使用通知

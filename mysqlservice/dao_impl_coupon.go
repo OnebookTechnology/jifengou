@@ -73,12 +73,20 @@ func (m *MysqlService) AddCoupon(cs []*models.Coupon) error {
 
 // 查询券码
 func (m *MysqlService) FindCouponByCode(couponCode string) (*models.Coupon, error) {
-	row := m.Db.QueryRow("SELECT coupon_code, coupon_end_time, coupon_status FROM coupon WHERE coupon_code=?",
+	row := m.Db.QueryRow("SELECT product_id ,coupon_code, coupon_end_time, coupon_status FROM coupon WHERE coupon_code=?",
 		couponCode)
 	c := new(models.Coupon)
-	err := row.Scan(&c.CouponCode, &c.CouponEndTime, &c.CouponStatus)
+	err := row.Scan(&c.ProductID, &c.CouponCode, &c.CouponEndTime, &c.CouponStatus)
 	if err != nil {
 		return nil, err
 	}
 	return c, nil
+}
+
+// 查询券码库存
+func (m *MysqlService) FindCouponCountByProductId(itemStatement string) (count int, err error) {
+	row := m.Db.QueryRow("SELECT COUNT(coupon_id) AS count 	FROM coupon c LEFT JOIN product p ON c.product_id=p.product_id 	WHERE p.product_item_statement = ?",
+		itemStatement)
+	err = row.Scan(&count)
+	return
 }
