@@ -16,5 +16,6 @@ func LoadRouter(router *gin.Engine) {
 	myRouter.Any("/query_product", QueryProduct)
 	myRouter.POST("/query_coupon", QueryCouponInfo)
 	myRouter.POST("/update_coupon", UpdateCouponStatus)
+	myRouter.POST("/query_coupon_status", QueryCouponStatus)
 	myRouter.POST("/query_count", QueryCouponCount)
 }
