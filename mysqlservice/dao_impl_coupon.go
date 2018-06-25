@@ -82,3 +82,21 @@ func (m *MysqlService) FindCouponByCode(couponCode string) (*models.Coupon, erro
 	}
 	return c, nil
 }
+
+// 查询所有券码
+func (m *MysqlService) FindCouponsByCount(count int, ) ([]*models.Coupon, error) {
+	rows, err := m.Db.Query("SELECT  FROM coupon WHERE coupon_status = ? AND ")
+	if err != nil {
+		return nil, nil
+	}
+	var coupons []*models.Coupon
+	for rows.Next() {
+		c := new(models.Coupon)
+		err = rows.Scan(&p.ProductName, &p.ProductInfo, &p.ProductItemStatement, &p.ProductPrice)
+		if err != nil {
+			return nil, err
+		}
+		products = append(products, p)
+	}
+	return products, nil
+}

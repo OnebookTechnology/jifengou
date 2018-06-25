@@ -17,11 +17,26 @@ type JFGResponse struct {
 }
 
 type ResponseData struct {
-	Result     int        `json:"result"`
-	FailReason string     `json:"fail_reason"`
-	ItemCount  int        `json:"item_count,omitempty"`
-	ItemList   []ItemData `json:"item_list,omitempty"`
-	Status     int        `json:"status, omitempty"`
+	Result     int    `json:"result"`
+	FailReason string `json:"fail_reason"`
+
+	//商品查询
+	ItemCount int        `json:"item_count,omitempty"`
+	ItemList  []ItemData `json:"item_list,omitempty"`
+	Status    int        `json:"status, omitempty"`
+
+	//券码信息查询
+	CouponCount int          `json:"coupon_count,omitempty"`
+	CouponList  []CouponData `json:"coupon_list,omitempty"`
+}
+
+type CouponData struct {
+	Statement   string `json:"statement,omitempty"`
+	Code        string `json:"code,omitempty"`
+	CreateTime  string `json:"create_time,omitempty"`
+	Status      int    `json:"status, omitempty"`
+	ExpireStart string `json:"expire_start,omitempty"`
+	ExpireEnd   string `json:"expire_end,omitempty"`
 }
 
 type ItemData struct {
@@ -34,9 +49,17 @@ type ItemData struct {
 type RequestJson struct {
 	Code       string `json:"code,omitempty"`
 	CardId     string `json:"card_id,omitempty"`
-	SpId       int    `json:"sp_id,omitempty"`
-	Status     int    `json:"status,omitempty"`
+	SpId       string `json:"sp_id,omitempty"`
+	Status     string `json:"status,omitempty"`
 	UpdateTime string `json:"update_time"`
+
+	//券码信息查询
+	ItemStatement string `json:"item_statement,omitempty"`
+	Count         string `json:"count,omitempty"`
+	BuyTime       string `json:"buy_time,omitempty"`
+	Statement     string `json:"statement,omitempty"`
+	ExpireStart   string `json:"expire_start,omitempty"`
+	ExpireEnd     string `json:"expire_end,omitempty"`
 }
 
 func PlayGround() {
@@ -94,7 +117,8 @@ func QueryProduct(ctx *gin.Context) {
 
 //券码信息查询
 func QueryCouponInfo(ctx *gin.Context) {
-
+	crossDomain(ctx)
+	server.DB.
 }
 
 //券码状态查询
