@@ -105,13 +105,14 @@ func QueryCouponStatus(ctx *gin.Context) {
 		})
 		return
 	}
-
+	logger.Info("Get code query request.", queryJson.Code)
 	coupon, err := server.DB.FindCouponByCode(queryJson.Code)
 	if err != nil {
 		logger.Error(err.Error())
 		sendFailedJsonResponse(ctx, RequestUrlErr)
 		return
 	}
+
 
 	ctx.JSON(200, &JFGResponse{
 		StatusCode: RequestOK,
