@@ -2,6 +2,7 @@ package server
 
 import (
 	"github.com/gin-gonic/gin"
+	"strconv"
 )
 
 const BusinessId = "3866229787"
@@ -30,15 +31,39 @@ func PlayGround() {
 
 }
 
+func sendFailedJsonResponse(ctx *gin.Context, resultCode int) {
+	resData := &ResponseData{
+		Result:     resultCode,
+		FailReason: "errcode:" + strconv.Itoa(resultCode),
+	}
+	res := &JFGResponse{
+		StatusCode: RequestOK,
+		Message:    "请求成功",
+		Data:       resData,
+	}
+	ctx.JSON(200, res)
+}
+
 //商品查询
 func QueryProduct(ctx *gin.Context) {
-	itemData := ItemData{
-		ItemStatement: "11190",
-		ItemName:      "温莎KTV测试测试",
-		ItemPrice:     10.02,
+	crossDomain(ctx)
+	products, err := server.DB.FindAllProducts()
+	if err != nil {
+		sendFailedJsonResponse(ctx, RequestUrlErr)
+		return
 	}
+
 	var l []ItemData
-	l = append(l, itemData)
+
+	for _, p := range products {
+		itemData := ItemData{
+			ItemStatement: p.ProductItemStatement,
+			ItemName:      p.ProductName,
+			ItemPrice:     p.ProductPrice,
+		}
+		l = append(l, itemData)
+	}
+
 	resData := &ResponseData{
 		Result:     ResultOK,
 		FailReason: "",

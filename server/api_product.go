@@ -3,7 +3,9 @@ package server
 import (
 	"github.com/OnebookTechnology/jifengou/server/models"
 	"github.com/gin-gonic/gin"
+	"io/ioutil"
 	"mime/multipart"
+	"net/http"
 	"strconv"
 )
 
@@ -16,16 +18,23 @@ func savePics(form *multipart.Form, picType string, p *models.Product, ctx *gin.
 	for _, pic := range form.File[picType] {
 		picCount++
 		reader, _ := pic.Open()
-		var fileName string = ""
+		var fileName = ""
 		logger.Info(picType)
-		fileName = strconv.FormatUint(b.ISBN, 10) + "_pics" + strconv.Itoa(picCount) + ".jpg"
+		fileName = strconv.Itoa(p.ProductId) + "_pics" + strconv.Itoa(picCount) + ".jpg"
 
-		// 上传图片到OSS上
+		data, _ := ioutil.ReadAll(reader)
+		// 上传图片到本地
+		ioutil.WriteFile("./images/"+fileName, data, 0777)
 
 		// 保存图片原信息到数据库
-		err = server.DB.AddImage(image)
+		image := &models.Image{
+			ImageName: fileName,
+			ImageType: 0,
+			ProductId: p.ProductId,
+		}
+		err := server.DB.AddImage(image)
 		if err != nil {
-			sendJsonResponse(ctx, Err, "AddImage failed, error: %s", err.Error())
+			ctx.String(http.StatusInternalServerError, "err: %s", err.Error())
 			return
 		}
 	}

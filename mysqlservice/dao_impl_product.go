@@ -14,6 +14,24 @@ func (m *MysqlService) FindProductById(productId string) (*models.Product, error
 	return p, nil
 }
 
+// 查找所有商品
+func (m *MysqlService) FindAllProducts() ([]*models.Product, error) {
+	rows, err := m.Db.Query("SELECT product_name, product_info, product_item_statement FROM product")
+	if err != nil {
+		return nil, nil
+	}
+	var products []*models.Product
+	for rows.Next() {
+		p := new(models.Product)
+		err = rows.Scan(&p.ProductName, &p.ProductInfo, &p.ProductItemStatement)
+		if err != nil {
+			return nil, err
+		}
+		products = append(products, p)
+	}
+	return products, nil
+}
+
 // 查找商家的所有商品
 func (m *MysqlService) FindAllProductByBusinessId(businessId uint) ([]*models.Product, error) {
 	rows, err := m.Db.Query("SELECT product_name, product_info FROM product WHERE business_id=? ", businessId)
