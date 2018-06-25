@@ -145,6 +145,11 @@ func QueryCouponInfo(ctx *gin.Context) {
 		handleError(ctx, err)
 		return
 	}
+	if count > 20 {
+		sendFailedJsonResponse(ctx, CouponInfoErr)
+		return
+	}
+
 	coupons, err := server.DB.FindCouponsByItemStatement(requestJson.ItemStatement, count, requestJson.BuyTime,
 		requestJson.ExpireStart, requestJson.ExpireEnd)
 	if err != nil {
