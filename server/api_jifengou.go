@@ -144,7 +144,8 @@ func QueryCouponInfo(ctx *gin.Context) {
 		handleError(ctx, err)
 		return
 	}
-	coupons, err := server.DB.FindCouponsByCount(count, requestJson.BuyTime, requestJson.ExpireStart, requestJson.ExpireEnd)
+	coupons, err := server.DB.FindCouponsByItemStatement(requestJson.ItemStatement, count, requestJson.BuyTime,
+		requestJson.ExpireStart, requestJson.ExpireEnd)
 	if err != nil {
 		handleError(ctx, err)
 		return
