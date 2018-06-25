@@ -351,7 +351,7 @@ func pKCS7Padding(ciphertext []byte, blockSize int) []byte {
 	return append(ciphertext, padtext...)
 }
 
-func AESEncrypt(data string) {
+func AESEncrypt(data string) string {
 	iv := []byte{0x31, 0x37, 0x36, 0x35, 0x34, 0x33, 0x32, 0x31, 0x38, 0x27, 0x36, 0x35, 0x33, 0x23, 0x32, 0x33}
 	key := []byte("96e295d126829290dc6e906133d6a1cd")
 	originData := []byte(data)
@@ -368,5 +368,5 @@ func AESEncrypt(data string) {
 	fmt.Println(string(cryptCode))
 	var out = make([]byte, 128)
 	hex.Encode(out, cryptCode)
-	fmt.Println(string(out))
+	return string(out)
 }
