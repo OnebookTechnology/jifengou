@@ -32,7 +32,7 @@ type ResponseData struct {
 	CouponList  []CouponData `json:"coupon_list,omitempty"`
 
 	// 库存
-	StockCount int `json:"stock_count"`
+	StockCount int `json:"stock_count, omitempty"`
 }
 
 type CouponData struct {
