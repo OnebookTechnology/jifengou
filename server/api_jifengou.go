@@ -2,7 +2,6 @@ package server
 
 import (
 	"encoding/hex"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"sort"
 	"strconv"
@@ -31,10 +30,13 @@ type ItemData struct {
 	ItemPrice     float64 `json:"item_price"`
 }
 
-type QueryJsonCouponStatus struct {
-	Code   string `json:"code,omitempty"`
-	CardId string `json:"card_id,omitempty"`
-	SpId   int    `json:"sp_id,omitempty"`
+// 华易平台请求结构
+type RequestJson struct {
+	Code       string `json:"code,omitempty"`
+	CardId     string `json:"card_id,omitempty"`
+	SpId       int    `json:"sp_id,omitempty"`
+	Status     int    `json:"status,omitempty"`
+	UpdateTime string `json:"update_time"`
 }
 
 func PlayGround() {
@@ -98,9 +100,15 @@ func QueryCouponInfo(ctx *gin.Context) {
 //券码状态查询
 func QueryCouponStatus(ctx *gin.Context) {
 	crossDomain(ctx)
-	var queryJson QueryJsonCouponStatus
-	ctx.ShouldBindJSON(&queryJson)
-	if queryJson.Code == "" {
+	var requestJson RequestJson
+	// 获取华易平台的请求参数
+	err := ctx.ShouldBindJSON(&requestJson)
+	if err != nil {
+		handleError(ctx, err)
+		return
+	}
+	// code必须非空
+	if requestJson.Code == "" {
 		ctx.JSON(200, &JFGResponse{
 			StatusCode: RequestFail,
 			Message:    "请求失败，缺少code参数",
@@ -108,14 +116,19 @@ func QueryCouponStatus(ctx *gin.Context) {
 		})
 		return
 	}
-	logger.Info("Get code query request.", queryJson.Code)
-	coupon, err := server.DB.FindCouponByCode(queryJson.Code)
+	logger.Info("Get coupon query request.", requestJson.Code)
+	// 解密
+	code, err := AESDecryptHexStringToOrigin(requestJson.Code, []byte(BusinessKey))
 	if err != nil {
-		logger.Error(err.Error())
-		sendFailedJsonResponse(ctx, RequestUrlErr)
+		handleError(ctx, err)
+	}
+	// 在数据库中查询指定coupon
+	coupon, err := server.DB.FindCouponByCode(code)
+	if err != nil {
+		handleError(ctx, err)
 		return
 	}
-
+	// 构造返回结果
 	ctx.JSON(200, &JFGResponse{
 		StatusCode: RequestOK,
 		Message:    "请求成功",
@@ -130,7 +143,13 @@ func QueryCouponStatus(ctx *gin.Context) {
 
 //券码状态更新
 func UpdateCouponStatus(ctx *gin.Context) {
-
+	crossDomain(ctx)
+	//var requestJson *RequestJson
+	//err := ctx.BindJSON(&requestJson)
+	//if err != nil {
+	//	handleError(ctx, err)
+	//	return
+	//}
 }
 
 //券码库存查询
@@ -155,4 +174,10 @@ func CalcSign(key, data, timestamp string) string {
 	}
 	sha1 := doSHA1([]byte(str))
 	return hex.EncodeToString(sha1)
+}
+
+func handleError(ctx *gin.Context, err error) {
+	logger.Error(err.Error())
+	sendFailedJsonResponse(ctx, RequestUrlErr)
+	return
 }
