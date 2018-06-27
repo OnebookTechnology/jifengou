@@ -50,6 +50,10 @@ func nowTimestamp() int64 {
 	return time.Now().Unix()
 }
 
+func nowTimestampString() string {
+	return strconv.FormatInt(time.Now().Unix(), 10)
+}
+
 func nowTimestampMs() int64 {
 	return nowTimestamp() * 1000
 }

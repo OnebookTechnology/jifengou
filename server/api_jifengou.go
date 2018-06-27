@@ -1,15 +1,26 @@
 package server
 
 import (
+	"bytes"
 	"encoding/hex"
 	"errors"
+	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/json-iterator/go"
+	"io/ioutil"
+	"net/http"
 	"sort"
 	"strconv"
 )
 
-const BusinessId = "3866229787"
-const BusinessKey = "96e295d126829290dc6e906133d6a1cd"
+const (
+	TestBusinessId  = "279916728"
+	TestBusinessKey = "d29a2850596496ad0a0b9821747d80b4"
+	BusinessId      = "3866229787"
+	BusinessKey     = "96e295d126829290dc6e906133d6a1cd"
+	TestUrl         = "http://api.cwidp.com/1/get_coupon_status"
+	OnlineUrl       = "http://api.1710086.cn/1/get_coupon_status"
+)
 
 type JFGResponse struct {
 	StatusCode int           `json:"status_code"`
@@ -56,7 +67,7 @@ type RequestJson struct {
 	CardId     string `json:"card_id,omitempty"`
 	SpId       string `json:"sp_id,omitempty"`
 	Status     string `json:"status,omitempty"`
-	UpdateTime string `json:"update_time"`
+	UpdateTime string `json:"update_time,omitempty"`
 
 	//券码信息查询
 	ItemStatement string `json:"item_statement,omitempty"`
@@ -324,8 +335,96 @@ func QueryCouponCount(ctx *gin.Context) {
 	return
 }
 
-//券码使用通知
-func NotifyCouponUsed(ctx *gin.Context) {
+type ResponseFromJFG struct {
+	StatusCode string               `json:"status_code"`
+	Message    string               `json:"message"`
+	Data       *ResponseFromJFGData `json:"data"`
+}
+
+type ResponseFromJFGData struct {
+	Result     string `json:"result"`
+	FailReason string `json:"fail_reason"`
+}
+
+// 请求结构
+type RequestJsonToJFG struct {
+	SpId       int    `json:"sp_id,omitempty"`
+	Code       string `json:"code,omitempty"`
+	CardId     string `json:"card_id,omitempty"`
+	Status     string `json:"status,omitempty"`
+	UpdateTime string `json:"update_time,omitempty"`
+
+	//券码信息查询
+	ItemStatement string `json:"item_statement,omitempty"`
+	Count         string `json:"count,omitempty"`
+	BuyTime       string `json:"buy_time,omitempty"`
+	Statement     string `json:"statement,omitempty"`
+	ExpireStart   string `json:"expire_start,omitempty"`
+	ExpireEnd     string `json:"expire_end,omitempty"`
+}
+
+//向积分购查询券码状态
+func QueryCouponStatusFromJFG(ctx *gin.Context) {
+	mode := ctx.Query("mode")
+	code := ctx.Query("code")
+	var url, domain, bid, key string
+	switch mode {
+	case "test":
+		url = TestUrl
+		domain = "api.cwidp.com"
+		bid = TestBusinessId
+		key = TestBusinessKey
+	case "online":
+		url = OnlineUrl
+		domain = "api.1710086.cn"
+		bid = BusinessId
+		key = BusinessKey
+	default:
+		ctx.String(http.StatusBadRequest, "%s", "invalid mode")
+		return
+	}
+	cryptCode, _ := AESEncryptToHexString([]byte(code), []byte(BusinessKey))
+	//id, _ := strconv.Atoi(BusinessId)
+	reqJson := &RequestJson{
+		SpId: bid,
+		Code: cryptCode,
+	}
+
+	reqStr, err := jsoniter.MarshalToString(reqJson)
+	if err != nil {
+		ctx.String(http.StatusBadRequest, "MarshalToString err: %s", err.Error())
+		return
+	}
+	now := nowTimestampString()
+	sign := CalcSign(key, reqStr, now)
+	logger.Debug("sign:", sign)
+	url += "?sign=" + sign + "&t=" + now + "&url_domain=" + domain
+	fmt.Println(url)
+	resp, err := http.Post(url, "application/json;charset=utf-8", bytes.NewBuffer([]byte(reqStr)))
+	defer resp.Body.Close()
+	if err != nil {
+		ctx.String(http.StatusInternalServerError, "coupon use notify err: %s", err.Error())
+		return
+	}
+	rb, _ := ioutil.ReadAll(resp.Body)
+	logger.Debug("coupon use response:", string(rb))
+	res := &ResponseFromJFG{Data: new(ResponseFromJFGData)}
+	err = jsoniter.UnmarshalFromString(string(rb), res)
+	if err != nil {
+		ctx.String(http.StatusOK, "UnmarshalFromString err: %s", err.Error())
+		return
+	}
+	if res.StatusCode != "200" {
+		ctx.String(http.StatusOK, "status code is: %s, message: %s", res.StatusCode, res.Message)
+		return
+	}
+	if res.Data.Result != "1000" {
+		ctx.String(http.StatusOK, "result code is: %s, message: %s", res.Data.Result, res.Data.FailReason)
+		return
+	}
+	//TODO: 更新本地数据库列表
+
+	ctx.String(http.StatusOK, "ok")
 
 }
 
