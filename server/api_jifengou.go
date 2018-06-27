@@ -282,6 +282,7 @@ func UpdateCouponStatus(ctx *gin.Context) {
 		handleError(ctx, errors.New("华易发起状态更新请求时缺少参数status"))
 		return
 	}
+	logger.Debug("request code:", requestJson.Code)
 	// 解密
 	code, err := AESDecryptHexStringToOrigin(requestJson.Code, []byte(server.Env.BusinessKey))
 	if err != nil {
