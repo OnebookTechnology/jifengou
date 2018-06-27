@@ -18,6 +18,7 @@ func pKCS7Padding(ciphertext []byte, blockSize int) []byte {
 func pKCS7UnPadding(origData []byte) []byte {
 	length := len(origData)
 	unpadding := int(origData[length-1])
+	logger.Debug("lenth:",length, "unpadding:",unpadding)
 	return origData[:(length - unpadding)]
 }
 
