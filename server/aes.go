@@ -22,15 +22,28 @@ func pKCS7UnPadding(origData []byte) []byte {
 	return origData[:(length - unpadding)]
 }
 
+func pKCS5Padding(ciphertext []byte) []byte {
+	padding := 8 - len(ciphertext)%8
+	padtext := bytes.Repeat([]byte{byte(padding)}, padding)
+	return append(ciphertext, padtext...)
+}
+
+func pKCS5UnPadding(origData []byte) []byte {
+	length := len(origData)
+	unpadding := int(origData[length-1])
+	logger.Debug("lenth:",length, "unpadding:",unpadding)
+	return origData[:(length - unpadding)]
+}
+
 func AESEncrypt(data, key []byte) ([]byte, error) {
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		return nil, err
 	}
-	blockSize := block.BlockSize()
+	//blockSize := block.BlockSize()
 	blockMode := cipher.NewCBCEncrypter(block, iv)
-	data = pKCS7Padding(data, blockSize)
-
+	//data = pKCS7Padding(data, blockSize)
+	data = pKCS5Padding(data)
 	var cryptCode = make([]byte, len(data))
 	blockMode.CryptBlocks(cryptCode, data)
 	return cryptCode, nil
