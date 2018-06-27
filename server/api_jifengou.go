@@ -50,7 +50,7 @@ type ResponseData struct {
 	Status    int        `json:"status, omitempty"`
 
 	//券码信息查询
-	Statement   string       `json:"statement,omitempty"`
+	Statement   string       `json:"stamentet,omitempty"`
 	CouponCount int          `json:"coupon_count,omitempty"`
 	CouponList  []CouponData `json:"coupon_list,omitempty"`
 
@@ -400,6 +400,7 @@ func QueryCouponStatusFromJFG(ctx *gin.Context) {
 	sign := CalcSign(server.Env.BusinessKey, reqStr, now)
 	var url = server.Env.GetCouponStatusUrl
 	url += "?sign=" + sign + "&t=" + now
+	logger.Debug("url:", url)
 	resp, err := http.Post(url, "application/json;charset=utf-8", bytes.NewBuffer([]byte(reqStr)))
 	defer resp.Body.Close()
 	if err != nil {
@@ -456,6 +457,7 @@ func NotifyCouponUsedToJFG(ctx *gin.Context) {
 	sign := CalcSign(server.Env.BusinessKey, reqStr, now)
 	var url = server.Env.UseCouponUrl
 	url += "?sign=" + sign + "&t=" + now
+	logger.Debug("url:", url)
 	resp, err := http.Post(url, "application/json;charset=utf-8", bytes.NewBuffer([]byte(reqStr)))
 	defer resp.Body.Close()
 	if err != nil {

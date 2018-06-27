@@ -12,10 +12,11 @@ import (
 )
 
 var confPath string
+var mode string
 var op string
 
 const (
-	MaxArgsCount = 4
+	MaxArgsCount = 6
 	// Change your server name
 	ServerName = "jifengou"
 	PidFileDir = "./run/"
@@ -29,6 +30,7 @@ func usage() {
 
 func init() {
 	flag.StringVar(&confPath, "c", "./conf/server.conf", "configuration file path")
+	flag.StringVar(&mode, "m", "test", "mode of server")
 	flag.Usage = usage
 	if len(os.Args) > MaxArgsCount {
 		usage()
@@ -49,10 +51,11 @@ func main() {
 	fmt.Println(os.Args)
 	fmt.Println(op, ServerName, "starting ...")
 	fmt.Println("conf file:", confPath)
+	fmt.Println("mode:", mode)
 
 	switch op {
 	case "start":
-		server, err := server.NewService(confPath, ServerName)
+		server, err := server.NewService(confPath, ServerName, mode)
 		checkError(err)
 
 		err = os.MkdirAll(PidFileDir, 0755)
