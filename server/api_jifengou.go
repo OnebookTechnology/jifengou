@@ -226,6 +226,7 @@ func QueryCouponStatus(ctx *gin.Context) {
 	code, err := AESDecryptHexStringToOrigin(requestJson.Code, []byte(BusinessKey))
 	if err != nil {
 		handleError(ctx, err)
+		return
 	}
 	// 在数据库中查询指定coupon
 	coupon, err := server.DB.FindCouponByCode(code)
