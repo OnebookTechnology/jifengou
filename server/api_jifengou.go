@@ -286,6 +286,7 @@ func UpdateCouponStatus(ctx *gin.Context) {
 		handleError(ctx, err)
 		return
 	}
+	logger.Debug("code:", code)
 	// 从数据库查询coupon
 	coupon, err := server.DB.FindCouponByCode(code)
 	if err != nil {
