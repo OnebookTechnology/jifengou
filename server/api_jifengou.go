@@ -393,7 +393,7 @@ func QueryCouponStatusFromJFG(ctx *gin.Context) {
 	now := nowTimestampString()
 	sign := CalcSign(server.Env.BusinessKey, reqStr, now)
 	logger.Debug("sign:", sign)
-	var url string
+	var url = server.Env.GetCouponStatusUrl
 	url += "?sign=" + sign + "&t=" + now
 	fmt.Println(url)
 	resp, err := http.Post(url, "application/json;charset=utf-8", bytes.NewBuffer([]byte(reqStr)))
