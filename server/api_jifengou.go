@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/hex"
 	"errors"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/json-iterator/go"
 	"io/ioutil"
@@ -17,6 +16,7 @@ type JFGEnv struct {
 	BusinessId         string
 	BusinessKey        string
 	GetCouponStatusUrl string
+	UseCouponUrl       string
 }
 
 var (
@@ -24,11 +24,13 @@ var (
 		BusinessId:         "279916728",
 		BusinessKey:        "d29a2850596496ad0a0b9821747d80b4",
 		GetCouponStatusUrl: "http://api.cwidp.com/1/get_coupon_status",
+		UseCouponUrl:       "http://api.cwidp.com/1/use_coupon",
 	}
 	onlineEnv = JFGEnv{
 		BusinessId:         "3866229787",
 		BusinessKey:        "96e295d126829290dc6e906133d6a1cd",
 		GetCouponStatusUrl: "http://api.1710086.cn/1/get_coupon_status",
+		UseCouponUrl:       "http://api.1710086.cn/1/use_coupon",
 	}
 )
 
@@ -356,6 +358,7 @@ type ResponseFromJFG struct {
 type ResponseFromJFGData struct {
 	Result     string `json:"result"`
 	FailReason string `json:"fail_reason"`
+	Status     string `json:"status,omitempty"`
 }
 
 // 请求结构
@@ -365,6 +368,8 @@ type RequestJsonToJFG struct {
 	CardId     string `json:"card_id,omitempty"`
 	Status     string `json:"status,omitempty"`
 	UpdateTime string `json:"update_time,omitempty"`
+	UseTime    string `json:"use_time,omitempty"`
+	Usage      string `json:"usage,omitempty"`
 
 	//券码信息查询
 	ItemStatement string `json:"item_statement,omitempty"`
@@ -377,6 +382,7 @@ type RequestJsonToJFG struct {
 
 //向积分购查询券码状态
 func QueryCouponStatusFromJFG(ctx *gin.Context) {
+	crossDomain(ctx)
 	code := ctx.Query("code")
 	cryptCode, _ := AESEncryptToHexString([]byte(code), []byte(server.Env.BusinessKey))
 	//id, _ := strconv.Atoi(BusinessId)
@@ -392,10 +398,64 @@ func QueryCouponStatusFromJFG(ctx *gin.Context) {
 	}
 	now := nowTimestampString()
 	sign := CalcSign(server.Env.BusinessKey, reqStr, now)
-	logger.Debug("sign:", sign)
 	var url = server.Env.GetCouponStatusUrl
 	url += "?sign=" + sign + "&t=" + now
-	fmt.Println(url)
+	resp, err := http.Post(url, "application/json;charset=utf-8", bytes.NewBuffer([]byte(reqStr)))
+	defer resp.Body.Close()
+	if err != nil {
+		ctx.String(http.StatusInternalServerError, "coupon use notify err: %s", err.Error())
+		return
+	}
+	rb, _ := ioutil.ReadAll(resp.Body)
+	logger.Debug("coupon status response:", string(rb))
+	res := &ResponseFromJFG{Data: new(ResponseFromJFGData)}
+	err = jsoniter.UnmarshalFromString(string(rb), res)
+	if err != nil {
+		ctx.String(http.StatusOK, "UnmarshalFromString err: %s", err.Error())
+		return
+	}
+	if res.StatusCode != "200" {
+		ctx.String(http.StatusOK, "status code is: %s, message: %s", res.StatusCode, res.Message)
+		return
+	}
+	if res.Data.Result != "1000" {
+		ctx.String(http.StatusOK, "result code is: %s, message: %s", res.Data.Result, res.Data.FailReason)
+		return
+	}
+
+	status, _ := strconv.Atoi(res.Data.Status)
+	err = server.DB.UpdateCouponStatusByCouponCode(code, status, nowTimestampString())
+	if err != nil {
+		handleError(ctx, err)
+		return
+	}
+
+	ctx.String(http.StatusOK, "ok")
+
+}
+
+func NotifyCouponUsedToJFG(ctx *gin.Context) {
+	crossDomain(ctx)
+	code := ctx.PostForm("code")
+	time := ctx.PostForm("time")
+	usage := ctx.PostForm("usage")
+	cryptCode, _ := AESEncryptToHexString([]byte(code), []byte(server.Env.BusinessKey))
+	spId, _ := strconv.Atoi(server.Env.BusinessId)
+	reqJson := &RequestJsonToJFG{
+		SpId:    spId,
+		Code:    cryptCode,
+		UseTime: time,
+		Usage:   usage,
+	}
+	reqStr, err := jsoniter.MarshalToString(reqJson)
+	if err != nil {
+		ctx.String(http.StatusBadRequest, "MarshalToString err: %s", err.Error())
+		return
+	}
+	now := nowTimestampString()
+	sign := CalcSign(server.Env.BusinessKey, reqStr, now)
+	var url = server.Env.UseCouponUrl
+	url += "?sign=" + sign + "&t=" + now
 	resp, err := http.Post(url, "application/json;charset=utf-8", bytes.NewBuffer([]byte(reqStr)))
 	defer resp.Body.Close()
 	if err != nil {
@@ -418,10 +478,8 @@ func QueryCouponStatusFromJFG(ctx *gin.Context) {
 		ctx.String(http.StatusOK, "result code is: %s, message: %s", res.Data.Result, res.Data.FailReason)
 		return
 	}
-	//TODO: 更新本地数据库列表
 
 	ctx.String(http.StatusOK, "ok")
-
 }
 
 //积分购平台签名算法
