@@ -33,6 +33,7 @@ type Conf struct {
 type Server struct {
 	ServerName string
 	Conf
+	Env JFGEnv
 
 	localIP             string
 	initialMembers      []string
@@ -82,6 +83,9 @@ func NewService(confPath, serverName string) (*Server, error) {
 	db := new(mysql.MysqlService)
 	db.InitialDB(confPath, "DB")
 	server.DB = db
+
+	//Env
+	server.Env = testEnv
 
 	//Load router
 	LoadRouter(router)

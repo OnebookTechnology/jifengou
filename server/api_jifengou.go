@@ -13,13 +13,23 @@ import (
 	"strconv"
 )
 
-const (
-	TestBusinessId  = "279916728"
-	TestBusinessKey = "d29a2850596496ad0a0b9821747d80b4"
-	BusinessId      = "3866229787"
-	BusinessKey     = "96e295d126829290dc6e906133d6a1cd"
-	TestUrl         = "http://api.cwidp.com/1/get_coupon_status"
-	OnlineUrl       = "http://api.1710086.cn/1/get_coupon_status"
+type JFGEnv struct {
+	BusinessId         string
+	BusinessKey        string
+	GetCouponStatusUrl string
+}
+
+var (
+	testEnv = JFGEnv{
+		BusinessId:         "279916728",
+		BusinessKey:        "d29a2850596496ad0a0b9821747d80b4",
+		GetCouponStatusUrl: "http://api.cwidp.com/1/get_coupon_status",
+	}
+	onlineEnv = JFGEnv{
+		BusinessId:         "3866229787",
+		BusinessKey:        "96e295d126829290dc6e906133d6a1cd",
+		GetCouponStatusUrl: "http://api.1710086.cn/1/get_coupon_status",
+	}
 )
 
 type JFGResponse struct {
@@ -176,7 +186,7 @@ func QueryCouponInfo(ctx *gin.Context) {
 
 	var cList []CouponData
 	for _, c := range coupons {
-		code, _ := AESEncryptToHexString([]byte(c.CouponCode), []byte(BusinessKey))
+		code, _ := AESEncryptToHexString([]byte(c.CouponCode), []byte(server.Env.BusinessKey))
 		coupon := CouponData{
 			CouponId:    c.CouponId,
 			Code:        code,
@@ -223,7 +233,7 @@ func QueryCouponStatus(ctx *gin.Context) {
 	}
 	logger.Info("Get coupon query request.", requestJson.Code)
 	// 解密
-	code, err := AESDecryptHexStringToOrigin(requestJson.Code, []byte(BusinessKey))
+	code, err := AESDecryptHexStringToOrigin(requestJson.Code, []byte(server.Env.BusinessKey))
 	if err != nil {
 		handleError(ctx, err)
 		return
@@ -271,7 +281,7 @@ func UpdateCouponStatus(ctx *gin.Context) {
 		return
 	}
 	// 解密
-	code, err := AESDecryptHexStringToOrigin(requestJson.Code, []byte(BusinessKey))
+	code, err := AESDecryptHexStringToOrigin(requestJson.Code, []byte(server.Env.BusinessKey))
 	if err != nil {
 		handleError(ctx, err)
 		return
@@ -366,28 +376,11 @@ type RequestJsonToJFG struct {
 
 //向积分购查询券码状态
 func QueryCouponStatusFromJFG(ctx *gin.Context) {
-	mode := ctx.Query("mode")
 	code := ctx.Query("code")
-	var url, domain, bid, key string
-	switch mode {
-	case "test":
-		url = TestUrl
-		domain = "api.cwidp.com"
-		bid = TestBusinessId
-		key = TestBusinessKey
-	case "online":
-		url = OnlineUrl
-		domain = "api.1710086.cn"
-		bid = BusinessId
-		key = BusinessKey
-	default:
-		ctx.String(http.StatusBadRequest, "%s", "invalid mode")
-		return
-	}
-	cryptCode, _ := AESEncryptToHexString([]byte(code), []byte(BusinessKey))
+	cryptCode, _ := AESEncryptToHexString([]byte(code), []byte(server.Env.BusinessKey))
 	//id, _ := strconv.Atoi(BusinessId)
 	reqJson := &RequestJson{
-		SpId: bid,
+		SpId: server.Env.BusinessId,
 		Code: cryptCode,
 	}
 
@@ -397,9 +390,10 @@ func QueryCouponStatusFromJFG(ctx *gin.Context) {
 		return
 	}
 	now := nowTimestampString()
-	sign := CalcSign(key, reqStr, now)
+	sign := CalcSign(server.Env.BusinessKey, reqStr, now)
 	logger.Debug("sign:", sign)
-	url += "?sign=" + sign + "&t=" + now + "&url_domain=" + domain
+	var url string
+	url += "?sign=" + sign + "&t=" + now
 	fmt.Println(url)
 	resp, err := http.Post(url, "application/json;charset=utf-8", bytes.NewBuffer([]byte(reqStr)))
 	defer resp.Body.Close()
