@@ -51,7 +51,7 @@ type Server struct {
 	closeChan chan bool
 }
 
-func NewService(confPath, serverName string) (*Server, error) {
+func NewService(confPath, serverName string, mode string) (*Server, error) {
 	server = new(Server)
 	server.ServerName = serverName
 	server.closeChan = make(chan bool)
@@ -86,6 +86,10 @@ func NewService(confPath, serverName string) (*Server, error) {
 
 	//Env
 	server.Env = testEnv
+	if mode == "online" {
+		server.Env = onlineEnv
+		server.Conf.port = 80
+	}
 
 	//Load router
 	LoadRouter(router)
