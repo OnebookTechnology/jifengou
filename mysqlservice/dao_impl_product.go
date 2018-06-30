@@ -45,14 +45,14 @@ func (m *MysqlService) FindAllProducts() ([]*models.Product, error) {
 
 // 查找商家的所有商品
 func (m *MysqlService) FindAllProductByBusinessId(businessId uint) ([]*models.Product, error) {
-	rows, err := m.Db.Query("SELECT product_name, product_info FROM product WHERE business_id=? ", businessId)
+	rows, err := m.Db.Query("SELECT product_id, product_item_statement, product_name, product_info FROM product WHERE business_id=? ", businessId)
 	if err != nil {
 		return nil, nil
 	}
 	var products []*models.Product
 	for rows.Next() {
 		p := new(models.Product)
-		err = rows.Scan(&p.ProductName, &p.ProductInfo)
+		err = rows.Scan(&p.ProductId, &p.ProductItemStatement, &p.ProductName, &p.ProductInfo)
 		if err != nil {
 			return nil, err
 		}

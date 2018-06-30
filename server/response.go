@@ -54,5 +54,5 @@ func resFormat(v ...interface{}) string {
 		formatStr += "%v "
 	}
 	formatStr += "\n"
-	return formatStr
+	return fmt.Sprintf(formatStr, v...)
 }
