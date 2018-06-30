@@ -49,6 +49,7 @@ func LoadRouter(router *gin.Engine) {
 	couponRouter := myRouter.Group("/coupon")
 	{
 		couponRouter.POST("/business/add", AddBusinessCoupon)
+		couponRouter.OPTIONS("/business/add", Options)
 	}
 
 }
