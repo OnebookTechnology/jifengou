@@ -7,16 +7,16 @@ import (
 )
 
 type AddBusinessReq struct {
-	BNo   string `form:"b_no" json:"b_no"`
-	BName string `form:"b_name" json:"b_name"`
-	BPwd  string `form:"b_pwd" json:"b_pwd"`
+	BNo   string `json:"b_no"`
+	BName string `json:"b_name"`
+	BPwd  string `json:"b_pwd"`
 }
 
 //添加商户
 func AddBusiness(ctx *gin.Context) {
 	crossDomain(ctx)
 	var req *AddBusinessReq
-	if ctx.ShouldBindJSON(req) == nil {
+	if err := ctx.BindJSON(req); err == nil {
 		b := &models.Business{
 			BusinessNo:           req.BNo,
 			BusinessName:         req.BName,
@@ -33,7 +33,7 @@ func AddBusiness(ctx *gin.Context) {
 		ctx.String(http.StatusOK, "ok")
 		return
 	} else {
-		ctx.String(http.StatusServiceUnavailable, "%s", "bind request parameter err.")
+		ctx.String(http.StatusServiceUnavailable, "bind request parameter err: %s", err.Error())
 		return
 	}
 }
