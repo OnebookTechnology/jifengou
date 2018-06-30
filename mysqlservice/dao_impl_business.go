@@ -12,8 +12,8 @@ func (m *MysqlService) AddBusiness(b *models.Business) error {
 		return err
 	}
 	// s1. update online book's last_op_time、last_op_phone_number、online_status
-	_, err = tx.Exec("INSERT INTO business(business_no,business_name,business_pwd,business_info,business_register_time,business_auth) "+
-		"VALUES (?,?,?,?,?,?)", b.BusinessNo, b.BusinessName, b.BusinessPwd, b.BusinessInfo, b.BusinessRegisterTime, b.BusinessAuth)
+	_, err = tx.Exec("INSERT INTO business(business_no,business_name,business_pwd,business_info,business_register_time,business_auth,business_avail) "+
+		"VALUES (?,?,?,?,?,?)", b.BusinessNo, b.BusinessName, b.BusinessPwd, b.BusinessInfo, b.BusinessRegisterTime, b.BusinessAuth, true)
 	if err != nil {
 		rollBackErr := tx.Rollback()
 		if rollBackErr != nil {
@@ -69,19 +69,21 @@ func (m *MysqlService) QueryBusinessCount() (int, error) {
 
 // 查询关键字商户
 func (m *MysqlService) FindBusinessById(no int) (*models.Business, error) {
-	row := m.Db.QueryRow("SELECT business_id, business_no,business_name,business_register_time,business_auth FROM business "+
+	row := m.Db.QueryRow("SELECT business_id, business_no,business_name,business_register_time,business_auth,business_avail FROM business "+
 		"WHERE business_no=? ", no)
 	b := new(models.Business)
-	err := row.Scan(&b.BusinessId, &b.BusinessNo, &b.BusinessName, &b.BusinessRegisterTime, &b.BusinessAuth)
+	var avail bool
+	err := row.Scan(&b.BusinessId, &b.BusinessNo, &b.BusinessName, &b.BusinessRegisterTime, &b.BusinessAuth, &avail)
 	if err != nil {
 		return nil, err
 	}
+	b.BusinessAvail = avail
 	return b, nil
 }
 
 // 查找所有商户
 func (m *MysqlService) FindBusinessByKeyword(keyword string, pageNum, pageCount int) ([]models.Business, error) {
-	rows, err := m.Db.Query("SELECT business_id,business_no,business_name,business_register_time,business_auth FROM business "+
+	rows, err := m.Db.Query("SELECT business_id,business_no,business_name,business_register_time,business_auth,business_avail FROM business "+
 		"WHERE business_name LIKE '%?%' LIMIT ?,?", keyword, (pageNum-1)*pageCount, pageCount)
 	if err != nil {
 		return nil, nil
@@ -89,10 +91,12 @@ func (m *MysqlService) FindBusinessByKeyword(keyword string, pageNum, pageCount 
 	var bs []models.Business
 	for rows.Next() {
 		b := new(models.Business)
-		err = rows.Scan(&b.BusinessId, &b.BusinessNo, &b.BusinessName, &b.BusinessRegisterTime, &b.BusinessAuth)
+		var avail bool
+		err := rows.Scan(&b.BusinessId, &b.BusinessNo, &b.BusinessName, &b.BusinessRegisterTime, &b.BusinessAuth, &avail)
 		if err != nil {
 			return nil, err
 		}
+		b.BusinessAvail = avail
 		bs = append(bs, *b)
 	}
 	return bs, nil
@@ -100,7 +104,7 @@ func (m *MysqlService) FindBusinessByKeyword(keyword string, pageNum, pageCount 
 
 // 查找所有商户
 func (m *MysqlService) FindAllBusiness(pageNum, pageCount int) ([]models.Business, error) {
-	rows, err := m.Db.Query("SELECT business_no,business_name,business_register_time,business_auth FROM business "+
+	rows, err := m.Db.Query("SELECT business_id,business_no,business_name,business_register_time,business_auth,business_avail FROM business "+
 		"LIMIT ?,?", (pageNum-1)*pageCount, pageCount)
 	if err != nil {
 		return nil, nil
@@ -108,7 +112,8 @@ func (m *MysqlService) FindAllBusiness(pageNum, pageCount int) ([]models.Busines
 	var bs []models.Business
 	for rows.Next() {
 		b := new(models.Business)
-		err = rows.Scan(&b.BusinessNo, &b.BusinessName, &b.BusinessRegisterTime, &b.BusinessAuth)
+		var avail bool
+		err := rows.Scan(&b.BusinessId, &b.BusinessNo, &b.BusinessName, &b.BusinessRegisterTime, &b.BusinessAuth, &avail)
 		if err != nil {
 			return nil, err
 		}

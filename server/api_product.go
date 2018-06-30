@@ -30,7 +30,9 @@ func AddProduct(ctx *gin.Context) {
 	crossDomain(ctx)
 	var req ProductReq
 	if err := ctx.BindJSON(&req); err == nil {
-		p := &models.Product{}
+		p := &models.Product{
+			ProductItemStatement:
+		}
 		err := server.DB.AddProduct(p)
 		if err != nil {
 			ctx.String(http.StatusServiceUnavailable, "%s", err.Error())
