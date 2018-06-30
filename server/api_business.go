@@ -15,8 +15,8 @@ type AddBusinessReq struct {
 //添加商户
 func AddBusiness(ctx *gin.Context) {
 	crossDomain(ctx)
-	var req *AddBusinessReq
-	if err := ctx.BindJSON(req); err == nil {
+	var req AddBusinessReq
+	if err := ctx.BindJSON(&req) ; err== nil {
 		b := &models.Business{
 			BusinessNo:           req.BNo,
 			BusinessName:         req.BName,
