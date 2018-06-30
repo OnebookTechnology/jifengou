@@ -38,6 +38,10 @@ func AddBusiness(ctx *gin.Context) {
 	}
 }
 
+func Options(ctx *gin.Context) {
+	crossDomain(ctx)
+}
+
 func QueryBusinessById(ctx *gin.Context) {
 	crossDomain(ctx)
 

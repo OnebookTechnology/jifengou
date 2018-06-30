@@ -23,5 +23,7 @@ func LoadRouter(router *gin.Engine) {
 	myRouter.POST("/notify_jfg_used", NotifyCouponUsedToJFG)
 
 	myRouter.POST("/business/add", AddBusiness)
+	myRouter.OPTIONS("/business/add", Options)
 	myRouter.POST("/business/query", QueryBusinessById)
+
 }
