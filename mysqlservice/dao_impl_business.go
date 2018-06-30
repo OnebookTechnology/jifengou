@@ -12,7 +12,7 @@ func (m *MysqlService) AddBusiness(b *models.Business) error {
 	}
 	// s1. update online book's last_op_time、last_op_phone_number、online_status
 	_, err = tx.Exec("INSERT INTO business(business_no,business_name,business_pwd,business_info,business_register_time,business_auth,business_avail) "+
-		"VALUES (?,?,?,?,?,?)", b.BusinessNo, b.BusinessName, b.BusinessPwd, b.BusinessInfo, b.BusinessRegisterTime, b.BusinessAuth, true)
+		"VALUES (?,?,?,?,?,?,?)", b.BusinessNo, b.BusinessName, b.BusinessPwd, b.BusinessInfo, b.BusinessRegisterTime, b.BusinessAuth, true)
 	if err != nil {
 		rollBackErr := tx.Rollback()
 		if rollBackErr != nil {
