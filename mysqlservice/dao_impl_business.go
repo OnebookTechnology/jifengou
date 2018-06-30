@@ -68,9 +68,9 @@ func (m *MysqlService) QueryBusinessCount() (int, error) {
 }
 
 // 查询关键字商户
-func (m *MysqlService) FindBusinessById(id int) (*models.Business, error) {
+func (m *MysqlService) FindBusinessById(no int) (*models.Business, error) {
 	row := m.Db.QueryRow("SELECT business_id, business_no,business_name,business_register_time,business_auth FROM business "+
-		"WHERE business_id=? ", id)
+		"WHERE business_no=? ", no)
 	b := new(models.Business)
 	err := row.Scan(&b.BusinessId, &b.BusinessNo, &b.BusinessName, &b.BusinessRegisterTime, &b.BusinessAuth)
 	if err != nil {

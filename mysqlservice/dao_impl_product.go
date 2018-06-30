@@ -1,6 +1,9 @@
 package mysql
 
-import "github.com/OnebookTechnology/jifengou/server/models"
+import (
+	"errors"
+	"github.com/OnebookTechnology/jifengou/server/models"
+)
 
 // 根据Id查找商品
 func (m *MysqlService) FindProductById(productId string) (*models.Product, error) {
@@ -59,5 +62,33 @@ func (m *MysqlService) FindAllProductByBusinessId(businessId uint) ([]*models.Pr
 }
 
 // 添加商品
+func (m *MysqlService) AddProduct(p *models.Product) error {
+	tx, err := m.Db.Begin()
+	if err != nil {
+		return err
+	}
+	// s1. update online book's last_op_time、last_op_phone_number、online_status
+	_, err = tx.Exec("INSERT INTO product(product_item_statement, product_name, product_info,product_status,business_id,product_category,"+
+		"product_subtitle,product_price,product_start_time,product_end_time,product_alert_count) VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+		&p.ProductItemStatement, &p.ProductName, &p.ProductInfo, models.ProductReviewing, &p.BusinessId, &p.ProductCategory,
+		&p.ProductSubtitle, &p.ProductPrice, &p.ProductStartTime, &p.ProductEndTime, &p.ProductAlertCount)
+	if err != nil {
+		rollBackErr := tx.Rollback()
+		if rollBackErr != nil {
+			return rollBackErr
+		}
+		return errors.New("AddProduct err:" + err.Error())
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		rollBackErr := tx.Rollback()
+		if rollBackErr != nil {
+			return rollBackErr
+		}
+		return err
+	}
+	return nil
+}
 
 // 确认商品状态
