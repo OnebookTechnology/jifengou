@@ -12,16 +12,18 @@ type AddBusinessReq struct {
 	BPwd  string `form:"b_pwd"`
 }
 
+//添加商户
 func AddBusiness(ctx *gin.Context) {
 	crossDomain(ctx)
 	var req *AddBusinessReq
 	if ctx.ShouldBind(req) != nil {
 		b := &models.Business{
-			BusinessNo:   req.BNo,
-			BusinessName: req.BName,
-			BusinessPwd:  req.BPwd,
-			BusinessInfo: "",
-			BusinessAuth: 1,
+			BusinessNo:           req.BNo,
+			BusinessName:         req.BName,
+			BusinessPwd:          req.BPwd,
+			BusinessInfo:         "",
+			BusinessAuth:         1,
+			BusinessRegisterTime: nowFormat(),
 		}
 		err := server.DB.AddBusiness(b)
 		if err != nil {
@@ -34,5 +36,8 @@ func AddBusiness(ctx *gin.Context) {
 		ctx.String(http.StatusServiceUnavailable, "%s", "bind request parameter err.")
 		return
 	}
+}
 
+func QueryBusinessById(ctx *gin.Context) {
+	crossDomain(ctx)
 }
