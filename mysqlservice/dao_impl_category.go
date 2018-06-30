@@ -11,11 +11,11 @@ func (m *MysqlService) FindAllCategory() ([]models.Category, error) {
 	var cs []models.Category
 	for rows.Next() {
 		c := new(models.Category)
-		err := rows.Scan(&b.BusinessId, &b.BusinessNo, &b.BusinessName, &b.BusinessRegisterTime, &b.BusinessAuth, &avail)
+		err := rows.Scan(&c.CategoryId, &c.CategoryName)
 		if err != nil {
 			return nil, err
 		}
-		cs = append(bs, *b)
+		cs = append(cs, *c)
 	}
-	return bs, nil
+	return cs, nil
 }
