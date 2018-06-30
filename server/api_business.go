@@ -44,6 +44,9 @@ func AddBusiness(ctx *gin.Context) {
 				return
 			}
 
+		} else {
+			sendFailedResponse(ctx, DuplicateBusinessErr, "duplicate business")
+			return
 		}
 
 	} else {

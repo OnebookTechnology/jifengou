@@ -9,7 +9,8 @@ import (
 
 const (
 	Ok  = 0
-	Err = -1
+	Err = -iota
+	DuplicateBusinessErr
 )
 
 type Response struct {
