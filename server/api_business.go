@@ -8,12 +8,12 @@ import (
 )
 
 type BusinessReq struct {
-	BNo   string `json:"b_no,omitempty"`
-	BName string `json:"b_name,omitempty"`
-	BPwd  string `json:"b_pwd,omitempty"`
+	BNo   string `json:"b_no,omitempty" form:"b_no"`
+	BName string `json:"b_name,omitempty" form:"b_name"`
+	BPwd  string `json:"b_pwd,omitempty" form:"b_pwd"`
 
-	PageNum   int `json:"page_num,omitempty"`
-	PageCount int `json:"page_count,omitempty"`
+	PageNum   int `json:"page_num,omitempty" form:"page_num"`
+	PageCount int `json:"page_count,omitempty" form:"page_count"`
 }
 
 //添加商户
@@ -50,7 +50,7 @@ func Options(ctx *gin.Context) {
 func QueryBusinessByKeyWord(ctx *gin.Context) {
 	crossDomain(ctx)
 	var req BusinessReq
-	if err := ctx.BindJSON(&req); err == nil {
+	if err := ctx.ShouldBindQuery(&req); err == nil {
 		bs, err := server.DB.FindBusinessByKeyword(req.BName, req.PageNum, req.PageCount)
 		if err != nil {
 			sendFailedResponse(ctx, Err, "FindBusinessByKeyword err:", err)
@@ -71,7 +71,7 @@ func QueryBusinessByKeyWord(ctx *gin.Context) {
 func QueryAllBusiness(ctx *gin.Context) {
 	crossDomain(ctx)
 	var req BusinessReq
-	if err := ctx.BindJSON(&req); err == nil {
+	if err := ctx.ShouldBindQuery(&req); err == nil {
 		bs, err := server.DB.FindAllBusiness(req.PageNum, req.PageCount)
 		if err != nil {
 			sendFailedResponse(ctx, Err, "FindAllBusiness err:", err)
@@ -92,7 +92,7 @@ func QueryAllBusiness(ctx *gin.Context) {
 func QueryBusinessByNo(ctx *gin.Context) {
 	crossDomain(ctx)
 	var req BusinessReq
-	if err := ctx.BindJSON(&req); err == nil {
+	if err := ctx.ShouldBindQuery(&req); err == nil {
 		no, err := strconv.Atoi(req.BNo)
 		if err != nil {
 			sendFailedResponse(ctx, Err, "string convert err. req.BNo:", req.BNo)
