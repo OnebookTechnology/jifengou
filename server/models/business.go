@@ -8,4 +8,7 @@ type Business struct {
 	BusinessInfo         string `json:"business_info"`
 	BusinessRegisterTime string `json:"business_register_time"`
 	BusinessAuth         int    `json:"business_auth"`
+
+	BProducts []*BProduct `json:"b_products, omitempty"` // 商家的商品
+	BCoupons  []*BProduct `json:"b_coupons, omitempty"`  // 商家的优惠券
 }
