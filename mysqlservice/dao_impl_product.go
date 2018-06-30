@@ -1,6 +1,7 @@
 package mysql
 
 import (
+	"database/sql"
 	"errors"
 	"github.com/OnebookTechnology/jifengou/server/models"
 	"time"
@@ -45,8 +46,20 @@ func (m *MysqlService) FindAllProducts() ([]*models.Product, error) {
 }
 
 // 查找商家的所有商品
-func (m *MysqlService) FindAllProductByBusinessId(businessId uint) ([]*models.Product, error) {
-	rows, err := m.Db.Query("SELECT product_id, product_item_statement, product_name, product_info FROM product WHERE business_id=? ", businessId)
+func (m *MysqlService) FindAllProductByBusinessIdAndStatus(businessId int, status int, pageNum, pageCount int) ([]*models.Product, error) {
+	sql := "SELECT product_id, product_item_statement, product_name, product_status FROM product WHERE business_id=? "
+	var rows *sql.Rows
+	var err error
+	if status != -1 {
+		//All
+		sql += " AND product_status=?"
+		sql += " ORDER BY product_online_time DESC LIMIT ?,?"
+		rows, err = m.Db.Query(sql, businessId, status, (pageNum-1)*pageCount, pageCount)
+	} else {
+		sql += " ORDER BY product_online_time DESC LIMIT ?,?"
+		rows, err = m.Db.Query(sql, businessId, (pageNum-1)*pageCount, pageCount)
+	}
+
 	if err != nil {
 		return nil, nil
 	}

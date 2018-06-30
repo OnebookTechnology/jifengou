@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/OnebookTechnology/jifengou/server/models"
 	"github.com/gin-gonic/gin"
+	"github.com/json-iterator/go"
 	"net/http"
 )
 
@@ -28,6 +29,10 @@ type ResData struct {
 	Products   []*models.Product  `json:"products,omitempty"`
 }
 
+func Options(ctx *gin.Context) {
+	crossDomain(ctx)
+}
+
 func sendFailedResponse(ctx *gin.Context, code int, v ...interface{}) {
 	msg := resFormat(v...)
 	ctx.JSON(http.StatusOK, Response{
@@ -46,7 +51,8 @@ func sendSuccessResponse(ctx *gin.Context, data *ResData) {
 		Message: "ok",
 		Data:    data,
 	})
-	logger.Info("[", ctx.Request.RequestURI, "]", "response:", fmt.Sprintf("%v", *data))
+	s, _ := jsoniter.MarshalToString(data)
+	logger.Info("[", ctx.Request.RequestURI, "]", "response:", s)
 
 }
 

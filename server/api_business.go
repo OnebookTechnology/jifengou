@@ -74,10 +74,6 @@ func UpdateAvail(ctx *gin.Context) {
 
 }
 
-func Options(ctx *gin.Context) {
-	crossDomain(ctx)
-}
-
 func QueryBusinessByKeyWord(ctx *gin.Context) {
 	crossDomain(ctx)
 	var req BusinessReq

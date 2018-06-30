@@ -42,6 +42,7 @@ func LoadRouter(router *gin.Engine) {
 		productRouter.OPTIONS("/category", Options)
 		productRouter.POST("/add", AddProduct)
 		productRouter.OPTIONS("/add", Options)
+		productRouter.GET("/query_by_bid", FindAllProductByBusiness)
 	}
 
 }
