@@ -80,7 +80,7 @@ func (m *MysqlService) FindAllBusiness(pageNum, pageCount int) ([]*models.Busine
 		if err != nil {
 			return nil, err
 		}
-		products = append(products, p)
+		bs = append(bs, b)
 	}
-	return products, nil
+	return bs, nil
 }
