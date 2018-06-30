@@ -103,12 +103,11 @@ func QueryBusinessByNo(ctx *gin.Context) {
 	crossDomain(ctx)
 	var req BusinessReq
 	if err := ctx.ShouldBindQuery(&req); err == nil {
-		no, err := strconv.Atoi(req.BNo)
 		if err != nil {
 			sendFailedResponse(ctx, Err, "string convert err. req.BNo:", req.BNo)
 			return
 		}
-		bs, err := server.DB.FindBusinessById(no)
+		bs, err := server.DB.FindBusinessByNo(req.BNo)
 		if err != nil {
 			sendFailedResponse(ctx, Err, "FindBusinessById err:", err)
 			return
