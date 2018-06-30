@@ -3,6 +3,7 @@ package server
 import (
 	"github.com/OnebookTechnology/jifengou/server/models"
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
 	"net/http"
 )
 
@@ -16,7 +17,7 @@ type AddBusinessReq struct {
 func AddBusiness(ctx *gin.Context) {
 	crossDomain(ctx)
 	var req *AddBusinessReq
-	if ctx.ShouldBind(req) == nil {
+	if ctx.ShouldBindWith(req, binding.FormPost) == nil {
 		b := &models.Business{
 			BusinessNo:           req.BNo,
 			BusinessName:         req.BName,
