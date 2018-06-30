@@ -36,4 +36,10 @@ func LoadRouter(router *gin.Engine) {
 		businessRouter.OPTIONS("/update", Options)
 	}
 
+	productRouter := myRouter.Group("/product")
+	{
+		productRouter.POST("/add", AddProduct)
+		productRouter.OPTIONS("/add", Options)
+	}
+
 }
