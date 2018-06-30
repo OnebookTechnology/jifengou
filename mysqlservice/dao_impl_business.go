@@ -1,7 +1,6 @@
 package mysql
 
 import (
-	"errors"
 	"github.com/OnebookTechnology/jifengou/server/models"
 )
 
@@ -19,7 +18,7 @@ func (m *MysqlService) AddBusiness(b *models.Business) error {
 		if rollBackErr != nil {
 			return rollBackErr
 		}
-		return errors.New("AddBusiness err:" + err.Error())
+		return err
 	}
 
 	err = tx.Commit()
@@ -46,7 +45,7 @@ func (m *MysqlService) Update(code string, status int, updateTime string) error 
 		if rollBackErr != nil {
 			return rollBackErr
 		}
-		return errors.New("UPDATE coupon err:" + err.Error())
+		return err
 	}
 
 	err = tx.Commit()
@@ -68,16 +67,18 @@ func (m *MysqlService) QueryBusinessCount() (int, error) {
 }
 
 // 查询关键字商户
-func (m *MysqlService) FindBusinessById(no int) (*models.Business, error) {
+func (m *MysqlService) FindBusinessByNo(no string) (*models.Business, error) {
 	row := m.Db.QueryRow("SELECT business_id, business_no,business_name,business_register_time,business_auth,business_avail FROM business "+
 		"WHERE business_no=? ", no)
 	b := new(models.Business)
-	var avail bool
+	var avail int
 	err := row.Scan(&b.BusinessId, &b.BusinessNo, &b.BusinessName, &b.BusinessRegisterTime, &b.BusinessAuth, &avail)
 	if err != nil {
 		return nil, err
 	}
-	b.BusinessAvail = avail
+	if avail == 1 {
+		b.BusinessAvail = true
+	}
 	return b, nil
 }
 
@@ -91,12 +92,14 @@ func (m *MysqlService) FindBusinessByKeyword(keyword string, pageNum, pageCount 
 	var bs []models.Business
 	for rows.Next() {
 		b := new(models.Business)
-		var avail bool
+		var avail int
 		err := rows.Scan(&b.BusinessId, &b.BusinessNo, &b.BusinessName, &b.BusinessRegisterTime, &b.BusinessAuth, &avail)
 		if err != nil {
 			return nil, err
 		}
-		b.BusinessAvail = avail
+		if avail == 1 {
+			b.BusinessAvail = true
+		}
 		bs = append(bs, *b)
 	}
 	return bs, nil
@@ -112,10 +115,13 @@ func (m *MysqlService) FindAllBusiness(pageNum, pageCount int) ([]models.Busines
 	var bs []models.Business
 	for rows.Next() {
 		b := new(models.Business)
-		var avail bool
+		var avail int
 		err := rows.Scan(&b.BusinessId, &b.BusinessNo, &b.BusinessName, &b.BusinessRegisterTime, &b.BusinessAuth, &avail)
 		if err != nil {
 			return nil, err
+		}
+		if avail == 1 {
+			b.BusinessAvail = true
 		}
 		bs = append(bs, *b)
 	}

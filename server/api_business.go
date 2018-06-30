@@ -1,6 +1,7 @@
 package server
 
 import (
+	"database/sql"
 	"github.com/OnebookTechnology/jifengou/server/models"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -21,22 +22,31 @@ func AddBusiness(ctx *gin.Context) {
 	crossDomain(ctx)
 	var req BusinessReq
 	if err := ctx.BindJSON(&req); err == nil {
-		b := &models.Business{
-			BusinessNo:           req.BNo,
-			BusinessName:         req.BName,
-			BusinessPwd:          req.BPwd,
-			BusinessInfo:         "",
-			BusinessAuth:         1,
-			BusinessRegisterTime: nowFormat(),
-		}
-		err := server.DB.AddBusiness(b)
+		_, err := server.DB.FindBusinessByNo(req.BNo)
 		if err != nil {
-			ctx.String(http.StatusServiceUnavailable, "%s", err.Error())
-			return
+			if err == sql.ErrNoRows {
+				b := &models.Business{
+					BusinessNo:           req.BNo,
+					BusinessName:         req.BName,
+					BusinessPwd:          req.BPwd,
+					BusinessInfo:         "",
+					BusinessAuth:         1,
+					BusinessRegisterTime: nowFormat(),
+				}
+				err := server.DB.AddBusiness(b)
+				if err != nil {
+					ctx.String(http.StatusServiceUnavailable, "%s", err.Error())
+					return
+				}
+				sendSuccessResponse(ctx, nil)
+				return
+			} else {
+				sendFailedResponse(ctx, Err, "FindBusinessByKeyword err:", err)
+				return
+			}
+
 		}
-		logger.Info()
-		ctx.String(http.StatusOK, "ok")
-		return
+
 	} else {
 		ctx.String(http.StatusServiceUnavailable, "bind request parameter err: %s", err.Error())
 		return
