@@ -64,7 +64,7 @@ func FindAllCategory(ctx *gin.Context) {
 		sendFailedResponse(ctx, Err, "FindAllCategory err:", err)
 		return
 	}
-	res := ResData{
+	res := &ResData{
 		Categories: cs,
 	}
 	sendSuccessResponse(ctx, res)

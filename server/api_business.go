@@ -87,7 +87,7 @@ func QueryBusinessByKeyWord(ctx *gin.Context) {
 			sendFailedResponse(ctx, Err, "FindBusinessByKeyword err:", err)
 			return
 		}
-		res := ResData{
+		res := &ResData{
 			Businesses: bs,
 		}
 		sendSuccessResponse(ctx, res)
@@ -108,7 +108,7 @@ func QueryAllBusiness(ctx *gin.Context) {
 			sendFailedResponse(ctx, Err, "FindAllBusiness err:", err)
 			return
 		}
-		res := ResData{
+		res := &ResData{
 			Businesses: bs,
 		}
 		sendSuccessResponse(ctx, res)
@@ -133,7 +133,7 @@ func QueryBusinessByNo(ctx *gin.Context) {
 			sendFailedResponse(ctx, Err, "FindBusinessById err:", err)
 			return
 		}
-		res := ResData{
+		res := &ResData{
 			Business: *bs,
 		}
 		sendSuccessResponse(ctx, res)

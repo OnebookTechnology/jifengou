@@ -39,14 +39,14 @@ func sendFailedResponse(ctx *gin.Context, code int, v ...interface{}) {
 
 }
 
-func sendSuccessResponse(ctx *gin.Context, data interface{}) {
+func sendSuccessResponse(ctx *gin.Context, data *ResData) {
 	ctx.JSON(http.StatusOK, Response{
 		Code:    Ok,
 		Uri:     ctx.Request.RequestURI,
 		Message: "ok",
-		Data:    data,
+		Data:    *data,
 	})
-	logger.Info("[", ctx.Request.RequestURI, "]", "response:", fmt.Sprintf("%v", data))
+	logger.Info("[", ctx.Request.RequestURI, "]", "response:", fmt.Sprintf("%v", *data))
 
 }
 
