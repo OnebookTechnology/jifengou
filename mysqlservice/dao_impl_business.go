@@ -57,7 +57,7 @@ func (m *MysqlService) Update(code string, status int, updateTime string) error 
 }
 
 // 查询所有商户
-func (m *MysqlService) FindAllBusiness(pageNum, pageCount int) (*models.Coupon, error) {
+func (m *MysqlService) FindBusiness(pageNum, pageCount int) (*models.Coupon, error) {
 	row := m.Db.QueryRow("SELECT business_no,business_name,business_register_time,business_auth FROM business")
 	c := new(models.Coupon)
 	err := row.Scan(&c.ProductID, &c.CouponCode, &c.CouponEndTime, &c.CouponStatus)
@@ -68,7 +68,7 @@ func (m *MysqlService) FindAllBusiness(pageNum, pageCount int) (*models.Coupon, 
 }
 
 // 查找所有商户
-func (m *MysqlService) FindAllProducts() ([]*models.Business, error) {
+func (m *MysqlService) FindAllBusiness(pageNum, pageCount int) ([]*models.Business, error) {
 	rows, err := m.Db.Query("SELECT business_no,business_name,business_register_time,business_auth FROM business")
 	if err != nil {
 		return nil, nil
