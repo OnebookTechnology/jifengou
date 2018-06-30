@@ -18,7 +18,7 @@ type ProductReq struct {
 	ProductInfo       string  `json:"p_info,omitempty"`
 	BusinessId        int     `json:"b_id" form:"b_id"`
 	ProductCategory   int     `json:"p_category"` //类型
-	ProductStatus     int     `json:"p_status" form:"product_status"`
+	ProductStatus     int     `json:"p_status" form:"p_status"`
 	ProductSubtitle   string  `json:"p_subtitle,omitempty"`
 	ProductPrice      float64 `json:"p_price"`
 	ProductStartTime  string  `json:"p_start_time"`
