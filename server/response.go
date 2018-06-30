@@ -22,10 +22,10 @@ type Response struct {
 
 //注册返回
 type ResData struct {
-	Businesses []models.Business `json:"businesses,omitempty"`
-	Business   models.Business   `json:"business,omitempty"`
-	Categories []models.Category `json:"categories,omitempty"`
-	Products   []models.Product  `json:"products,omitempty"`
+	Businesses []*models.Business `json:"businesses,omitempty"`
+	Business   *models.Business   `json:"business,omitempty"`
+	Categories []*models.Category `json:"categories,omitempty"`
+	Products   []*models.Product  `json:"products,omitempty"`
 }
 
 func sendFailedResponse(ctx *gin.Context, code int, v ...interface{}) {
@@ -44,7 +44,7 @@ func sendSuccessResponse(ctx *gin.Context, data *ResData) {
 		Code:    Ok,
 		Uri:     ctx.Request.RequestURI,
 		Message: "ok",
-		Data:    *data,
+		Data:    data,
 	})
 	logger.Info("[", ctx.Request.RequestURI, "]", "response:", fmt.Sprintf("%v", *data))
 

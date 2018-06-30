@@ -83,13 +83,13 @@ func (m *MysqlService) FindBusinessByNo(no string) (*models.Business, error) {
 }
 
 // 查找所有商户
-func (m *MysqlService) FindBusinessByKeyword(keyword string, pageNum, pageCount int) ([]models.Business, error) {
+func (m *MysqlService) FindBusinessByKeyword(keyword string, pageNum, pageCount int) ([]*models.Business, error) {
 	rows, err := m.Db.Query("SELECT business_id,business_no,business_name,business_register_time,business_auth,business_avail FROM business "+
 		"WHERE business_name LIKE '%?%' LIMIT ?,?", keyword, (pageNum-1)*pageCount, pageCount)
 	if err != nil {
 		return nil, nil
 	}
-	var bs []models.Business
+	var bs []*models.Business
 	for rows.Next() {
 		b := new(models.Business)
 		var avail int
@@ -100,19 +100,19 @@ func (m *MysqlService) FindBusinessByKeyword(keyword string, pageNum, pageCount 
 		if avail == 1 {
 			b.BusinessAvail = true
 		}
-		bs = append(bs, *b)
+		bs = append(bs, b)
 	}
 	return bs, nil
 }
 
 // 查找所有商户
-func (m *MysqlService) FindAllBusiness(pageNum, pageCount int) ([]models.Business, error) {
+func (m *MysqlService) FindAllBusiness(pageNum, pageCount int) ([]*models.Business, error) {
 	rows, err := m.Db.Query("SELECT business_id,business_no,business_name,business_register_time,business_auth,business_avail FROM business "+
 		"LIMIT ?,?", (pageNum-1)*pageCount, pageCount)
 	if err != nil {
 		return nil, nil
 	}
-	var bs []models.Business
+	var bs []*models.Business
 	for rows.Next() {
 		b := new(models.Business)
 		var avail int
@@ -123,7 +123,7 @@ func (m *MysqlService) FindAllBusiness(pageNum, pageCount int) ([]models.Busines
 		if avail == 1 {
 			b.BusinessAvail = true
 		}
-		bs = append(bs, *b)
+		bs = append(bs, b)
 	}
 	return bs, nil
 }

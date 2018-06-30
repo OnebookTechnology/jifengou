@@ -134,7 +134,7 @@ func QueryBusinessByNo(ctx *gin.Context) {
 			return
 		}
 		res := &ResData{
-			Business: *bs,
+			Business: bs,
 		}
 		sendSuccessResponse(ctx, res)
 		return
