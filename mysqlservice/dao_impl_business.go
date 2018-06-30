@@ -56,31 +56,63 @@ func (m *MysqlService) Update(code string, status int, updateTime string) error 
 	return nil
 }
 
-// 查询所有商户
-func (m *MysqlService) FindBusiness(pageNum, pageCount int) (*models.Coupon, error) {
-	row := m.Db.QueryRow("SELECT business_no,business_name,business_register_time,business_auth FROM business")
-	c := new(models.Coupon)
-	err := row.Scan(&c.ProductID, &c.CouponCode, &c.CouponEndTime, &c.CouponStatus)
+// 查询所有商户数量
+func (m *MysqlService) QueryBusinessCount() (int, error) {
+	row := m.Db.QueryRow("SELECT count(*) FROM business")
+	var c int
+	err := row.Scan(&c)
 	if err != nil {
-		return nil, err
+		return 0, err
 	}
 	return c, nil
 }
 
+// 查询关键字商户
+func (m *MysqlService) FindBusinessById(id int) (*models.Business, error) {
+	row := m.Db.QueryRow("SELECT business_id, business_no,business_name,business_register_time,business_auth FROM business "+
+		"WHERE business_id=? ", id)
+	b := new(models.Business)
+	err := row.Scan(&b.BusinessId, &b.BusinessNo, &b.BusinessName, &b.BusinessRegisterTime, &b.BusinessAuth)
+	if err != nil {
+		return nil, err
+	}
+	return b, nil
+}
+
 // 查找所有商户
-func (m *MysqlService) FindAllBusiness(pageNum, pageCount int) ([]*models.Business, error) {
-	rows, err := m.Db.Query("SELECT business_no,business_name,business_register_time,business_auth FROM business")
+func (m *MysqlService) FindBusinessByKeyword(keyword string, pageNum, pageCount int) ([]models.Business, error) {
+	rows, err := m.Db.Query("SELECT business_id,business_no,business_name,business_register_time,business_auth FROM business "+
+		"WHERE business_name LIKE '%?%' LIMIT ?,?", keyword, (pageNum-1)*pageCount, pageCount)
 	if err != nil {
 		return nil, nil
 	}
-	var bs []*models.Business
+	var bs []models.Business
+	for rows.Next() {
+		b := new(models.Business)
+		err = rows.Scan(&b.BusinessId, &b.BusinessNo, &b.BusinessName, &b.BusinessRegisterTime, &b.BusinessAuth)
+		if err != nil {
+			return nil, err
+		}
+		bs = append(bs, *b)
+	}
+	return bs, nil
+}
+
+// 查找所有商户
+func (m *MysqlService) FindAllBusiness(pageNum, pageCount int) ([]models.Business, error) {
+	rows, err := m.Db.Query("SELECT business_no,business_name,business_register_time,business_auth FROM business "+
+		"LIMIT ?,?", (pageNum-1)*pageCount, pageCount)
+	if err != nil {
+		return nil, nil
+	}
+	var bs []models.Business
 	for rows.Next() {
 		b := new(models.Business)
 		err = rows.Scan(&b.BusinessNo, &b.BusinessName, &b.BusinessRegisterTime, &b.BusinessAuth)
 		if err != nil {
 			return nil, err
 		}
-		bs = append(bs, b)
+		bs = append(bs, *b)
 	}
 	return bs, nil
 }

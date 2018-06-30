@@ -4,8 +4,8 @@ type Business struct {
 	BusinessId           int    `json:"business_id"`
 	BusinessNo           string `json:"business_no"`
 	BusinessName         string `json:"business_name"`
-	BusinessPwd          string `json:"business_pwd"`
-	BusinessInfo         string `json:"business_info"`
+	BusinessPwd          string `json:"business_pwd,omitempty"`
+	BusinessInfo         string `json:"business_info,omitempty"`
 	BusinessRegisterTime string `json:"business_register_time"`
 	BusinessAuth         int    `json:"business_auth"`
 

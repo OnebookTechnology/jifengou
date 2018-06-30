@@ -22,8 +22,16 @@ func LoadRouter(router *gin.Engine) {
 	myRouter.GET("/query_jfg_status", QueryCouponStatusFromJFG)
 	myRouter.POST("/notify_jfg_used", NotifyCouponUsedToJFG)
 
-	myRouter.POST("/business/add", AddBusiness)
-	myRouter.OPTIONS("/business/add", Options)
-	myRouter.POST("/business/query", QueryBusinessById)
+	businessRouter := myRouter.Group("/business")
+	{
+		businessRouter.POST("/add", AddBusiness)
+		businessRouter.OPTIONS("/add", Options)
+		businessRouter.GET("/query_keyword", QueryBusinessByKeyWord)
+		businessRouter.OPTIONS("/query_keyword", Options)
+		businessRouter.GET("/query_no", QueryBusinessByNo)
+		businessRouter.OPTIONS("/query_no", Options)
+		businessRouter.GET("query_all", QueryAllBusiness)
+		businessRouter.OPTIONS("/query_all", Options)
+	}
 
 }
