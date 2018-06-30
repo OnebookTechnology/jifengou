@@ -39,7 +39,7 @@ func (m *MysqlService) UpdateAvail(id int) error {
 		return err
 	}
 	// s1. update online book's last_op_time、last_op_phone_number、online_status
-	_, err = tx.Exec("UPDATE business SET business_avail=if(business_avail == 1, 0, 1) where business_id=?", id)
+	_, err = tx.Exec("UPDATE business SET business_avail=if(business_avail = 1, 0, 1) where business_id=?", id)
 	if err != nil {
 		rollBackErr := tx.Rollback()
 		if rollBackErr != nil {

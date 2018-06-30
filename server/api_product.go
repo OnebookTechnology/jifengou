@@ -31,7 +31,7 @@ func AddProduct(ctx *gin.Context) {
 	var req ProductReq
 	if err := ctx.BindJSON(&req); err == nil {
 		p := &models.Product{
-			ProductItemStatement: "JFG_" + strconv.Itoa(req.BusinessId) + nowTimestampString(),
+			ProductItemStatement: "JFG_" + strconv.Itoa(req.BusinessId) + "_" + nowTimestampString(),
 			ProductName:          req.ProductName,
 			ProductInfo:          req.ProductInfo,
 			ProductStatus:        models.ProductReviewing,
@@ -46,14 +46,13 @@ func AddProduct(ctx *gin.Context) {
 		}
 		err := server.DB.AddProduct(p)
 		if err != nil {
-			ctx.String(http.StatusServiceUnavailable, "%s", err.Error())
+			sendFailedResponse(ctx, Err, "AddProduct err:", err)
 			return
 		}
-		logger.Info()
-		ctx.String(http.StatusOK, "ok")
+		sendSuccessResponse(ctx, nil)
 		return
 	} else {
-		ctx.String(http.StatusServiceUnavailable, "bind request parameter err: %s", err.Error())
+		sendFailedResponse(ctx, DuplicateBusinessErr, "duplicate business")
 		return
 	}
 }

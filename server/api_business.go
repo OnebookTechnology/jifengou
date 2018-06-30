@@ -35,7 +35,7 @@ func AddBusiness(ctx *gin.Context) {
 				}
 				err := server.DB.AddBusiness(b)
 				if err != nil {
-					ctx.String(http.StatusServiceUnavailable, "%s", err.Error())
+					sendFailedResponse(ctx, Err, "AddBusiness err:", err)
 					return
 				}
 				sendSuccessResponse(ctx, nil)
