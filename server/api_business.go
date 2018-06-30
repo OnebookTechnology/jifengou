@@ -51,7 +51,7 @@ func AddBusiness(ctx *gin.Context) {
 		}
 
 	} else {
-		ctx.String(http.StatusServiceUnavailable, "bind request parameter err: %s", err.Error())
+		sendFailedResponse(ctx, Err, "bind request parameter err:", err)
 		return
 	}
 }

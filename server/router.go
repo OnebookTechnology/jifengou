@@ -38,6 +38,8 @@ func LoadRouter(router *gin.Engine) {
 
 	productRouter := myRouter.Group("/product")
 	{
+		productRouter.GET("/category", FindAllCategory)
+		productRouter.OPTIONS("/category", Options)
 		productRouter.POST("/add", AddProduct)
 		productRouter.OPTIONS("/add", Options)
 	}

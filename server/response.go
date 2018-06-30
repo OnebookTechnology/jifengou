@@ -24,6 +24,8 @@ type Response struct {
 type ResData struct {
 	Businesses []models.Business `json:"businesses,omitempty"`
 	Business   models.Business   `json:"business,omitempty"`
+	Categories []models.Category `json:"categories,omitempty"`
+	Products   []models.Product  `json:"products,omitempty"`
 }
 
 func sendFailedResponse(ctx *gin.Context, code int, v ...interface{}) {

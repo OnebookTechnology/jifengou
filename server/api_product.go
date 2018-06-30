@@ -52,9 +52,23 @@ func AddProduct(ctx *gin.Context) {
 		sendSuccessResponse(ctx, nil)
 		return
 	} else {
-		sendFailedResponse(ctx, DuplicateBusinessErr, "duplicate business")
+		sendFailedResponse(ctx, Err, "bind request parameter err:", err)
 		return
 	}
+}
+
+func FindAllCategory(ctx *gin.Context) {
+	crossDomain(ctx)
+	cs, err := server.DB.FindAllCategory()
+	if err != nil {
+		sendFailedResponse(ctx, Err, "FindAllCategory err:", err)
+		return
+	}
+	res := ResData{
+		Categories: cs,
+	}
+	sendSuccessResponse(ctx, res)
+	return
 }
 
 func savePics(form *multipart.Form, picType string, p *models.Product, ctx *gin.Context) {
