@@ -16,7 +16,7 @@ type AddBusinessReq struct {
 func AddBusiness(ctx *gin.Context) {
 	crossDomain(ctx)
 	var req *AddBusinessReq
-	if ctx.ShouldBind(req) != nil {
+	if ctx.ShouldBind(req) == nil {
 		b := &models.Business{
 			BusinessNo:           req.BNo,
 			BusinessName:         req.BName,
