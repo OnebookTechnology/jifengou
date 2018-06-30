@@ -8,6 +8,7 @@ type ServerDB interface {
 	dao.ImageDao
 	dao.ProductDao
 	dao.CouponDao
+	dao.BusinessDao
 	//dao.BookDao
 	//dao.BookListDao
 	//dao.DiscoverDao
