@@ -56,14 +56,31 @@ func (m *MysqlService) Update(code string, status int, updateTime string) error 
 	return nil
 }
 
-// 查询商户
-func (m *MysqlService) FindBusiness(couponCode string) (*models.Coupon, error) {
-	row := m.Db.QueryRow("SELECT product_id ,coupon_code, coupon_end_time, coupon_status FROM coupon WHERE coupon_code=?",
-		couponCode)
+// 查询所有商户
+func (m *MysqlService) FindAllBusiness(pageNum, pageCount int) (*models.Coupon, error) {
+	row := m.Db.QueryRow("SELECT business_no,business_name,business_register_time,business_auth FROM business")
 	c := new(models.Coupon)
 	err := row.Scan(&c.ProductID, &c.CouponCode, &c.CouponEndTime, &c.CouponStatus)
 	if err != nil {
 		return nil, err
 	}
 	return c, nil
+}
+
+// 查找所有商户
+func (m *MysqlService) FindAllProducts() ([]*models.Business, error) {
+	rows, err := m.Db.Query("SELECT business_no,business_name,business_register_time,business_auth FROM business")
+	if err != nil {
+		return nil, nil
+	}
+	var bs []*models.Business
+	for rows.Next() {
+		b := new(models.Business)
+		err = rows.Scan(&b.BusinessNo, &b.BusinessName, &b.BusinessRegisterTime, &b.BusinessAuth)
+		if err != nil {
+			return nil, err
+		}
+		products = append(products, p)
+	}
+	return products, nil
 }

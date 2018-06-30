@@ -7,7 +7,7 @@ import (
 )
 
 type AddBusinessReq struct {
-	BNo   int    `form:"b_no"`
+	BNo   string `form:"b_no"`
 	BName string `form:"b_name"`
 	BPwd  string `form:"b_pwd"`
 }
@@ -40,4 +40,5 @@ func AddBusiness(ctx *gin.Context) {
 
 func QueryBusinessById(ctx *gin.Context) {
 	crossDomain(ctx)
+
 }
