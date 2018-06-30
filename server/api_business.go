@@ -8,6 +8,7 @@ import (
 )
 
 type BusinessReq struct {
+	BId   int    `json:"b_id,omitempty" form:"b_id"`
 	BNo   string `json:"b_no,omitempty" form:"b_no"`
 	BName string `json:"b_name,omitempty" form:"b_name"`
 	BPwd  string `json:"b_pwd,omitempty" form:"b_pwd"`
@@ -53,6 +54,25 @@ func AddBusiness(ctx *gin.Context) {
 		ctx.String(http.StatusServiceUnavailable, "bind request parameter err: %s", err.Error())
 		return
 	}
+}
+
+func UpdateAvail(ctx *gin.Context) {
+	crossDomain(ctx)
+	var req BusinessReq
+	if err := ctx.BindJSON(&req); err == nil {
+		err = server.DB.UpdateAvail(req.BId)
+		if err != nil {
+			sendFailedResponse(ctx, Err, "UpdateAvail err:", err, "businessId:", req.BId)
+			return
+		}
+		sendSuccessResponse(ctx, nil)
+		return
+
+	} else {
+		sendFailedResponse(ctx, Err, "BindJSON err:", err)
+		return
+	}
+
 }
 
 func Options(ctx *gin.Context) {

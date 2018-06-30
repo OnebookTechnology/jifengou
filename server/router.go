@@ -30,8 +30,10 @@ func LoadRouter(router *gin.Engine) {
 		businessRouter.OPTIONS("/query_keyword", Options)
 		businessRouter.GET("/query_no", QueryBusinessByNo)
 		businessRouter.OPTIONS("/query_no", Options)
-		businessRouter.GET("query_all", QueryAllBusiness)
+		businessRouter.GET("/query_all", QueryAllBusiness)
 		businessRouter.OPTIONS("/query_all", Options)
+		businessRouter.POST("/update", UpdateAvail)
+		businessRouter.OPTIONS("/update", Options)
 	}
 
 }

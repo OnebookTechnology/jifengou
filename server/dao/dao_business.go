@@ -8,4 +8,5 @@ type BusinessDao interface {
 	FindBusinessByNo(no string) (*models.Business, error)
 	FindBusinessByKeyword(keyword string, pageNum, pageCount int) ([]models.Business, error)
 	FindAllBusiness(pageNum, pageCount int) ([]models.Business, error)
+	UpdateAvail(id int) error
 }

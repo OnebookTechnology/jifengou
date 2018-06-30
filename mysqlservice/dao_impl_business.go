@@ -32,14 +32,14 @@ func (m *MysqlService) AddBusiness(b *models.Business) error {
 	return nil
 }
 
-// 更新商户权限
-func (m *MysqlService) Update(code string, status int, updateTime string) error {
+// 更新商户状态
+func (m *MysqlService) UpdateAvail(id int) error {
 	tx, err := m.Db.Begin()
 	if err != nil {
 		return err
 	}
 	// s1. update online book's last_op_time、last_op_phone_number、online_status
-	_, err = tx.Exec("UPDATE coupon SET coupon_status=?, update_time=? WHERE coupon_code=?", status, updateTime, code)
+	_, err = tx.Exec("UPDATE business SET business_avail=if(business_avail == 1, 0, 1) where business_id=?", id)
 	if err != nil {
 		rollBackErr := tx.Rollback()
 		if rollBackErr != nil {
