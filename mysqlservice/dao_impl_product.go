@@ -3,6 +3,7 @@ package mysql
 import (
 	"errors"
 	"github.com/OnebookTechnology/jifengou/server/models"
+	"time"
 )
 
 // 根据Id查找商品
@@ -27,14 +28,14 @@ func (m *MysqlService) FindProductByItemStatement(itemStatement string) (p *mode
 
 // 查找所有商品
 func (m *MysqlService) FindAllProducts() ([]*models.Product, error) {
-	rows, err := m.Db.Query("SELECT product_name, product_info, product_item_statement, product_price FROM product")
+	rows, err := m.Db.Query("SELECT product_id, product_item_statement,product_name, product_status, product_item_statement, product_price FROM product")
 	if err != nil {
 		return nil, nil
 	}
 	var products []*models.Product
 	for rows.Next() {
 		p := new(models.Product)
-		err = rows.Scan(&p.ProductName, &p.ProductInfo, &p.ProductItemStatement, &p.ProductPrice)
+		err = rows.Scan(&p.ProductId, &p.ProductItemStatement, &p.ProductName, &p.ProductStatus, &p.ProductItemStatement, &p.ProductPrice)
 		if err != nil {
 			return nil, err
 		}
@@ -69,9 +70,9 @@ func (m *MysqlService) AddProduct(p *models.Product) error {
 	}
 	// s1. update online book's last_op_time、last_op_phone_number、online_status
 	_, err = tx.Exec("INSERT INTO product(product_item_statement, product_name, product_info,product_status,business_id,product_category,"+
-		"product_subtitle,product_price,product_start_time,product_end_time,product_alert_count) VALUES (?,?,?,?,?,?,?,?,?,?,?)",
-		&p.ProductItemStatement, &p.ProductName, &p.ProductInfo, models.ProductReviewing, &p.BusinessId, &p.ProductCategory,
-		&p.ProductSubtitle, &p.ProductPrice, &p.ProductStartTime, &p.ProductEndTime, &p.ProductAlertCount)
+		"product_subtitle,product_price,product_start_time,product_end_time,product_alert_count,product_online_time) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
+		p.ProductItemStatement, p.ProductName, p.ProductInfo, models.ProductReviewing, p.BusinessId, p.ProductCategory,
+		p.ProductSubtitle, p.ProductPrice, p.ProductStartTime, p.ProductEndTime, p.ProductAlertCount, time.Now().Format("2006-01-02 15:04:05"))
 	if err != nil {
 		rollBackErr := tx.Rollback()
 		if rollBackErr != nil {
