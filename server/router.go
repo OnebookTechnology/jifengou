@@ -53,6 +53,7 @@ func LoadRouter(router *gin.Engine) {
 		couponRouter.GET("/business/query", QueryBCouponByStatus)
 		couponRouter.OPTIONS("/business/query", Options)
 		couponRouter.POST("/bind", BindCoupon)
+		couponRouter.OPTIONS("/bind", Options)
 	}
 
 }
