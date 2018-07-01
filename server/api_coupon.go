@@ -111,7 +111,7 @@ func BindCoupon(ctx *gin.Context) {
 			return
 		}
 		for _, bcId := range req.BindIds {
-			err = server.DB.UpdateBCouponStatusAndCouponIdById(cId, bcId, req.Status)
+			err = server.DB.UpdateBCouponStatusAndCouponIdById(cId, bcId, models.CouponNotReleased)
 			if err != nil {
 				sendFailedResponse(ctx, Err, "UpdateBCouponStatusAndCouponIdById err:", err, "data:", cId, bcId, req.Status)
 				return
