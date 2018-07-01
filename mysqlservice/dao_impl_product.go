@@ -13,7 +13,8 @@ func (m *MysqlService) FindProductById(productId int) (*models.Product, error) {
 		"product_subtitle,product_price,product_start_time,product_end_time,product_alert_count,product_online_time FROM product WHERE product_id=?",
 		productId)
 	p := new(models.Product)
-	err := row.Scan(&p.ProductName, &p.ProductInfo)
+	err := row.Scan(&p.ProductId, &p.ProductItemStatement, &p.ProductName, &p.ProductInfo, &p.ProductStatus, &p.ProductCategory,
+		&p.ProductSubtitle, &p.ProductPrice, &p.ProductStartTime, &p.ProductEndTime, &p.ProductAlertCount, &p.ProductOnlineTime)
 	if err != nil {
 		return nil, err
 	}
