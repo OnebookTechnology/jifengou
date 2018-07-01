@@ -8,7 +8,7 @@ import (
 
 type CouponReq struct {
 	BusinessId   int      `json:"b_id"`
-	ProductId    int      `json:"p_id"`
+	ProductId    int      `json:"p_id" form:"p_id"`
 	BCouponCodes []string `json:"b_codes"`
 	Status       int      `json:"status" form:"status"`
 
