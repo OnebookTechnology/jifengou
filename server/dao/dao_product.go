@@ -7,6 +7,6 @@ type ProductDao interface {
 	FindProductByItemStatement(itemStatement string) (p *models.Product, err error)
 	AddProduct(p *models.Product) error
 	FindAllCategory() ([]*models.Category, error)
-	FindProductById(productId string) (*models.Product, error)
+	FindProductById(productId int) (*models.Product, error)
 	FindAllProductByBusinessIdAndStatus(businessId int, status int, pageNum, pageCount int) ([]*models.Product, error)
 }

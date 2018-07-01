@@ -12,7 +12,8 @@ type Coupon struct {
 
 //券码状态码
 const (
-	CouponNotReleased = iota - 1
+	CouponNotBind = iota - 2
+	CouponNotReleased
 	CouponNotUsed
 	CouponUsed
 	CouponOverdue

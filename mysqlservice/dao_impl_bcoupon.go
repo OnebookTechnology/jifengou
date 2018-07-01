@@ -32,6 +32,23 @@ func (m *MysqlService) AddBusinessCoupon(b *models.BCoupon) error {
 	return nil
 }
 
-// 绑定商户券码（添加coupon表记录 ）
+// 查询券码
+func (m *MysqlService) FindBCouponByStatus(status, pageNum, pageCount int) ([]*models.BCoupon, error) {
+	rows, err := m.Db.Query("SELECT bc_id,bc_cart_id,bc_code,b_id,product_id,pc_id,bc_start,bc_end,bc_status,bc_update_time FROM bcoupon WHERE bc_status=?"+
+		" LIMIT ?,?", status, (pageNum-1)*pageCount, pageCount)
+	if err != nil {
+		return nil, nil
+	}
+	var bs []*models.BCoupon
+	for rows.Next() {
+		b := new(models.BCoupon)
+		err := rows.Scan(&b.BCId, &b.BCCartId, &b.BCCode, &b.BId, &b.ProductId, &b.PCId, &b.BCStart, &b.BCEnd, &b.BCStatus, &b.BCUpdateTime)
+		if err != nil {
+			return nil, err
+		}
+		bs = append(bs, b)
+	}
+	return bs, nil
+}
 
 // 更新券码状态 (同时更新coupon 和bcoupon)

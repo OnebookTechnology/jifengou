@@ -21,12 +21,13 @@ type Response struct {
 	Data    interface{} `json:"data,omitempty"`
 }
 
-//注册返回
+//注册返回数据结构
 type ResData struct {
 	Businesses []*models.Business `json:"businesses,omitempty"`
 	Business   *models.Business   `json:"business,omitempty"`
 	Categories []*models.Category `json:"categories,omitempty"`
 	Products   []*models.Product  `json:"products,omitempty"`
+	BCoupons   []*models.BCoupon  `json:"b_coupons,omitempty"`
 }
 
 func Options(ctx *gin.Context) {

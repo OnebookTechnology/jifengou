@@ -9,9 +9,11 @@ import (
 type CouponReq struct {
 	BusinessId   int      `json:"b_id"`
 	ProductId    int      `json:"p_id"`
-	ProductStart string   `json:"p_start"`
-	ProductEnd   string   `json:"p_end"`
 	BCouponCodes []string `json:"b_codes"`
+	Status       int      `json:"status" form:"status"`
+
+	PageNum   int `json:"page_num,omitempty" form:"page_num"`
+	PageCount int `json:"page_count,omitempty" form:"page_count"`
 }
 
 //添加商品
@@ -34,17 +36,22 @@ func AddBusinessCoupon(ctx *gin.Context) {
 				cartId = coupon[0]
 				code = coupon[1]
 			}
+			p, err := server.DB.FindProductById(req.ProductId)
+			if err != nil {
+				sendFailedResponse(ctx, Err, "FindProductById err:", err)
+				return
+			}
 			bc := &models.BCoupon{
 				BCCartId:     cartId,
 				BCCode:       code,
 				BId:          req.BusinessId,
 				ProductId:    req.ProductId,
-				BCStart:      req.ProductStart,
-				BCEnd:        req.ProductEnd,
+				BCStart:      p.ProductStartTime,
+				BCEnd:        p.ProductEndTime,
 				BCStatus:     models.CouponNotReleased,
 				BCUpdateTime: nowTimestampString(),
 			}
-			err := server.DB.AddBusinessCoupon(bc)
+			err = server.DB.AddBusinessCoupon(bc)
 			if err != nil {
 				sendFailedResponse(ctx, Err, "AddBusinessCoupon err:", err)
 				return
@@ -54,6 +61,26 @@ func AddBusinessCoupon(ctx *gin.Context) {
 		return
 	} else {
 		sendFailedResponse(ctx, Err, "bind request parameter err:", err)
+		return
+	}
+}
+
+func QueryBCouponByStatus(ctx *gin.Context) {
+	crossDomain(ctx)
+	var req CouponReq
+	if err := ctx.ShouldBindQuery(&req); err == nil {
+		bs, err := server.DB.FindBCouponByStatus(req.Status, req.PageNum, req.PageCount)
+		if err != nil {
+			sendFailedResponse(ctx, Err, "FindBCouponByStatus err:", err)
+			return
+		}
+		res := &ResData{
+			BCoupons: bs,
+		}
+		sendSuccessResponse(ctx, res)
+		return
+	} else {
+		sendFailedResponse(ctx, Err, "BindJSON err:", err)
 		return
 	}
 }

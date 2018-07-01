@@ -8,7 +8,7 @@ import (
 )
 
 // 根据Id查找商品
-func (m *MysqlService) FindProductById(productId string) (*models.Product, error) {
+func (m *MysqlService) FindProductById(productId int) (*models.Product, error) {
 	row := m.Db.QueryRow("SELECT product_id,product_item_statement, product_name, product_info,product_status,product_category,"+
 		"product_subtitle,product_price,product_start_time,product_end_time,product_alert_count,product_online_time FROM product WHERE product_id=?",
 		productId)
