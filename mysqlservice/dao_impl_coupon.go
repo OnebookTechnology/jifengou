@@ -78,23 +78,35 @@ func (m *MysqlService) FindCouponByCode(couponCode string) (*models.Coupon, erro
 	return c, nil
 }
 
-// 根据商品id查询券码
-func (m *MysqlService) FindCouponsByProductId(productId int) (*models.Coupon, error) {
-	row := m.Db.QueryRow("SELECT c.coupon_id, c.coupon_status, c.coupon_code, c.update_time, DATE(c.coupon_start_time), DATE(c.coupon_end_time) "+
-		"FROM coupon c WHERE c.product_id=?", productId)
-
-	c := new(models.Coupon)
-	err := row.Scan(&c.CouponId, &c.CouponStatus, &c.CouponCode, &c.UpdateTime, &c.CouponStartTime, &c.CouponEndTime)
+// 根据商品id和状态查询券码
+func (m *MysqlService) FindCouponsByProductId(productId, status, pageNum, pageCount int) ([]*models.Coupon, error) {
+	rows, err := m.Db.Query("SELECT b.bc_code, c.coupon_id, c.coupon_status, c.coupon_code, c.update_time, DATE(c.coupon_start_time), DATE(c.coupon_end_time) "+
+		"FROM coupon c LEFT JOIN bcoupon b ON c.coupon_id=b.pc_id WHERE c.product_id=? AND c.coupon_status = ?"+
+		"LIMIT ?,?", productId, status, (pageNum-1)*pageCount, pageCount)
 	if err != nil {
 		return nil, err
 	}
+	var coupons []*models.Coupon
+	cMap := make(map[int]*models.Coupon)
+	for rows.Next() {
+		c := new(models.Coupon)
+		var code string
+		err = rows.Scan(&code, &c.CouponId, &c.CouponStatus, &c.CouponCode, &c.UpdateTime, &c.CouponStartTime, &c.CouponEndTime)
+		if err != nil {
+			return nil, err
+		}
+		if cMap[c.CouponId] == nil {
+			cMap[c.CouponId] = c
+			cMap[c.CouponId].BCouponCodes = append(cMap[c.CouponId].BCouponCodes, code)
+		} else {
+			cMap[c.CouponId].BCouponCodes = append(cMap[c.CouponId].BCouponCodes, code)
+		}
 
-	bcs, err := m.FindBCouponByCouponId(c.CouponId)
-	if err != nil {
-		return nil, err
 	}
-	c.BCoupons = bcs
-	return c, nil
+	for _, v := range cMap {
+		coupons = append(coupons, v)
+	}
+	return coupons, nil
 }
 
 // 根据商品编号查询所有券码

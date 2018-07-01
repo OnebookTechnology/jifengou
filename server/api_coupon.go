@@ -66,7 +66,28 @@ func AddBusinessCoupon(ctx *gin.Context) {
 	}
 }
 
-//根据状态查询券码
+// 根据商品id和状态查询券码
+func QueryCouponByProductAndStatus(ctx *gin.Context) {
+	crossDomain(ctx)
+	var req CouponReq
+	if err := ctx.ShouldBindQuery(&req); err == nil {
+		cs, err := server.DB.FindCouponsByProductId(req.ProductId, req.Status, req.PageNum, req.PageCount)
+		if err != nil {
+			sendFailedResponse(ctx, Err, "FindBCouponByStatus err:", err)
+			return
+		}
+		res := &ResData{
+			Coupons: cs,
+		}
+		sendSuccessResponse(ctx, res)
+		return
+	} else {
+		sendFailedResponse(ctx, Err, "BindJSON err:", err)
+		return
+	}
+}
+
+//根据商家商品查询券码
 func QueryBCouponByStatus(ctx *gin.Context) {
 	crossDomain(ctx)
 	var req CouponReq
