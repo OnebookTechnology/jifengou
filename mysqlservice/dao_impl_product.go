@@ -110,12 +110,11 @@ func (m *MysqlService) AddProduct(p *models.Product) error {
 }
 
 // 更新商品状态
-func (m *MysqlService) UpdateProductAvail(id, status int) error {
+func (m *MysqlService) UpdateProductStatus(id, status int) error {
 	tx, err := m.Db.Begin()
 	if err != nil {
 		return err
 	}
-	// s1. update online book's last_op_time、last_op_phone_number、online_status
 	_, err = tx.Exec("UPDATE product SET product_status=? where product_id=?", status, id)
 	if err != nil {
 		rollBackErr := tx.Rollback()

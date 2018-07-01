@@ -14,6 +14,7 @@ const (
 )
 
 type ProductReq struct {
+	ProductId         int     `json:"p_id" form:"p_id"`
 	ProductName       string  `json:"p_name"`
 	ProductInfo       string  `json:"p_info,omitempty"`
 	BusinessId        int     `json:"b_id" form:"b_id"`
@@ -61,7 +62,7 @@ func AddProduct(ctx *gin.Context) {
 	}
 }
 
-//添加商品
+//根据商家查找商品
 func FindAllProductByBusiness(ctx *gin.Context) {
 	crossDomain(ctx)
 	var req ProductReq
@@ -73,6 +74,27 @@ func FindAllProductByBusiness(ctx *gin.Context) {
 		}
 		res := &ResData{
 			Products: ps,
+		}
+		sendSuccessResponse(ctx, res)
+		return
+	} else {
+		sendFailedResponse(ctx, Err, "bind request parameter err:", err)
+		return
+	}
+}
+
+//根据id查找商品
+func FindAllProductById(ctx *gin.Context) {
+	crossDomain(ctx)
+	var req ProductReq
+	if err := ctx.ShouldBindQuery(&req); err == nil {
+		ps, err := server.DB.FindProductById(req.ProductId)
+		if err != nil {
+			sendFailedResponse(ctx, Err, "FindAllProductByBusinessIdAndStatus err:", err)
+			return
+		}
+		res := &ResData{
+			Product: ps,
 		}
 		sendSuccessResponse(ctx, res)
 		return
@@ -94,6 +116,24 @@ func FindAllCategory(ctx *gin.Context) {
 	}
 	sendSuccessResponse(ctx, res)
 	return
+}
+
+//添加商品
+func UpdateProductStatus(ctx *gin.Context) {
+	crossDomain(ctx)
+	var req ProductReq
+	if err := ctx.BindJSON(&req); err == nil {
+		err := server.DB.UpdateProductStatus(req.ProductId, req.ProductStatus)
+		if err != nil {
+			sendFailedResponse(ctx, Err, "UpdateProductStatus err:", err)
+			return
+		}
+		sendSuccessResponse(ctx, nil)
+		return
+	} else {
+		sendFailedResponse(ctx, Err, "bind request parameter err:", err)
+		return
+	}
 }
 
 func savePics(form *multipart.Form, picType string, p *models.Product, ctx *gin.Context) {

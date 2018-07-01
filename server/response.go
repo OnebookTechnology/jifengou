@@ -27,6 +27,7 @@ type ResData struct {
 	Business   *models.Business   `json:"business,omitempty"`
 	Categories []*models.Category `json:"categories,omitempty"`
 	Products   []*models.Product  `json:"products,omitempty"`
+	Product    *models.Product    `json:"product,omitempty"`
 	BCoupons   []*models.BCoupon  `json:"b_coupons,omitempty"`
 }
 
