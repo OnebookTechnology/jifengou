@@ -13,10 +13,3 @@ type BCoupon struct {
 	BCStatus     int    `json:"bc_status"`       // 商家优惠券的状态
 	BCUpdateTime string `json:"bc_update_time"`  // 商家优惠券状态修改时间
 }
-
-const (
-	BCADDED   = iota // 商家优惠券已添加 0
-	BCBINDED         // 商家优惠券已绑定 1
-	BCUSED           // 商家优惠券已使用 2
-	BCEXPIRED        // 商家优惠券已超期 3
-)

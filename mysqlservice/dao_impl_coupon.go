@@ -78,9 +78,26 @@ func (m *MysqlService) FindCouponByCode(couponCode string) (*models.Coupon, erro
 	return c, nil
 }
 
-//
+// 根据商品id查询券码
+func (m *MysqlService) FindCouponsByProductId(productId int) (*models.Coupon, error) {
+	row := m.Db.QueryRow("SELECT c.coupon_id, c.coupon_status, c.coupon_code, c.update_time, DATE(c.coupon_start_time), DATE(c.coupon_end_time) "+
+		"FROM coupon c WHERE c.product_id=?", productId)
 
-// 查询所有券码
+	c := new(models.Coupon)
+	err := row.Scan(&c.CouponId, &c.CouponStatus, &c.CouponCode, &c.UpdateTime, &c.CouponStartTime, &c.CouponEndTime)
+	if err != nil {
+		return nil, err
+	}
+
+	bcs, err := m.FindBCouponByCouponId(c.CouponId)
+	if err != nil {
+		return nil, err
+	}
+	c.BCoupons = bcs
+	return c, nil
+}
+
+// 根据商品编号查询所有券码
 func (m *MysqlService) FindCouponsByItemStatement(itemStatement string, count int, buyTime string, startTime, endTime string) ([]*models.Coupon, error) {
 	rows, err := m.Db.Query("SELECT c.coupon_id, c.coupon_status, c.coupon_code, c.update_time, DATE(c.coupon_start_time), DATE(c.coupon_end_time) "+
 		"FROM coupon c LEFT JOIN product p ON c.product_id = p.product_id "+
