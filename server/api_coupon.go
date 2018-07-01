@@ -48,7 +48,7 @@ func AddBusinessCoupon(ctx *gin.Context) {
 				ProductId:    req.ProductId,
 				BCStart:      p.ProductStartTime,
 				BCEnd:        p.ProductEndTime,
-				BCStatus:     models.CouponNotReleased,
+				BCStatus:     models.CouponNotBind,
 				BCUpdateTime: nowTimestampString(),
 			}
 			err = server.DB.AddBusinessCoupon(bc)
@@ -69,7 +69,7 @@ func QueryBCouponByStatus(ctx *gin.Context) {
 	crossDomain(ctx)
 	var req CouponReq
 	if err := ctx.ShouldBindQuery(&req); err == nil {
-		bs, err := server.DB.FindBCouponByStatus(req.Status, req.PageNum, req.PageCount)
+		bs, err := server.DB.FindBCouponByStatus(req.Status, req.ProductId, req.PageNum, req.PageCount)
 		if err != nil {
 			sendFailedResponse(ctx, Err, "FindBCouponByStatus err:", err)
 			return
