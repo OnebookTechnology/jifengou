@@ -10,7 +10,7 @@ type CouponReq struct {
 	BusinessId   int      `json:"b_id"`
 	ProductId    int      `json:"p_id" form:"p_id"`
 	BCouponCodes []string `json:"b_codes"`
-	BindCodes    []string `json:"codes"`
+	BindIds      []int    `json:"codes"`
 	Status       int      `json:"status" form:"status"`
 
 	PageNum   int `json:"page_num,omitempty" form:"page_num"`
@@ -105,8 +105,18 @@ func BindCoupon(ctx *gin.Context) {
 			CouponStatus:    models.CouponNotReleased,
 			UpdateTime:      nowTimestampString(),
 		}
-		logger.Info(c)
-		//err := server.DB.BindCoupon(c, req.BindCodes)
+		cId, err := server.DB.AddCoupon(c)
+		if err != nil {
+			sendFailedResponse(ctx, Err, "AddCoupon err:", err)
+			return
+		}
+		for _, bcId := range req.BindIds {
+			err = server.DB.UpdateBCouponStatusAndCouponIdById(cId, bcId, req.Status)
+			if err != nil {
+				sendFailedResponse(ctx, Err, "UpdateBCouponStatusAndCouponIdById err:", err, "data:", cId, bcId, req.Status)
+				return
+			}
+		}
 		sendSuccessResponse(ctx, nil)
 		return
 	} else {

@@ -28,33 +28,42 @@ func (m *MysqlService) UpdateCouponStatusByCouponCode(code string, status int, u
 	return nil
 }
 
-// 绑定添加券码
-func (m *MysqlService) BindCoupon(c *models.Coupon, bCouponIds []int) error {
+// 添加券码
+func (m *MysqlService) AddCoupon(c *models.Coupon) (int, error) {
 	// begin transaction
 	tx, err := m.Db.Begin()
 	if err != nil {
-		return err
+		return 0, err
 	}
-	_, err = tx.Exec("INSERT INTO coupon(coupon_code, product_id, coupon_start_time,coupon_end_time,coupon_status) VALUES(?,?,?,?,?)",
+	r, err := tx.Exec("INSERT INTO coupon(coupon_code, product_id, coupon_start_time,coupon_end_time,coupon_status) VALUES(?,?,?,?,?)",
 		c.CouponCode, c.ProductID, c.CouponStartTime, c.CouponEndTime, models.CouponNotReleased)
 	if err != nil {
 		rollBackErr := tx.Rollback()
 		if rollBackErr != nil {
-			return rollBackErr
+			return 0, rollBackErr
 		}
-		return errors.New("UPDATE Coupon err:" + err.Error())
+		return 0, errors.New("Add Coupon err:" + err.Error())
 	}
 
+	id, err := r.LastInsertId()
+	if err != nil {
+		rollBackErr := tx.Rollback()
+		if rollBackErr != nil {
+			return 0, rollBackErr
+		}
+		return 0, errors.New("LastInsertId() err:" + err.Error())
+	}
 	// commit transaction
 	err = tx.Commit()
 	if err != nil {
 		rollBackErr := tx.Rollback()
 		if rollBackErr != nil {
-			return rollBackErr
+			return 0, rollBackErr
 		}
-		return err
+		return 0, err
 	}
-	return nil
+
+	return int(id), nil
 }
 
 // 查询券码

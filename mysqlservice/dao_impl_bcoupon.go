@@ -53,14 +53,14 @@ func (m *MysqlService) FindBCouponByStatus(status, productId, pageNum, pageCount
 }
 
 // 更新券码状态 (同时更新coupon 和bcoupon)
-func (m *MysqlService) UpdateBCouponStatusAndCouponIdById(product_id, bcId, status int) error {
+func (m *MysqlService) UpdateBCouponStatusAndCouponIdById(couponId, bcId, status int) error {
 	currentTime := time.Now().Format("2006-01-02 15:04:05")
 	tx, err := m.Db.Begin()
 	if err != nil {
 		return err
 	}
 	// s1. update online book's last_op_time、last_op_phone_number、online_status
-	_, err = tx.Exec("UPDATE bcoupon SET pc_id=?, bc_status=?, bc_update_time=? where bc_id=?", status, currentTime, bcId)
+	_, err = tx.Exec("UPDATE bcoupon SET pc_id=?, bc_status=?, bc_update_time=? where bc_id=?", couponId, status, currentTime, bcId)
 	if err != nil {
 		rollBackErr := tx.Rollback()
 		if rollBackErr != nil {
