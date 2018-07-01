@@ -127,6 +127,10 @@ func (m *MysqlService) UpdateProductAvail(id, status int) error {
 
 	err = tx.Commit()
 	if err != nil {
+		rollBackErr := tx.Rollback()
+		if rollBackErr != nil {
+			return rollBackErr
+		}
 		return err
 	}
 	return nil

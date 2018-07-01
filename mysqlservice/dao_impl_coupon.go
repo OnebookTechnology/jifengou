@@ -1,10 +1,8 @@
 package mysql
 
 import (
-	"database/sql"
 	"errors"
 	"github.com/OnebookTechnology/jifengou/server/models"
-	"time"
 )
 
 // 更新券码状态
@@ -30,42 +28,30 @@ func (m *MysqlService) UpdateCouponStatusByCouponCode(code string, status int, u
 	return nil
 }
 
-// 添加券码
-func (m *MysqlService) AddCoupon(cs []*models.Coupon) error {
-	currentTime := time.Now().Format("2006-01-02 15:04:05")
-
+// 绑定添加券码
+func (m *MysqlService) BindCoupon(c *models.Coupon, bCouponIds []int) error {
 	// begin transaction
 	tx, err := m.Db.Begin()
 	if err != nil {
 		return err
 	}
-	for _, c := range cs {
-		_, err := m.FindCouponByCode(c.CouponCode)
-		if err != nil {
-			if err != sql.ErrNoRows {
-				rollBackErr := tx.Rollback()
-				if rollBackErr != nil {
-					return rollBackErr
-				}
-				return errors.New("UPDATE Coupon err:" + err.Error())
-			} else {
-				_, err = tx.Exec("INSERT INTO coupon(coupon_code,coupon_start_time,coupon_end_time,coupon_status) VALUES(?,?,?,?)",
-					c.CouponCode, currentTime, c.CouponEndTime, models.CouponNotUsed)
-				if err != nil {
-					rollBackErr := tx.Rollback()
-					if rollBackErr != nil {
-						return rollBackErr
-					}
-					return errors.New("UPDATE Coupon err:" + err.Error())
-				}
-			}
+	_, err = tx.Exec("INSERT INTO coupon(coupon_code, product_id, coupon_start_time,coupon_end_time,coupon_status) VALUES(?,?,?,?,?)",
+		c.CouponCode, c.ProductID, c.CouponStartTime, c.CouponEndTime, models.CouponNotReleased)
+	if err != nil {
+		rollBackErr := tx.Rollback()
+		if rollBackErr != nil {
+			return rollBackErr
 		}
-		continue
+		return errors.New("UPDATE Coupon err:" + err.Error())
 	}
 
 	// commit transaction
 	err = tx.Commit()
 	if err != nil {
+		rollBackErr := tx.Rollback()
+		if rollBackErr != nil {
+			return rollBackErr
+		}
 		return err
 	}
 	return nil
@@ -82,6 +68,8 @@ func (m *MysqlService) FindCouponByCode(couponCode string) (*models.Coupon, erro
 	}
 	return c, nil
 }
+
+//
 
 // 查询所有券码
 func (m *MysqlService) FindCouponsByItemStatement(itemStatement string, count int, buyTime string, startTime, endTime string) ([]*models.Coupon, error) {

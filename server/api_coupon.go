@@ -10,13 +10,14 @@ type CouponReq struct {
 	BusinessId   int      `json:"b_id"`
 	ProductId    int      `json:"p_id" form:"p_id"`
 	BCouponCodes []string `json:"b_codes"`
+	BindCodes    []string `json:"codes"`
 	Status       int      `json:"status" form:"status"`
 
 	PageNum   int `json:"page_num,omitempty" form:"page_num"`
 	PageCount int `json:"page_count,omitempty" form:"page_count"`
 }
 
-//添加商品
+//添加商家券码
 func AddBusinessCoupon(ctx *gin.Context) {
 	crossDomain(ctx)
 	var req CouponReq
@@ -65,6 +66,7 @@ func AddBusinessCoupon(ctx *gin.Context) {
 	}
 }
 
+//根据状态查询券码
 func QueryBCouponByStatus(ctx *gin.Context) {
 	crossDomain(ctx)
 	var req CouponReq
@@ -81,6 +83,34 @@ func QueryBCouponByStatus(ctx *gin.Context) {
 		return
 	} else {
 		sendFailedResponse(ctx, Err, "BindJSON err:", err)
+		return
+	}
+}
+
+// 绑定券码
+func BindCoupon(ctx *gin.Context) {
+	crossDomain(ctx)
+	var req CouponReq
+	if err := ctx.BindJSON(&req); err == nil {
+		p, err := server.DB.FindProductById(req.ProductId)
+		if err != nil {
+			sendFailedResponse(ctx, Err, "FindProductById err:", err)
+			return
+		}
+		c := &models.Coupon{
+			ProductID:       req.ProductId,
+			CouponCode:      "JFG" + nowTimestampString() + RandText(4),
+			CouponStartTime: p.ProductStartTime,
+			CouponEndTime:   p.ProductEndTime,
+			CouponStatus:    models.CouponNotReleased,
+			UpdateTime:      nowTimestampString(),
+		}
+		logger.Info(c)
+		//err := server.DB.BindCoupon(c, req.BindCodes)
+		sendSuccessResponse(ctx, nil)
+		return
+	} else {
+		sendFailedResponse(ctx, Err, "bind request parameter err:", err)
 		return
 	}
 }

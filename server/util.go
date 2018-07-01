@@ -194,19 +194,6 @@ func MoveFile(dstName, srcName string) (movsuccess bool, err error) {
 	return false, err
 }
 
-const digChars = "0123456789"
-
-//生成随机数字.
-func RandNumber(num int) string {
-	textNum := len(digChars)
-	text := ""
-	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	for i := 0; i < num; i++ {
-		text = text + string(digChars[r.Intn(textNum)])
-	}
-	return text
-}
-
 // 计算经纬度
 // 返回值的单位为米
 func EarthDistance(lat1, lng1, lat2, lng2 float64) float64 {
@@ -349,4 +336,32 @@ func YuanToFen(yuan float64) int {
 func FenToYuan(fen int) float64 {
 	yuan, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", float64(fen)/100), 64)
 	return yuan
+}
+
+const (
+	txtChars = "AaCcDdEeFfGgHhJjKkLMmNnPpQqRrSsTtUuVvWwXxYtZ012346789"
+	digChars = "0123456789"
+)
+
+//生成随机字体.
+func RandText(num int) string {
+	textNum := len(txtChars)
+	text := ""
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+
+	for i := 0; i < num; i++ {
+		text = text + string(txtChars[r.Intn(textNum)])
+	}
+	return text
+}
+
+//生成随机数字.
+func RandNumber(num int) string {
+	textNum := len(digChars)
+	text := ""
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	for i := 0; i < num; i++ {
+		text = text + string(digChars[r.Intn(textNum)])
+	}
+	return text
 }

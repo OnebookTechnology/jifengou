@@ -34,7 +34,7 @@ func (m *MysqlService) AddBusinessCoupon(b *models.BCoupon) error {
 
 // 查询券码
 func (m *MysqlService) FindBCouponByStatus(status, productId, pageNum, pageCount int) ([]*models.BCoupon, error) {
-	rows, err := m.Db.Query("SELECT bc_id,bc_cart_id,bc_code,b_id,product_id,pc_id,bc_start,bc_end,bc_status,bc_update_time FROM bcoupon "+
+	rows, err := m.Db.Query("SELECT bc_id,bc_cart_id,bc_code,b_id,product_id,pc_code,bc_start,bc_end,bc_status,bc_update_time FROM bcoupon "+
 		" WHERE bc_status=? AND product_id=? "+
 		" LIMIT ?,?", status, productId, (pageNum-1)*pageCount, pageCount)
 	if err != nil {
@@ -43,7 +43,7 @@ func (m *MysqlService) FindBCouponByStatus(status, productId, pageNum, pageCount
 	var bs []*models.BCoupon
 	for rows.Next() {
 		b := new(models.BCoupon)
-		err := rows.Scan(&b.BCId, &b.BCCartId, &b.BCCode, &b.BId, &b.ProductId, &b.PCId, &b.BCStart, &b.BCEnd, &b.BCStatus, &b.BCUpdateTime)
+		err := rows.Scan(&b.BCId, &b.BCCartId, &b.BCCode, &b.BId, &b.ProductId, &b.PCCode, &b.BCStart, &b.BCEnd, &b.BCStatus, &b.BCUpdateTime)
 		if err != nil {
 			return nil, err
 		}
@@ -53,3 +53,29 @@ func (m *MysqlService) FindBCouponByStatus(status, productId, pageNum, pageCount
 }
 
 // 更新券码状态 (同时更新coupon 和bcoupon)
+func (m *MysqlService) UpdateBCouponStatusAndCouponIdById(product_id, bcId, status int) error {
+	currentTime := time.Now().Format("2006-01-02 15:04:05")
+	tx, err := m.Db.Begin()
+	if err != nil {
+		return err
+	}
+	// s1. update online book's last_op_time、last_op_phone_number、online_status
+	_, err = tx.Exec("UPDATE bcoupon SET pc_code=?, bc_status=?, bc_update_time=? where bc_id=?", status, currentTime, bcId)
+	if err != nil {
+		rollBackErr := tx.Rollback()
+		if rollBackErr != nil {
+			return rollBackErr
+		}
+		return err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		rollBackErr := tx.Rollback()
+		if rollBackErr != nil {
+			return rollBackErr
+		}
+		return err
+	}
+	return nil
+}
