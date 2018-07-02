@@ -5,13 +5,16 @@ import (
 	"github.com/OnebookTechnology/jifengou/server/models"
 )
 
-// 更新券码状态
-func (m *MysqlService) UpdateCouponStatusByCouponCode(code string, status int, updateTime string) error {
+// 更新券码和商家券码状态
+func (m *MysqlService) UpdateCouponStatus(code string, status int, updateTime string) error {
+	c, err := m.FindCouponByCode(code)
+	if err != nil {
+		return err
+	}
 	tx, err := m.Db.Begin()
 	if err != nil {
 		return err
 	}
-	// s1. update online book's last_op_time、last_op_phone_number、online_status
 	_, err = tx.Exec("UPDATE coupon SET coupon_status=?, update_time=? WHERE coupon_code=?", status, updateTime, code)
 	if err != nil {
 		rollBackErr := tx.Rollback()
@@ -21,8 +24,20 @@ func (m *MysqlService) UpdateCouponStatusByCouponCode(code string, status int, u
 		return errors.New("UPDATE coupon err:" + err.Error())
 	}
 
+	_, err = tx.Exec("UPDATE bcoupon SET bc_status=?, bc_update_time=? WHERE pc_id=?", status, updateTime, c.CouponId)
+	if err != nil {
+		rollBackErr := tx.Rollback()
+		if rollBackErr != nil {
+			return rollBackErr
+		}
+		return errors.New("UPDATE bcoupon err:" + err.Error())
+	}
 	err = tx.Commit()
 	if err != nil {
+		rollBackErr := tx.Rollback()
+		if rollBackErr != nil {
+			return rollBackErr
+		}
 		return err
 	}
 	return nil
@@ -35,8 +50,8 @@ func (m *MysqlService) AddCoupon(c *models.Coupon) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	r, err := tx.Exec("INSERT INTO coupon(coupon_code, product_id, coupon_start_time,coupon_end_time,coupon_status) VALUES(?,?,?,?,?)",
-		c.CouponCode, c.ProductID, c.CouponStartTime, c.CouponEndTime, models.CouponNotReleased)
+	r, err := tx.Exec("INSERT INTO coupon(coupon_code, product_id, coupon_start_time,coupon_end_time,coupon_status,update_time) VALUES(?,?,?,?,?,?)",
+		c.CouponCode, c.ProductID, c.CouponStartTime, c.CouponEndTime, models.CouponNotReleased, nowFormat())
 	if err != nil {
 		rollBackErr := tx.Rollback()
 		if rollBackErr != nil {
@@ -68,10 +83,10 @@ func (m *MysqlService) AddCoupon(c *models.Coupon) (int, error) {
 
 // 查询券码
 func (m *MysqlService) FindCouponByCode(couponCode string) (*models.Coupon, error) {
-	row := m.Db.QueryRow("SELECT product_id ,coupon_code, coupon_end_time, coupon_status FROM coupon WHERE coupon_code=?",
+	row := m.Db.QueryRow("SELECT coupon_id, product_id ,coupon_code, coupon_end_time, coupon_status FROM coupon WHERE coupon_code=?",
 		couponCode)
 	c := new(models.Coupon)
-	err := row.Scan(&c.ProductID, &c.CouponCode, &c.CouponEndTime, &c.CouponStatus)
+	err := row.Scan(&c.CouponId, &c.ProductID, &c.CouponCode, &c.CouponEndTime, &c.CouponStatus)
 	if err != nil {
 		return nil, err
 	}

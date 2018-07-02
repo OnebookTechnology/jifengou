@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/go-sql-driver/mysql"
 	"github.com/robfig/config"
+	"time"
 )
 
 type MysqlService struct {
@@ -65,4 +66,8 @@ func (m *MysqlService) InitialDB(confPath, tagName string) error {
 		return err
 	}
 	return nil
+}
+
+func nowFormat() string {
+	return time.Now().Format("2006-01-02 15:04:05")
 }

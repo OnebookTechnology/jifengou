@@ -14,6 +14,7 @@ type CouponReq struct {
 	CouponCode   string   `form:"code"`
 	Status       int      `json:"status" form:"status"`
 	Exchange     string   `json:"exchange,omitempty" form:"exchange"`
+	UpdateTime   string   `json:"time"`
 
 	PageNum   int `json:"page_num,omitempty" form:"page_num"`
 	PageCount int `json:"page_count,omitempty" form:"page_count"`
@@ -170,8 +171,28 @@ func QueryBCouponByCoupon(ctx *gin.Context) {
 	return
 }
 
-// 兑换券码
-func ExchangeCode(ctx *gin.Context) {
+// 更新券码状态
+func UpdateCodeStatus(ctx *gin.Context) {
 	crossDomain(ctx)
-
+	var req CouponReq
+	if err := ctx.BindJSON(&req); err == nil {
+		err := server.DB.UpdateCouponStatus(req.CouponCode, req.Status, req.UpdateTime)
+		if err != nil {
+			sendFailedResponse(ctx, Err, "UpdateCouponStatus err:", err)
+			return
+		}
+		// 已使用，则通知积分购
+		if req.Status == models.CouponUsed {
+			err := notifyJFGUseCoupon(req.CouponCode, req.UpdateTime, "")
+			if err != nil {
+				sendFailedResponse(ctx, Err, "notifyJFGUseCoupon err:", err)
+				return
+			}
+		}
+		sendSuccessResponse(ctx, nil)
+		return
+	} else {
+		sendFailedResponse(ctx, Err, "bind request parameter err:", err)
+		return
+	}
 }

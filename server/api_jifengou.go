@@ -301,7 +301,7 @@ func UpdateCouponStatus(ctx *gin.Context) {
 		handleError(ctx, err)
 		return
 	}
-	err = server.DB.UpdateCouponStatusByCouponCode(coupon.CouponCode, status, requestJson.UpdateTime)
+	err = server.DB.UpdateCouponStatus(coupon.CouponCode, status, requestJson.UpdateTime)
 	if err != nil {
 		handleError(ctx, err)
 		return
@@ -426,7 +426,7 @@ func QueryCouponStatusFromJFG(ctx *gin.Context) {
 	}
 
 	status, _ := strconv.Atoi(res.Data.Status)
-	err = server.DB.UpdateCouponStatusByCouponCode(code, status, nowTimestampString())
+	err = server.DB.UpdateCouponStatus(code, status, nowFormat())
 	if err != nil {
 		handleError(ctx, err)
 		return
@@ -441,6 +441,14 @@ func NotifyCouponUsedToJFG(ctx *gin.Context) {
 	code := ctx.PostForm("code")
 	time := ctx.PostForm("time")
 	usage := ctx.PostForm("usage")
+	err := notifyJFGUseCoupon(code, time, usage)
+	if err != nil {
+		ctx.String(http.StatusOK, "%s", err.Error())
+	}
+	ctx.String(http.StatusOK, "ok")
+}
+
+func notifyJFGUseCoupon(code, time, usage string) error {
 	cryptCode, _ := AESEncryptToHexString([]byte(code), []byte(server.Env.BusinessKey))
 	spId, _ := strconv.Atoi(server.Env.BusinessId)
 	reqJson := &RequestJsonToJFG{
@@ -451,8 +459,7 @@ func NotifyCouponUsedToJFG(ctx *gin.Context) {
 	}
 	reqStr, err := jsoniter.MarshalToString(reqJson)
 	if err != nil {
-		ctx.String(http.StatusBadRequest, "MarshalToString err: %s", err.Error())
-		return
+		return errors.New("MarshalToString err: " + err.Error())
 	}
 	now := nowTimestampString()
 	sign := CalcSign(server.Env.BusinessKey, reqStr, now)
@@ -462,27 +469,22 @@ func NotifyCouponUsedToJFG(ctx *gin.Context) {
 	resp, err := http.Post(url, "application/json;charset=utf-8", bytes.NewBuffer([]byte(reqStr)))
 	defer resp.Body.Close()
 	if err != nil {
-		ctx.String(http.StatusInternalServerError, "coupon use notify err: %s", err.Error())
-		return
+		return errors.New("coupon use notify err:" + err.Error())
 	}
 	rb, _ := ioutil.ReadAll(resp.Body)
 	logger.Debug("coupon use response:", string(rb))
 	res := &ResponseFromJFG{Data: new(ResponseFromJFGData)}
 	err = jsoniter.UnmarshalFromString(string(rb), res)
 	if err != nil {
-		ctx.String(http.StatusOK, "UnmarshalFromString err: %s", err.Error())
-		return
+		return errors.New("UnmarshalFromString err:" + err.Error())
 	}
 	if res.StatusCode != "200" {
-		ctx.String(http.StatusOK, "status code is: %s, message: %s", res.StatusCode, res.Message)
-		return
+		return errors.New("status code is:" + res.StatusCode + "message: " + res.Message)
 	}
 	if res.Data.Result != "1000" {
-		ctx.String(http.StatusOK, "result code is: %s, message: %s", res.Data.Result, res.Data.FailReason)
-		return
+		return errors.New("result code is:" + res.Data.Result + "message: " + res.Data.FailReason)
 	}
-
-	ctx.String(http.StatusOK, "ok")
+	return nil
 }
 
 //积分购平台签名算法

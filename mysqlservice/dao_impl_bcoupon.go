@@ -100,3 +100,20 @@ func (m *MysqlService) UpdateBCouponStatusAndCouponIdById(couponId, bcId, status
 }
 
 // 根据平台券码得到商家券码
+func (m *MysqlService) FindBCouponsByCoupon(code string) ([]*models.BCoupon, error) {
+	rows, err := m.Db.Query("SELECT bc_id,bc.bc_cart_id,bc.bc_code,bc.b_id,bc.product_id,bc.pc_id,bc.bc_start,bc.bc_end,bc.bc_status,bc.bc_update_time "+
+		" FROM JiFenGou.bcoupon bc LEFT JOIN JiFenGou.coupon c ON bc.pc_id = c.coupon_id WHERE c.coupon_code = ? ", code)
+	if err != nil {
+		return nil, nil
+	}
+	var bs []*models.BCoupon
+	for rows.Next() {
+		b := new(models.BCoupon)
+		err := rows.Scan(&b.BCId, &b.BCCartId, &b.BCCode, &b.BId, &b.ProductId, &b.PCId, &b.BCStart, &b.BCEnd, &b.BCStatus, &b.BCUpdateTime)
+		if err != nil {
+			return nil, err
+		}
+		bs = append(bs, b)
+	}
+	return bs, nil
+}
