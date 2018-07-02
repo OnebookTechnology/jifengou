@@ -175,21 +175,43 @@ func QueryBCouponByCoupon(ctx *gin.Context) {
 func UpdateCodeStatus(ctx *gin.Context) {
 	crossDomain(ctx)
 	var req CouponReq
-	if err := ctx.BindJSON(&req); err == nil {
-		err := server.DB.UpdateCouponStatus(req.CouponCode, req.Status, req.UpdateTime)
+	if err := ctx.ShouldBindJSON(&req); err == nil {
+
+		c, err := server.DB.FindCouponByCode(req.CouponCode)
+		if err != nil {
+			sendFailedResponse(ctx, Err, "FindCouponByCode err:", err)
+			return
+		}
+
+		if req.Status == models.CouponUsed && c.CouponStatus >= models.CouponUsed {
+			goto RETURN
+		}
+
+		err = server.DB.UpdateCouponStatus(req.CouponCode, req.Status, req.UpdateTime)
 		if err != nil {
 			sendFailedResponse(ctx, Err, "UpdateCouponStatus err:", err)
 			return
 		}
 		// 已使用，则通知积分购
-		if req.Status == models.CouponUsed {
-			err := notifyJFGUseCoupon(req.CouponCode, req.UpdateTime, "")
-			if err != nil {
-				sendFailedResponse(ctx, Err, "notifyJFGUseCoupon err:", err)
-				return
+		go func() {
+			if req.Status == models.CouponUsed {
+				err := notifyJFGUseCoupon(req.CouponCode, req.UpdateTime, "")
+				if err != nil {
+					logger.Error("notifyJFGUseCoupon err:", err)
+				}
 			}
+		}()
+
+	RETURN:
+		bcs, err := server.DB.FindBCouponsByCoupon(req.CouponCode)
+		if err != nil {
+			sendFailedResponse(ctx, Err, "FindCouponByCode err:", err)
+			return
 		}
-		sendSuccessResponse(ctx, nil)
+		res := &ResData{
+			BCoupons: bcs,
+		}
+		sendSuccessResponse(ctx, res)
 		return
 	} else {
 		sendFailedResponse(ctx, Err, "bind request parameter err:", err)

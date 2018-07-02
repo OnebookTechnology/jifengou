@@ -30,6 +30,7 @@ type ResData struct {
 	Product    *models.Product    `json:"product,omitempty"`
 	BCoupons   []*models.BCoupon  `json:"b_coupons,omitempty"`
 	Coupons    []*models.Coupon   `json:"coupons,omitempty"`
+	Coupon     *models.Coupon     `json:"coupon,omitempty"`
 }
 
 func Options(ctx *gin.Context) {
