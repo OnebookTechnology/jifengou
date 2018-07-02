@@ -179,7 +179,7 @@ func UpdateCodeStatus(ctx *gin.Context) {
 
 		c, err := server.DB.FindCouponByCode(req.CouponCode)
 		if err != nil {
-			sendFailedResponse(ctx, Err, "FindCouponByCode err:", err)
+			sendFailedResponse(ctx, Err, "FindCouponByCode err:", err, "data:", req.CouponCode)
 			return
 		}
 
