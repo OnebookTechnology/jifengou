@@ -179,8 +179,3 @@ func (s *Server) createLogs(logDir string) error {
 
 	return nil
 }
-
-func crossDomain(ctx *gin.Context) {
-	ctx.Header("Access-Control-Allow-Origin", "*")
-	ctx.Header("Access-Control-Allow-Headers", "Authorization, Origin, No-Cache, X-Requested-With, Content-Range, X_FILENAME, If-Modified-Since, Pragma, Last-Modified, Cache-Control, Expires, Content-Type, X-E4M-With")
-}

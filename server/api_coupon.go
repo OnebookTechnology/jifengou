@@ -11,7 +11,9 @@ type CouponReq struct {
 	ProductId    int      `json:"p_id" form:"p_id"`
 	BCouponCodes []string `json:"b_codes"`
 	BindIds      []int    `json:"codes"`
+	CouponCode   string   `form:"code"`
 	Status       int      `json:"status" form:"status"`
+	Exchange     string   `json:"exchange,omitempty" form:"exchange"`
 
 	PageNum   int `json:"page_num,omitempty" form:"page_num"`
 	PageCount int `json:"page_count,omitempty" form:"page_count"`
@@ -73,7 +75,7 @@ func QueryCouponByProductAndStatus(ctx *gin.Context) {
 	if err := ctx.ShouldBindQuery(&req); err == nil {
 		cs, err := server.DB.FindCouponsByProductId(req.ProductId, req.Status, req.PageNum, req.PageCount)
 		if err != nil {
-			sendFailedResponse(ctx, Err, "FindBCouponByStatus err:", err)
+			sendFailedResponse(ctx, Err, "FindCouponsByProductId err:", err)
 			return
 		}
 		res := &ResData{
@@ -144,4 +146,32 @@ func BindCoupon(ctx *gin.Context) {
 		sendFailedResponse(ctx, Err, "bind request parameter err:", err)
 		return
 	}
+}
+
+// 根据平台券码查询商家券码
+func QueryBCouponByCoupon(ctx *gin.Context) {
+	crossDomain(ctx)
+	var req CouponReq
+	if err := ctx.ShouldBindQuery(&req); err == nil {
+		bs, err := server.DB.FindBCouponByStatus(req.Status, req.ProductId, req.PageNum, req.PageCount)
+		if err != nil {
+			sendFailedResponse(ctx, Err, "FindBCouponByStatus err:", err)
+			return
+		}
+		res := &ResData{
+			BCoupons: bs,
+		}
+		sendSuccessResponse(ctx, res)
+		return
+	} else {
+		sendFailedResponse(ctx, Err, "BindJSON err:", err)
+		return
+	}
+	return
+}
+
+// 兑换券码
+func ExchangeCode(ctx *gin.Context) {
+	crossDomain(ctx)
+
 }

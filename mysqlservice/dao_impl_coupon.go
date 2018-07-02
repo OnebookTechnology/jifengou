@@ -81,7 +81,7 @@ func (m *MysqlService) FindCouponByCode(couponCode string) (*models.Coupon, erro
 // 根据商品id和状态查询券码
 func (m *MysqlService) FindCouponsByProductId(productId, status, pageNum, pageCount int) ([]*models.Coupon, error) {
 	rows, err := m.Db.Query("SELECT b.bc_code, c.coupon_id, c.coupon_status, c.coupon_code, c.update_time, DATE(c.coupon_start_time), DATE(c.coupon_end_time) "+
-		"FROM coupon c LEFT JOIN bcoupon b ON c.coupon_id=b.pc_id WHERE c.product_id=? AND c.coupon_status = ?"+
+		"FROM coupon c LEFT JOIN bcoupon b ON c.coupon_id=b.pc_id WHERE c.product_id=? AND c.coupon_status = ? "+
 		"LIMIT ?,?", productId, status, (pageNum-1)*pageCount, pageCount)
 	if err != nil {
 		return nil, err
