@@ -11,7 +11,7 @@ type CouponReq struct {
 	ProductId    int      `json:"p_id" form:"p_id"`
 	BCouponCodes []string `json:"b_codes"`
 	BindIds      []int    `json:"codes"`
-	CouponCode   string   `form:"code"`
+	CouponCode   string   `json:"code" form:"code"`
 	Status       int      `json:"status" form:"status"`
 	Exchange     string   `json:"exchange,omitempty" form:"exchange"`
 	UpdateTime   string   `json:"time"`
