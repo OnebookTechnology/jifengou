@@ -183,7 +183,7 @@ func UpdateCodeStatus(ctx *gin.Context) {
 			return
 		}
 
-		if req.Status == models.CouponUsed && c.CouponStatus >= models.CouponUsed {
+		if req.Status == models.CouponUsed && c.CouponStatus != models.CouponNotUsed {
 			goto RETURN
 		}
 
