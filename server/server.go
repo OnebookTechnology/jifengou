@@ -78,6 +78,10 @@ func NewService(confPath, serverName string, mode string) (*Server, error) {
 	gin.DisableConsoleColor()
 	router := gin.New()
 	router.Use(gin.LoggerWithWriter(server.accessLog), gin.RecoveryWithWriter(server.errorLog))
+	router.LoadHTMLGlob("html/*")
+	router.GET("/sms", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "x.html", gin.H{})
+	})
 
 	//DB
 	db := new(mysql.MysqlService)
