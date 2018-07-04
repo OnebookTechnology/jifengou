@@ -26,7 +26,8 @@ type ProductReq struct {
 	ProductEndTime    string  `json:"p_end_time"`
 	ProductAlertCount int     `json:"p_alert_count"`
 	ProductBoundCount int     `json:"p_bound_count"`
-	ProductScore      int     `json:"product_score"`
+	ProductScore      int     `json:"p_score"`
+	ProductCode       string  `json:"p_code"`
 
 	PageNum   int `json:"page_num,omitempty" form:"page_num"`
 	PageCount int `json:"page_count,omitempty" form:"page_count"`
@@ -127,7 +128,7 @@ func UpdateProductStatus(ctx *gin.Context) {
 	crossDomain(ctx)
 	var req ProductReq
 	if err := ctx.BindJSON(&req); err == nil {
-		err := server.DB.UpdateProductStatus(req.ProductId, req.ProductStatus)
+		err := server.DB.UpdateProductStatusAndCode(req.ProductId, req.ProductStatus, req.ProductCode)
 		if err != nil {
 			sendFailedResponse(ctx, Err, "UpdateProductStatus err:", err)
 			return
