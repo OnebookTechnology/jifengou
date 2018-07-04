@@ -16,6 +16,9 @@ type Product struct {
 	ProductEndTime       string  `json:"product_end_time"`
 	ProductAlertCount    int     `json:"product_alert_count"`
 	ProductOnlineTime    string  `json:"product_online_time"`
+	ProductBoundCount    int     `json:"product_bound_count"` // 平台券所绑定商家券的数量
+	ProductScore         int     `json:"product_score"`       //积分
+	ProductCode          string  `json:"product_code"`        // 积分购平台代码
 }
 
 const (

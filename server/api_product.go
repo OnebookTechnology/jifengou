@@ -25,6 +25,8 @@ type ProductReq struct {
 	ProductStartTime  string  `json:"p_start_time"`
 	ProductEndTime    string  `json:"p_end_time"`
 	ProductAlertCount int     `json:"p_alert_count"`
+	ProductBoundCount int     `json:"p_bound_count"`
+	ProductScore      int     `json:"product_score"`
 
 	PageNum   int `json:"page_num,omitempty" form:"page_num"`
 	PageCount int `json:"page_count,omitempty" form:"page_count"`
@@ -48,6 +50,8 @@ func AddProduct(ctx *gin.Context) {
 			ProductEndTime:       req.ProductEndTime,
 			ProductAlertCount:    req.ProductAlertCount,
 			ProductOnlineTime:    nowFormat(),
+			ProductBoundCount:    req.ProductBoundCount,
+			ProductScore:         req.ProductScore,
 		}
 		err := server.DB.AddProduct(p)
 		if err != nil {

@@ -25,7 +25,17 @@ func AddBusinessCoupon(ctx *gin.Context) {
 	crossDomain(ctx)
 	var req CouponReq
 	if err := ctx.BindJSON(&req); err == nil {
-		for _, bcode := range req.BCouponCodes {
+		p, err := server.DB.FindProductById(req.ProductId)
+		if err != nil {
+			sendFailedResponse(ctx, Err, "FindProductById err:", err)
+			return
+		}
+		if len(req.BCouponCodes)%p.ProductBoundCount != 0 {
+			sendFailedResponse(ctx, BCouponCountErr, "请确保券码数量是", p.ProductBoundCount, "的倍数，当前添加券码数量:", len(req.BCouponCodes))
+			return
+		}
+		tempBCouponId := make([]int, p.ProductBoundCount)
+		for i, bcode := range req.BCouponCodes {
 			//去空格
 			bcode = strings.TrimSpace(bcode)
 			if bcode == "" {
@@ -40,11 +50,6 @@ func AddBusinessCoupon(ctx *gin.Context) {
 				cartId = coupon[0]
 				code = coupon[1]
 			}
-			p, err := server.DB.FindProductById(req.ProductId)
-			if err != nil {
-				sendFailedResponse(ctx, Err, "FindProductById err:", err)
-				return
-			}
 			bc := &models.BCoupon{
 				BCCartId:     cartId,
 				BCCode:       code,
@@ -55,10 +60,34 @@ func AddBusinessCoupon(ctx *gin.Context) {
 				BCStatus:     models.CouponNotBind,
 				BCUpdateTime: nowTimestampString(),
 			}
-			err = server.DB.AddBusinessCoupon(bc)
+			bId, err := server.DB.AddBusinessCoupon(bc)
 			if err != nil {
 				sendFailedResponse(ctx, Err, "AddBusinessCoupon err:", err)
 				return
+			}
+			tempBCouponId[i%p.ProductBoundCount] = int(bId)
+			// 添加平台Coupon
+			if (i+1)%p.ProductBoundCount == 0 {
+				c := &models.Coupon{
+					ProductID:       req.ProductId,
+					CouponCode:      "JFG" + nowTimestampString() + RandText(4),
+					CouponStartTime: p.ProductStartTime,
+					CouponEndTime:   p.ProductEndTime,
+					CouponStatus:    models.CouponNotReleased,
+					UpdateTime:      nowTimestampString(),
+				}
+				cId, err := server.DB.AddCoupon(c)
+				if err != nil {
+					sendFailedResponse(ctx, Err, "AddCoupon err:", err)
+					return
+				}
+				for _, bcId := range tempBCouponId {
+					err = server.DB.UpdateBCouponStatusAndCouponIdById(cId, bcId, models.CouponNotReleased)
+					if err != nil {
+						sendFailedResponse(ctx, Err, "UpdateBCouponStatusAndCouponIdById err:", err, "data:", cId, bcId, req.Status)
+						return
+					}
+				}
 			}
 		}
 		sendSuccessResponse(ctx, nil)

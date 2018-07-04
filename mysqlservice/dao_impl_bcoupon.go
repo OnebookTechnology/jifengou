@@ -6,30 +6,38 @@ import (
 )
 
 // 添加商户券码
-func (m *MysqlService) AddBusinessCoupon(b *models.BCoupon) error {
+func (m *MysqlService) AddBusinessCoupon(b *models.BCoupon) (int64, error) {
 	tx, err := m.Db.Begin()
 	if err != nil {
-		return err
+		return 0, err
 	}
-	_, err = tx.Exec("INSERT INTO bcoupon(bc_cart_id,bc_code,b_id,product_id,bc_start,bc_end,bc_status,bc_update_time) "+
+	result, err := tx.Exec("INSERT INTO bcoupon(bc_cart_id,bc_code,b_id,product_id,bc_start,bc_end,bc_status,bc_update_time) "+
 		"VALUES (?,?,?,?,?,?,?,?)", b.BCCartId, b.BCCode, b.BId, b.ProductId, b.BCStart, b.BCEnd, b.BCStatus, time.Now().Format("2006-01-02 15:04:05"))
 	if err != nil {
 		rollBackErr := tx.Rollback()
 		if rollBackErr != nil {
-			return rollBackErr
+			return 0, rollBackErr
 		}
-		return err
+		return 0, err
 	}
 
+	id, err := result.LastInsertId()
+	if err != nil {
+		rollBackErr := tx.Rollback()
+		if rollBackErr != nil {
+			return 0, rollBackErr
+		}
+		return 0, err
+	}
 	err = tx.Commit()
 	if err != nil {
 		rollBackErr := tx.Rollback()
 		if rollBackErr != nil {
-			return rollBackErr
+			return 0, rollBackErr
 		}
-		return err
+		return 0, err
 	}
-	return nil
+	return id, nil
 }
 
 // 根据状态查询商家券码
