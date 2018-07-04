@@ -10,6 +10,8 @@ func LoadRouter(router *gin.Engine) {
 		context.String(http.StatusOK, "I am %s", server.ServerName)
 	})
 
+	router.Any("/ueditor", UEditorHandler)
+
 	myRouter := router.Group("/jifengou")
 	myRouter.POST("/login", Login)
 

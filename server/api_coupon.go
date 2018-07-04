@@ -20,7 +20,7 @@ type CouponReq struct {
 	PageCount int `json:"page_count,omitempty" form:"page_count"`
 }
 
-//添加商家券码
+//添加商家券码, 同时绑定
 func AddBusinessCoupon(ctx *gin.Context) {
 	crossDomain(ctx)
 	var req CouponReq
