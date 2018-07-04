@@ -28,6 +28,8 @@ type Conf struct {
 	domain   string
 	logLevel int
 	logDir   string
+
+	ueditorConf *UEditorConfig
 }
 
 type Server struct {
@@ -130,6 +132,14 @@ func loadByConf(confPath string) error {
 		return err
 	}
 
+	ec := new(UEditorConfig)
+	ec.ImageUrl, _ = c.String("ueditor", "ImageUrl")
+	ec.ImagePath, _ = c.String("ueditor", "ImagePath")
+	ec.ImageFieldName, _ = c.String("ueditor", "ImageFieldName")
+	ec.ImageMaxSize, _ = c.Int("ueditor", "ImageMaxSize")
+	ec.ImageActionName, _ = c.String("ueditor", "ImageActionName")
+	ec.ImageAllowFiles = ImageAllowFiles
+	server.ueditorConf = ec
 	return nil
 }
 

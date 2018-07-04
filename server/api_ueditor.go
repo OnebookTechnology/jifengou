@@ -2,15 +2,9 @@ package server
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/json-iterator/go"
 	"io/ioutil"
 	"net/http"
-)
-
-const (
-	ImageUrl       = "http://47.93.17.108/ueditor?action=uploadimage"
-	ImagePath      = "/images/"
-	ImageFieldName = "upfile"
-	ImageMaxSize   = 2048
 )
 
 var ImageAllowFiles = []string{".png", ".jpg", ".jpeg", ".gif", ".bmp"}
@@ -21,28 +15,55 @@ type UEditorConfig struct {
 	ImageFieldName  string   `json:"imageFieldName"`
 	ImageMaxSize    int      `json:"imageMaxSize"`
 	ImageAllowFiles []string `json:"imageAllowFiles"`
+	ImageActionName string   `json:"imageActionName"`
+	StoragePath     string   `json:"storagePath"`
 }
 
 func UEditorHandler(ctx *gin.Context) {
+	crossDomain(ctx)
+	if ctx.Request.Method == "OPTIONS" {
+		return
+	}
 	action := ctx.Query("action")
+	callback := ctx.Query("callback")
 	switch action {
 	case "config":
-		GetUEditorConfig(ctx)
+		GetUEditorConfig(ctx, callback)
 		return
 	case "uploadimage":
 		SavePics(ctx)
 		return
+	default:
+		logger.Debug("actions:", action)
+		return
 	}
 }
 
-func GetUEditorConfig(ctx *gin.Context) {
-	ctx.JSON(http.StatusOK, UEditorConfig{
-		ImageUrl:        ImageUrl,
-		ImagePath:       ImagePath,
-		ImageFieldName:  ImageFieldName,
-		ImageMaxSize:    ImageMaxSize,
-		ImageAllowFiles: ImageAllowFiles,
-	})
+func GetUEditorConfig(ctx *gin.Context, callback string) {
+	c := UEditorConfig{
+		ImageUrl:        server.ueditorConf.ImageUrl,
+		ImagePath:       server.ueditorConf.ImagePath,
+		ImageFieldName:  server.ueditorConf.ImageFieldName,
+		ImageMaxSize:    server.ueditorConf.ImageMaxSize,
+		ImageAllowFiles: server.ueditorConf.ImageAllowFiles,
+		ImageActionName: server.ueditorConf.ImageActionName,
+	}
+	logger.Info("ueditor config:", c)
+	s, _ := jsoniter.MarshalToString(c)
+	ctx.Writer.WriteHeader(http.StatusOK)
+	ctx.Writer.Write([]byte(callback))
+	ctx.Writer.Write([]byte("("))
+	ctx.Writer.Write([]byte(s))
+	ctx.Writer.Write([]byte(")"))
+}
+
+type PicResponse struct {
+	State    string `json:"state"`
+	Url      string `json:"url"`
+	Title    string `json:"title"`
+	Original string `json:"original"`
+	Type     string `json:"type"`
+	Size     string `json:"size"`
 }
 
 func SavePics(ctx *gin.Context) {
@@ -61,12 +82,20 @@ func SavePics(ctx *gin.Context) {
 			ctx.String(http.StatusOK, "%s", err.Error())
 			return
 		}
-		err = ioutil.WriteFile(ImagePath+pic.Filename, data, 0777)
+		err = ioutil.WriteFile(server.ueditorConf.ImagePath+pic.Filename, data, 0777)
 		if err != nil {
 			logger.Error("save pics:", err)
 			ctx.String(http.StatusOK, "%s", err.Error())
 			return
 		}
-		ctx.String(http.StatusOK, "path:%s", ImagePath+pic.Filename)
+		res := &PicResponse{
+			State: "SUCCESS",
+			Url:   "http://47.93.17.108/images/" + pic.Filename,
+		}
+		s, _ := jsoniter.MarshalToString(res)
+		ctx.Writer.WriteHeader(http.StatusOK)
+		ctx.Writer.Write([]byte("<div id=\"jsonData\">"))
+		ctx.Writer.Write([]byte(s))
+		ctx.Writer.Write([]byte("</div>"))
 	}
 }
