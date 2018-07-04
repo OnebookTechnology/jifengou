@@ -16,6 +16,7 @@ type UEditorConfig struct {
 	ImageMaxSize    int      `json:"imageMaxSize"`
 	ImageAllowFiles []string `json:"imageAllowFiles"`
 	ImageActionName string   `json:"imageActionName"`
+	ImageUrlPrefix  string   `json:"imageUrlPrefix"`
 	StoragePath     string   `json:"storagePath"`
 }
 
