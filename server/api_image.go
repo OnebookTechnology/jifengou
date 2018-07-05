@@ -1,27 +1,57 @@
 package server
 
 import (
-	"fmt"
+	"github.com/OnebookTechnology/jifengou/server/models"
 	"github.com/gin-gonic/gin"
-	"os"
+	"io/ioutil"
+	"strconv"
 )
 
-func UploadPic(ctx *gin.Context) {
+func AddProductPic(ctx *gin.Context) {
 	crossDomain(ctx)
-}
-
-func savePic(picType int, filename string) (err error) {
-	file, err := os.Open(filename)
+	productIdStr := ctx.Query("p_id")
+	productId, err := strconv.Atoi(productIdStr)
 	if err != nil {
+		sendFailedResponse(ctx, Err, "p_id is invalid. data:", productIdStr)
 		return
 	}
-	name := file.Name()
-	fmt.Println(name)
-	//保存
 
-	// 上传完毕之后删除缓存的图片
+	form, _ := ctx.MultipartForm()
+	for _, pic := range form.File["file"] {
+		file, err := pic.Open()
+		defer file.Close()
+		if err != nil {
+			sendFailedResponse(ctx, Err, "save pics:", err)
+			return
+		}
+		data, err := ioutil.ReadAll(file)
+		if err != nil {
+			sendFailedResponse(ctx, Err, "save pics:", err)
+			return
+		}
+		err = ioutil.WriteFile(server.ueditorConf.ImagePath+pic.Filename, data, 0777)
+		if err != nil {
+			sendFailedResponse(ctx, Err, "save pics:", err)
+			return
+		}
 
-	// 保存图片原信息到数据库
+		image := &models.Image{
+			ImageUrl:   "http://47.93.17.108/images/" + pic.Filename,
+			ImageType:  0,
+			ProductId:  productId,
+			UploadTime: nowFormat(),
+		}
 
-	return
+		id, err := server.DB.AddImage(image)
+		if err != nil {
+			sendFailedResponse(ctx, Err, "AddImage err:", err)
+			return
+		}
+		image.ImageId = int(id)
+		res := &ResData{
+			Image: image,
+		}
+		sendSuccessResponse(ctx, res)
+
+	}
 }
