@@ -97,7 +97,7 @@ func (m *MysqlService) AddProduct(p *models.Product) error {
 		return err
 	}
 	// s1. update online book's last_op_time、last_op_phone_number、online_status
-	_, err = tx.Exec("INSERT INTO product(product_item_statement, product_name, product_info,product_status,business_id,"+
+	r, err := tx.Exec("INSERT INTO product(product_item_statement, product_name, product_info,product_status,business_id,"+
 		"product_category,product_subtitle,product_price,product_start_time,product_end_time,product_alert_count,"+
 		"product_online_time,product_bound_count, product_score, exchange_info) "+
 		"VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
@@ -111,12 +111,19 @@ func (m *MysqlService) AddProduct(p *models.Product) error {
 		}
 		return errors.New("AddProduct err:" + err.Error())
 	}
-
+	id, err := r.LastInsertId()
+	if err != nil {
+		rollBackErr := tx.Rollback()
+		if rollBackErr != nil {
+			return rollBackErr
+		}
+		return errors.New("AddProduct err:" + err.Error())
+	}
 	// 添加图片
 	if len(p.ProductPics) != 0 {
 		for i := range p.ProductPics {
 			fmt.Println(p.ProductPics[i])
-			_, err := tx.Exec("UPDATE image SET product_id=? WHERE image_url=? ", p.ProductId, p.ProductPics[i])
+			_, err := tx.Exec("UPDATE image SET product_id=? WHERE image_url=? ", id, p.ProductPics[i])
 			if err != nil {
 				rollBackErr := tx.Rollback()
 				if rollBackErr != nil {
