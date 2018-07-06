@@ -132,7 +132,7 @@ func loadByConf(confPath string) error {
 		return err
 	}
 
-	server.Conf.domain = "http://zhuzhushop.cn/"
+	server.Conf.domain = "http://zhuzhushop.cn"
 
 	ec := new(UEditorConfig)
 	ec.ImageUrl, _ = c.String("ueditor", "ImageUrl")
