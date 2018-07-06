@@ -54,6 +54,8 @@ func LoadRouter(router *gin.Engine) {
 		productRouter.OPTIONS("/query", Options)
 		productRouter.GET("/query_all/:condition", FindAllProductByCondition)
 		productRouter.OPTIONS("/query_all/:condition", Options)
+		productRouter.POST("/update", UpdateProduct)
+		productRouter.OPTIONS("/update", Options)
 	}
 
 	couponRouter := myRouter.Group("/coupon")

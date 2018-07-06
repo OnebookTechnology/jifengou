@@ -163,13 +163,17 @@ func (m *MysqlService) UpdateProductStatusAndCode(id, status int, code string) e
 }
 
 // 更新商品
-func (m *MysqlService) UpdateProductById(productId int) error {
+func (m *MysqlService) UpdateProductById(p *models.Product) error {
 	tx, err := m.Db.Begin()
 	if err != nil {
 		return err
 	}
-	_, err = tx.Exec("UPDATE product SET product_id=?,product_item_statement=?, product_name=?, product_info=?,product_status=?,product_category=?,"+
-		"product_subtitle=?,product_price=?,product_start_time=?,product_end_time=?,product_alert_count=?,product_online_time=?,product_bound_count=? where product_id=?", productId)
+	_, err = tx.Exec("UPDATE product SET product_name=?, product_info=?,product_category=?,product_subtitle=?,product_price=?,"+
+		"product_start_time=?,product_end_time=?,product_alert_count=?,product_bound_count=?, exchange_info=? "+
+		"WHERE product_id=?",
+		p.ProductName, p.ProductInfo, p.ProductCategory, p.ProductSubtitle, p.ProductPrice,
+		p.ProductStartTime, p.ProductEndTime, p.ProductAlertCount, p.ProductBoundCount, p.ExchangeInfo,
+		p.ProductId)
 	if err != nil {
 		rollBackErr := tx.Rollback()
 		if rollBackErr != nil {

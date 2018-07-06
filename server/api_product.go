@@ -68,6 +68,38 @@ func AddProduct(ctx *gin.Context) {
 	}
 }
 
+//添加商品
+func UpdateProduct(ctx *gin.Context) {
+	crossDomain(ctx)
+	var req ProductReq
+	if err := ctx.BindJSON(&req); err == nil {
+		p := &models.Product{
+			ProductId:         req.ProductId,
+			ProductName:       req.ProductName,
+			ProductInfo:       req.ProductInfo,
+			ProductCategory:   req.ProductCategory,
+			ProductSubtitle:   req.ProductSubtitle,
+			ProductPrice:      req.ProductPrice,
+			ProductStartTime:  req.ProductStartTime,
+			ProductEndTime:    req.ProductEndTime,
+			ProductAlertCount: req.ProductAlertCount,
+			ProductScore:      req.ProductScore,
+			ProductPics:       req.ProductPics,
+			ExchangeInfo:      req.ExchangeInfo,
+		}
+		err := server.DB.UpdateProductById(p)
+		if err != nil {
+			sendFailedResponse(ctx, Err, "UpdateProductById err:", err)
+			return
+		}
+		sendSuccessResponse(ctx, nil)
+		return
+	} else {
+		sendFailedResponse(ctx, Err, "bind request parameter err:", err)
+		return
+	}
+}
+
 //根据商家查找商品
 func FindAllProductByBusiness(ctx *gin.Context) {
 	crossDomain(ctx)
