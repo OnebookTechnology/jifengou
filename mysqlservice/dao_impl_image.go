@@ -14,7 +14,7 @@ func (m *MysqlService) AddImage(image *models.Image) (int64, error) {
 		if rollBackErr != nil {
 			return 0, rollBackErr
 		}
-		return 0, errors.New("Add Coupon err:" + err.Error())
+		return 0, errors.New("Add Image err:" + err.Error())
 	}
 	id, err := r.LastInsertId()
 	if err != nil {

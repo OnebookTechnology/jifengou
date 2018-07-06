@@ -18,6 +18,8 @@ func (m *MysqlService) FindProductById(productId int) (*models.Product, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	row2 := m.Db.QueryRow("SELECT ")
 	return p, nil
 }
 
