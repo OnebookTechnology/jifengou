@@ -11,20 +11,21 @@ const (
 )
 
 type ProductReq struct {
-	ProductId         int     `json:"p_id" form:"p_id"`
-	ProductName       string  `json:"p_name"`
-	ProductInfo       string  `json:"p_info,omitempty"`
-	BusinessId        int     `json:"b_id" form:"b_id"`
-	ProductCategory   int     `json:"p_category"` //类型
-	ProductStatus     int     `json:"p_status" form:"p_status"`
-	ProductSubtitle   string  `json:"p_subtitle,omitempty"`
-	ProductPrice      float64 `json:"p_price"`
-	ProductStartTime  string  `json:"p_start_time"`
-	ProductEndTime    string  `json:"p_end_time"`
-	ProductAlertCount int     `json:"p_alert_count"`
-	ProductBoundCount int     `json:"p_bound_count"`
-	ProductScore      int     `json:"p_score"`
-	ProductCode       string  `json:"p_code"`
+	ProductId         int      `json:"p_id" form:"p_id"`
+	ProductName       string   `json:"p_name"`
+	ProductInfo       string   `json:"p_info,omitempty"`
+	BusinessId        int      `json:"b_id" form:"b_id"`
+	ProductCategory   int      `json:"p_category"` //类型
+	ProductStatus     int      `json:"p_status" form:"p_status"`
+	ProductSubtitle   string   `json:"p_subtitle,omitempty"`
+	ProductPrice      float64  `json:"p_price"`
+	ProductStartTime  string   `json:"p_start_time"`
+	ProductEndTime    string   `json:"p_end_time"`
+	ProductAlertCount int      `json:"p_alert_count"`
+	ProductBoundCount int      `json:"p_bound_count"`
+	ProductScore      int      `json:"p_score"`
+	ProductCode       string   `json:"p_code"`
+	ProductPics       []string `json:"p_pics"`
 
 	PageNum   int `json:"page_num,omitempty" form:"page_num"`
 	PageCount int `json:"page_count,omitempty" form:"page_count"`
@@ -50,6 +51,7 @@ func AddProduct(ctx *gin.Context) {
 			ProductOnlineTime:    nowFormat(),
 			ProductBoundCount:    req.ProductBoundCount,
 			ProductScore:         req.ProductScore,
+			ProductPics:          req.ProductPics,
 		}
 		err := server.DB.AddProduct(p)
 		if err != nil {

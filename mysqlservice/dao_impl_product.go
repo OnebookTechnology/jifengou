@@ -101,6 +101,20 @@ func (m *MysqlService) AddProduct(p *models.Product) error {
 		return errors.New("AddProduct err:" + err.Error())
 	}
 
+	// 添加图片
+	if len(p.ProductPics) != 0 {
+		for i := range p.ProductPics {
+			_, err := tx.Exec("UPDATE image SET product_id=? WHERE image_url=? ", p.ProductId, p.ProductPics[i])
+			if err != nil {
+				rollBackErr := tx.Rollback()
+				if rollBackErr != nil {
+					return rollBackErr
+				}
+				return errors.New("UpdateImage err:" + err.Error())
+			}
+		}
+	}
+
 	err = tx.Commit()
 	if err != nil {
 		rollBackErr := tx.Rollback()
@@ -137,3 +151,9 @@ func (m *MysqlService) UpdateProductStatusAndCode(id, status int, code string) e
 	}
 	return nil
 }
+
+//根据积分查询所有商品
+
+//根据最新查询所有商品
+
+//根据兑换次数查询所有商品
