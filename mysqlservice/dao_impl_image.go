@@ -37,7 +37,7 @@ func (m *MysqlService) AddImage(image *models.Image) (int64, error) {
 
 func (m *MysqlService) FindPicturesByProductId(productId int) ([]string, error) {
 	var pics []string
-	row, err := m.Db.Query("SELECT image_url WHERE product_id = ? ORDER BY upload_time", productId)
+	row, err := m.Db.Query("SELECT image_url FROM image WHERE product_id = ? ORDER BY upload_time", productId)
 	if err != nil {
 		return nil, err
 	}
