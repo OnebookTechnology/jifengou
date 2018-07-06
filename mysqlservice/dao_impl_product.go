@@ -211,6 +211,11 @@ func (m *MysqlService) FindAllProductsOrderByScore(pageNum, pageCount int, isDes
 		if err != nil {
 			return nil, err
 		}
+		pics, err := m.FindPicturesByProductId(p.ProductId)
+		if err != nil {
+			return nil, err
+		}
+		p.ProductPics = pics
 		products = append(products, p)
 	}
 	return products, nil
@@ -231,6 +236,11 @@ func (m *MysqlService) FindAllProductsOrderByOnlineTime(pageNum, pageCount int) 
 		if err != nil {
 			return nil, err
 		}
+		pics, err := m.FindPicturesByProductId(p.ProductId)
+		if err != nil {
+			return nil, err
+		}
+		p.ProductPics = pics
 		products = append(products, p)
 	}
 	return products, nil
@@ -251,6 +261,11 @@ func (m *MysqlService) FindAllProductsOrderByExchangeTime(pageNum, pageCount int
 		if err != nil {
 			return nil, err
 		}
+		pics, err := m.FindPicturesByProductId(p.ProductId)
+		if err != nil {
+			return nil, err
+		}
+		p.ProductPics = pics
 		products = append(products, p)
 	}
 	return products, nil
