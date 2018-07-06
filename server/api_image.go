@@ -29,7 +29,7 @@ func AddProductPic(ctx *gin.Context) {
 		}
 
 		image := &models.Image{
-			ImageUrl:   server.Conf.domain+"/images/" + nowTimestampString() + "_" + pic.Filename,
+			ImageUrl:   server.Conf.domain + "/images/" + nowTimestampString() + "_" + pic.Filename,
 			ImageType:  0,
 			UploadTime: nowFormat(),
 		}
