@@ -55,6 +55,7 @@ func AddProduct(ctx *gin.Context) {
 			ProductPics:          req.ProductPics,
 			ExchangeInfo:         req.ExchangeInfo,
 		}
+		logger.Info(p.ProductPics)
 		err := server.DB.AddProduct(p)
 		if err != nil {
 			sendFailedResponse(ctx, Err, "AddProduct err:", err)
