@@ -34,3 +34,17 @@ func (m *MysqlService) AddImage(image *models.Image) (int64, error) {
 	}
 	return id, nil
 }
+
+func (m *MysqlService) FindPicturesByProductId(productId int) ([]string, error) {
+	var pics []string
+	row, err := m.Db.Query("SELECT image_url WHERE product_id = ? ORDER BY upload_time", productId)
+	if err != nil {
+		return nil, err
+	}
+	for row.Next() {
+		var pic string
+		row.Scan(&pic)
+		pics = append(pics, pic)
+	}
+	return pics, nil
+}

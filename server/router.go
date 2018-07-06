@@ -50,6 +50,10 @@ func LoadRouter(router *gin.Engine) {
 		productRouter.OPTIONS("/update_status", Options)
 		productRouter.POST("/add_pic", AddProductPic)
 		productRouter.OPTIONS("/add_pic", Options)
+		productRouter.GET("/query", FindAllProductById)
+		productRouter.OPTIONS("/query", Options)
+		productRouter.GET("/query_all/:condition", FindAllProductByCondition)
+		productRouter.OPTIONS("/query_all/:condition", Options)
 	}
 
 	couponRouter := myRouter.Group("/coupon")

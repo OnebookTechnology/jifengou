@@ -26,6 +26,7 @@ type ProductReq struct {
 	ProductScore      int      `json:"p_score"`
 	ProductCode       string   `json:"p_code"`
 	ProductPics       []string `json:"p_pics"`
+	ExchangeInfo      string   `json:"p_ex_info"`
 
 	PageNum   int `json:"page_num,omitempty" form:"page_num"`
 	PageCount int `json:"page_count,omitempty" form:"page_count"`
@@ -52,6 +53,7 @@ func AddProduct(ctx *gin.Context) {
 			ProductBoundCount:    req.ProductBoundCount,
 			ProductScore:         req.ProductScore,
 			ProductPics:          req.ProductPics,
+			ExchangeInfo:         req.ExchangeInfo,
 		}
 		err := server.DB.AddProduct(p)
 		if err != nil {
@@ -133,6 +135,54 @@ func UpdateProductStatus(ctx *gin.Context) {
 			return
 		}
 		sendSuccessResponse(ctx, nil)
+		return
+	} else {
+		sendFailedResponse(ctx, Err, "bind request parameter err:", err)
+		return
+	}
+}
+
+//根据条件查找商品
+func FindAllProductByCondition(ctx *gin.Context) {
+	crossDomain(ctx)
+	cond := ctx.Param("condition")
+
+	var req ProductReq
+	var ps []*models.Product
+	if err := ctx.ShouldBindQuery(&req); err == nil {
+		switch cond {
+		case "score_aesc":
+			ps, err = server.DB.FindAllProductsOrderByScore(req.PageNum, req.PageCount, false)
+			if err != nil {
+				sendFailedResponse(ctx, Err, "FindAllProductsOrderByScore AESC err:", err)
+				return
+			}
+		case "score_desc":
+			ps, err = server.DB.FindAllProductsOrderByScore(req.PageNum, req.PageCount, true)
+			if err != nil {
+				sendFailedResponse(ctx, Err, "FindAllProductsOrderByScore DESC err:", err)
+				return
+			}
+		case "exchange":
+			ps, err = server.DB.FindAllProductsOrderByExchangeTime(req.PageNum, req.PageCount)
+			if err != nil {
+				sendFailedResponse(ctx, Err, "FindAllProductsOrderByExchangeTime err:", err)
+				return
+			}
+		case "latest":
+			ps, err = server.DB.FindAllProductsOrderByOnlineTime(req.PageNum, req.PageCount)
+			if err != nil {
+				sendFailedResponse(ctx, Err, "FindAllProductsOrderByOnlineTime err:", err)
+				return
+			}
+		default:
+			sendFailedResponse(ctx, Err, "invalid condition.", "data:", cond)
+			return
+		}
+		res := &ResData{
+			Products: ps,
+		}
+		sendSuccessResponse(ctx, res)
 		return
 	} else {
 		sendFailedResponse(ctx, Err, "bind request parameter err:", err)

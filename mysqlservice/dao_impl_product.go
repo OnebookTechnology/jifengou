@@ -10,16 +10,24 @@ import (
 // 根据Id查找商品
 func (m *MysqlService) FindProductById(productId int) (*models.Product, error) {
 	row := m.Db.QueryRow("SELECT product_id,product_item_statement, product_name, product_info,product_status,product_category,"+
-		"product_subtitle,product_price,product_start_time,product_end_time,product_alert_count,product_online_time,product_bound_count FROM product WHERE product_id=?",
+		"product_subtitle,product_price,product_start_time,product_end_time,product_alert_count,product_online_time,product_bound_count,"+
+		"exchange_time,exchange_info"+
+		" FROM product WHERE product_id=?",
 		productId)
 	p := new(models.Product)
 	err := row.Scan(&p.ProductId, &p.ProductItemStatement, &p.ProductName, &p.ProductInfo, &p.ProductStatus, &p.ProductCategory,
-		&p.ProductSubtitle, &p.ProductPrice, &p.ProductStartTime, &p.ProductEndTime, &p.ProductAlertCount, &p.ProductOnlineTime, &p.ProductBoundCount)
+		&p.ProductSubtitle, &p.ProductPrice, &p.ProductStartTime, &p.ProductEndTime, &p.ProductAlertCount, &p.ProductOnlineTime, &p.ProductBoundCount,
+		&p.ExchangeTime, &p.ExchangeInfo)
 	if err != nil {
 		return nil, err
 	}
 
-	row2 := m.Db.QueryRow("SELECT ")
+	pics, err := m.FindPicturesByProductId(productId)
+	if err != nil {
+		return nil, err
+	}
+	p.ProductPics = pics
+
 	return p, nil
 }
 
@@ -154,8 +162,92 @@ func (m *MysqlService) UpdateProductStatusAndCode(id, status int, code string) e
 	return nil
 }
 
-//根据积分查询所有商品
+// 更新商品
+func (m *MysqlService) UpdateProductById(productId int) error {
+	tx, err := m.Db.Begin()
+	if err != nil {
+		return err
+	}
+	_, err = tx.Exec("UPDATE product SET product_id=?,product_item_statement=?, product_name=?, product_info=?,product_status=?,product_category=?,"+
+		"product_subtitle=?,product_price=?,product_start_time=?,product_end_time=?,product_alert_count=?,product_online_time=?,product_bound_count=? where product_id=?", productId)
+	if err != nil {
+		rollBackErr := tx.Rollback()
+		if rollBackErr != nil {
+			return rollBackErr
+		}
+		return err
+	}
 
-//根据最新查询所有商品
+	err = tx.Commit()
+	if err != nil {
+		rollBackErr := tx.Rollback()
+		if rollBackErr != nil {
+			return rollBackErr
+		}
+		return err
+	}
+	return nil
+}
+
+//根据积分查询所有商品,降序 or 升序
+func (m *MysqlService) FindAllProductsOrderByScore(pageNum, pageCount int, isDesc bool) ([]*models.Product, error) {
+	sql := "SELECT product_id, product_item_statement,product_name, product_status, product_item_statement, product_score, exchange_time " +
+		" FROM product ORDER BY product_score "
+	if isDesc {
+		sql += "DESC"
+	}
+	rows, err := m.Db.Query(sql+" LIMIT ?,?", (pageNum-1)*pageCount, pageCount)
+	if err != nil {
+		return nil, nil
+	}
+	var products []*models.Product
+	for rows.Next() {
+		p := new(models.Product)
+		err = rows.Scan(&p.ProductId, &p.ProductItemStatement, &p.ProductName, &p.ProductStatus, &p.ProductItemStatement, &p.ProductScore, &p.ExchangeTime)
+		if err != nil {
+			return nil, err
+		}
+		products = append(products, p)
+	}
+	return products, nil
+}
+
+//根据最新商品查询所有商品
+func (m *MysqlService) FindAllProductsOrderByOnlineTime(pageNum, pageCount int) ([]*models.Product, error) {
+	rows, err := m.Db.Query("SELECT product_id, product_item_statement,product_name, product_status, product_item_statement, product_score, exchange_time "+
+		" FROM product ORDER BY product_online_time DESC"+
+		" LIMIT ?,?", (pageNum-1)*pageCount, pageCount)
+	if err != nil {
+		return nil, nil
+	}
+	var products []*models.Product
+	for rows.Next() {
+		p := new(models.Product)
+		err = rows.Scan(&p.ProductId, &p.ProductItemStatement, &p.ProductName, &p.ProductStatus, &p.ProductItemStatement, &p.ProductScore, &p.ExchangeTime)
+		if err != nil {
+			return nil, err
+		}
+		products = append(products, p)
+	}
+	return products, nil
+}
 
 //根据兑换次数查询所有商品
+func (m *MysqlService) FindAllProductsOrderByExchangeTime(pageNum, pageCount int) ([]*models.Product, error) {
+	rows, err := m.Db.Query("SELECT product_id, product_item_statement,product_name, product_status, product_item_statement, product_score, exchange_time "+
+		" FROM product ORDER BY exchange_time DESC"+
+		" LIMIT ?,?", (pageNum-1)*pageCount, pageCount)
+	if err != nil {
+		return nil, nil
+	}
+	var products []*models.Product
+	for rows.Next() {
+		p := new(models.Product)
+		err = rows.Scan(&p.ProductId, &p.ProductItemStatement, &p.ProductName, &p.ProductStatus, &p.ProductItemStatement, &p.ProductScore, &p.ExchangeTime)
+		if err != nil {
+			return nil, err
+		}
+		products = append(products, p)
+	}
+	return products, nil
+}

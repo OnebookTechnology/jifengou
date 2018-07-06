@@ -9,7 +9,6 @@ type Product struct {
 	ProductStatus        int      `json:"product_status"` //0 未上线 1 已上线 2 已移除
 	BusinessId           int      `json:"business_id"`
 	ProductCategory      int      `json:"product_category"` //类型
-	ProductPic           string   `json:"product_pic,omitempty"`
 	ProductSubtitle      string   `json:"product_subtitle,omitempty"`
 	ProductPrice         float64  `json:"product_price"`
 	ProductStartTime     string   `json:"product_start_time"`
@@ -20,6 +19,8 @@ type Product struct {
 	ProductScore         int      `json:"product_score"`          //积分
 	ProductCode          string   `json:"product_code"`           // 积分购平台代码
 	ProductPics          []string `json:"product_pics,omitempty"` // 商品图片
+	ExchangeTime         int      `json:"exchange_time"`          //兑换次数
+	ExchangeInfo         string   `json:"exchange_info"`          //兑换说明
 }
 
 const (
