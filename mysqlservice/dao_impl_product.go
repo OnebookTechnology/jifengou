@@ -3,7 +3,6 @@ package mysql
 import (
 	"database/sql"
 	"errors"
-	"fmt"
 	"github.com/OnebookTechnology/jifengou/server/models"
 	"time"
 )
