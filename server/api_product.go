@@ -56,7 +56,13 @@ func AddProduct(ctx *gin.Context) {
 			ProductPics:          req.ProductPics,
 			ExchangeInfo:         req.ExchangeInfo,
 		}
-		err := server.DB.AddProduct(p)
+		info, err := base64.StdEncoding.DecodeString(p.ProductInfo)
+		if err != nil {
+			sendFailedResponse(ctx, Err, "DecodeString err:", err, "data:", p.ProductInfo)
+			return
+		}
+		p.ProductInfo = string(info)
+		err = server.DB.AddProduct(p)
 		if err != nil {
 			sendFailedResponse(ctx, Err, "AddProduct err:", err)
 			return
@@ -88,7 +94,13 @@ func UpdateProduct(ctx *gin.Context) {
 			ProductPics:       req.ProductPics,
 			ExchangeInfo:      req.ExchangeInfo,
 		}
-		err := server.DB.UpdateProductById(p)
+		info, err := base64.StdEncoding.DecodeString(p.ProductInfo)
+		if err != nil {
+			sendFailedResponse(ctx, Err, "DecodeString err:", err, "data:", p.ProductInfo)
+			return
+		}
+		p.ProductInfo = string(info)
+		err = server.DB.UpdateProductById(p)
 		if err != nil {
 			sendFailedResponse(ctx, Err, "UpdateProductById err:", err)
 			return
@@ -132,13 +144,6 @@ func FindAllProductById(ctx *gin.Context) {
 			sendFailedResponse(ctx, Err, "FindAllProductByBusinessIdAndStatus err:", err)
 			return
 		}
-
-		info, err := base64.StdEncoding.DecodeString(ps.ProductInfo)
-		if err != nil {
-			sendFailedResponse(ctx, Err, "DecodeString err:", err, "data:", ps.ProductInfo)
-			return
-		}
-		ps.ProductInfo = string(info)
 		res := &ResData{
 			Product: ps,
 		}
