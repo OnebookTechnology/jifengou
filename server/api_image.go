@@ -4,6 +4,7 @@ import (
 	"github.com/OnebookTechnology/jifengou/server/models"
 	"github.com/gin-gonic/gin"
 	"io/ioutil"
+	"net/url"
 )
 
 func AddProductPic(ctx *gin.Context) {
@@ -29,7 +30,7 @@ func AddProductPic(ctx *gin.Context) {
 		}
 
 		image := &models.Image{
-			ImageUrl:   server.Conf.domain + "/images/" + nowTimestampString() + "_" + pic.Filename,
+			ImageUrl:   server.Conf.domain + "/images/" + nowTimestampString() + "_" + url.PathEscape(pic.Filename),
 			ImageType:  0,
 			UploadTime: nowFormat(),
 		}

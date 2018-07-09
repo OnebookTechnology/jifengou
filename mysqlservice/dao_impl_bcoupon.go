@@ -61,9 +61,10 @@ func (m *MysqlService) FindBCouponByStatus(status, productId, pageNum, pageCount
 }
 
 // 根据平台券码查询商家券码
-func (m *MysqlService) FindBCouponByCouponId(couponId int) ([]*models.BCoupon, error) {
-	rows, err := m.Db.Query("SELECT bc_id,bc_cart_id,bc_code,b_id,product_id,pc_id,bc_start,bc_end,bc_status,bc_update_time FROM bcoupon "+
-		" WHERE pc_id=? ", couponId)
+func (m *MysqlService) FindBCouponByCouponCode(couponCode string) ([]*models.BCoupon, error) {
+	rows, err := m.Db.Query("SELECT b.bc_id, b.bc_cart_id, b.bc_code, b.b_id, b.product_id,b.pc_id,b.bc_start,b.bc_end,b.bc_status,b.bc_update_time "+
+		" FROM bcoupon b LEFT JOIN coupon c ON b.pc_id = c.coupon_id "+
+		" WHERE c.coupon_code=? ", couponCode)
 	if err != nil {
 		return nil, nil
 	}

@@ -1,6 +1,7 @@
 package server
 
 import (
+	"encoding/base64"
 	"github.com/OnebookTechnology/jifengou/server/models"
 	"github.com/gin-gonic/gin"
 	"strconv"
@@ -131,6 +132,13 @@ func FindAllProductById(ctx *gin.Context) {
 			sendFailedResponse(ctx, Err, "FindAllProductByBusinessIdAndStatus err:", err)
 			return
 		}
+
+		info, err := base64.StdEncoding.DecodeString(ps.ProductInfo)
+		if err != nil {
+			sendFailedResponse(ctx, Err, "DecodeString err:", err, "data:", ps.ProductInfo)
+			return
+		}
+		ps.ProductInfo = string(info)
 		res := &ResData{
 			Product: ps,
 		}

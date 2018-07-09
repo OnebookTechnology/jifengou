@@ -14,4 +14,5 @@ type CouponDao interface {
 	UpdateBCouponStatusAndCouponIdById(couponId, bcId, status int) error
 	FindCouponsByProductId(productId, status, pageNum, pageCount int) ([]*models.Coupon, error)
 	FindBCouponsByCoupon(code string) ([]*models.BCoupon, error)
+	FindBCouponByCouponCode(couponCode string) ([]*models.BCoupon, error)
 }
