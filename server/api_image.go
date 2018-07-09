@@ -23,14 +23,16 @@ func AddProductPic(ctx *gin.Context) {
 			sendFailedResponse(ctx, Err, "save pics:", err)
 			return
 		}
-		err = ioutil.WriteFile(server.ueditorConf.ImagePath+pic.Filename, data, 0777)
+		picName := nowTimestampString() + "_" + url.PathEscape(pic.Filename)
+
+		err = ioutil.WriteFile(server.ueditorConf.ImagePath+picName, data, 0777)
 		if err != nil {
 			sendFailedResponse(ctx, Err, "save pics:", err)
 			return
 		}
 
 		image := &models.Image{
-			ImageUrl:   server.Conf.domain + "/images/" + nowTimestampString() + "_" + url.PathEscape(pic.Filename),
+			ImageUrl:   server.Conf.domain + "/images/" + picName,
 			ImageType:  0,
 			UploadTime: nowFormat(),
 		}
