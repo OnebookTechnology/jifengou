@@ -13,6 +13,7 @@ const (
 	Err = -iota
 	DuplicateBusinessErr
 	BCouponCountErr
+	SessionErr
 )
 
 type Response struct {

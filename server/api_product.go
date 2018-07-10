@@ -2,6 +2,7 @@ package server
 
 import (
 	"encoding/base64"
+	"fmt"
 	"github.com/OnebookTechnology/jifengou/server/models"
 	"github.com/gin-gonic/gin"
 	"strconv"
@@ -75,7 +76,7 @@ func AddProduct(ctx *gin.Context) {
 	}
 }
 
-//添加商品
+//修改商品
 func UpdateProduct(ctx *gin.Context) {
 	crossDomain(ctx)
 	var req ProductReq
@@ -100,6 +101,7 @@ func UpdateProduct(ctx *gin.Context) {
 			return
 		}
 		p.ProductInfo = string(info)
+		fmt.Println(*p)
 		err = server.DB.UpdateProductById(p)
 		if err != nil {
 			sendFailedResponse(ctx, Err, "UpdateProductById err:", err)

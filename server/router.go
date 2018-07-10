@@ -25,6 +25,7 @@ func LoadRouter(router *gin.Engine) {
 	myRouter.POST("/notify_jfg_used", NotifyCouponUsedToJFG)
 
 	businessRouter := myRouter.Group("/business")
+	businessRouter.Use(TokenAuthMiddleware())
 	{
 		businessRouter.POST("/add", AddBusiness)
 		businessRouter.OPTIONS("/add", Options)
@@ -39,6 +40,7 @@ func LoadRouter(router *gin.Engine) {
 	}
 
 	productRouter := myRouter.Group("/product")
+	productRouter.Use(TokenAuthMiddleware())
 	{
 		productRouter.GET("/category", FindAllCategory)
 		productRouter.OPTIONS("/category", Options)
@@ -59,6 +61,7 @@ func LoadRouter(router *gin.Engine) {
 	}
 
 	couponRouter := myRouter.Group("/coupon")
+	couponRouter.Use(TokenAuthMiddleware())
 	{
 		couponRouter.POST("/business/add", AddBusinessCoupon)
 		couponRouter.OPTIONS("/business/add", Options)

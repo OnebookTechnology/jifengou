@@ -2,6 +2,7 @@ package server
 
 import (
 	"fmt"
+	"github.com/OnebookTechnology/jifengou/consitence"
 	"github.com/OnebookTechnology/jifengou/mysqlservice"
 	"github.com/OnebookTechnology/jifengou/server/interface"
 	levelLogger "github.com/cxt90730/LevelLogger-go"
@@ -45,6 +46,7 @@ type Server struct {
 	HttpServer  *http.Server
 	TcpListener *net.TCPListener
 	DB          _interface.ServerDB
+	Consist     _interface.Consistence
 
 	accessLog *os.File
 	errorLog  *os.File
@@ -85,6 +87,9 @@ func NewService(confPath, serverName string, mode string) (*Server, error) {
 	db := new(mysql.MysqlService)
 	db.InitialDB(confPath, "DB")
 	server.DB = db
+
+	//Consistence
+	server.Consist = new(consitence.TempConsist)
 
 	//Env
 	server.Env = testEnv
