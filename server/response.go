@@ -75,4 +75,6 @@ func resFormat(v ...interface{}) string {
 func crossDomain(ctx *gin.Context) {
 	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.Header("Access-Control-Allow-Headers", "SESSION,Authorization, Origin, No-Cache, X_Requested_With, X-Requested-With, Content-Range, X_FILENAME, If-Modified-Since, Pragma, Last-Modified, Cache-Control, Expires, Content-Type, X-E4M-With")
+	ctx.Header("Custom-Header", "SESSION")
+	ctx.Header("Access-Control-Expose-Headers", "SESSION")
 }

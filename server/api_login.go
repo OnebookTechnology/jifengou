@@ -36,7 +36,7 @@ func Login(ctx *gin.Context) {
 		ctx.String(http.StatusInternalServerError, "err: %s", err)
 	}
 	ctx.Header("SESSION", session)
-	ctx.String(http.StatusOK, "login success: %s", u.UserName)
+	ctx.String(http.StatusOK, "%s", u.UserName)
 }
 
 func TokenAuthMiddleware() gin.HandlerFunc {
