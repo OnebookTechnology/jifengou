@@ -40,7 +40,6 @@ func LoadRouter(router *gin.Engine) {
 	}
 
 	productRouter := myRouter.Group("/product")
-	productRouter.Use(TokenAuthMiddleware())
 	{
 		productRouter.GET("/category", FindAllCategory)
 		productRouter.OPTIONS("/category", Options)
@@ -52,7 +51,7 @@ func LoadRouter(router *gin.Engine) {
 		productRouter.OPTIONS("/update_status", Options)
 		productRouter.POST("/add_pic", AddProductPic)
 		productRouter.OPTIONS("/add_pic", Options)
-		productRouter.GET("/query", FindAllProductById)
+		productRouter.GET("/query", FindProductById)
 		productRouter.OPTIONS("/query", Options)
 		productRouter.GET("/query_all/:condition", FindAllProductByCondition)
 		productRouter.OPTIONS("/query_all/:condition", Options)

@@ -2,10 +2,10 @@ package server
 
 import (
 	"encoding/base64"
-	"fmt"
 	"github.com/OnebookTechnology/jifengou/server/models"
 	"github.com/gin-gonic/gin"
 	"strconv"
+	"fmt"
 )
 
 const (
@@ -137,13 +137,13 @@ func FindAllProductByBusiness(ctx *gin.Context) {
 }
 
 //根据id查找商品
-func FindAllProductById(ctx *gin.Context) {
+func FindProductById(ctx *gin.Context) {
 	crossDomain(ctx)
 	var req ProductReq
 	if err := ctx.ShouldBindQuery(&req); err == nil {
 		ps, err := server.DB.FindProductById(req.ProductId)
 		if err != nil {
-			sendFailedResponse(ctx, Err, "FindAllProductByBusinessIdAndStatus err:", err)
+			sendFailedResponse(ctx, Err, "FindProductById err:", err)
 			return
 		}
 		res := &ResData{
