@@ -34,6 +34,7 @@ type ResData struct {
 	Coupons    []*models.Coupon   `json:"coupons,omitempty"`
 	Coupon     *models.Coupon     `json:"coupon,omitempty"`
 	Image      *models.Image      `json:"image,omitempty"`
+	TotalCount int                `json:"total_count,omitempty"`
 }
 
 func Options(ctx *gin.Context) {

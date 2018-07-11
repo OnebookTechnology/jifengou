@@ -11,13 +11,13 @@ import (
 func (m *MysqlService) FindProductById(productId int) (*models.Product, error) {
 	row := m.Db.QueryRow("SELECT product_id,product_item_statement, product_name, product_info,product_status,product_category,"+
 		"product_subtitle,product_price,product_start_time,product_end_time,product_alert_count,product_online_time,product_bound_count,"+
-		"exchange_time,exchange_info,product_score"+
+		"exchange_time,exchange_info,product_score,product_exchange_phone,product_code"+
 		" FROM product WHERE product_id=?",
 		productId)
 	p := new(models.Product)
 	err := row.Scan(&p.ProductId, &p.ProductItemStatement, &p.ProductName, &p.ProductInfo, &p.ProductStatus, &p.ProductCategory,
 		&p.ProductSubtitle, &p.ProductPrice, &p.ProductStartTime, &p.ProductEndTime, &p.ProductAlertCount, &p.ProductOnlineTime, &p.ProductBoundCount,
-		&p.ExchangeTime, &p.ExchangeInfo, &p.ProductScore)
+		&p.ExchangeTime, &p.ExchangeInfo, &p.ProductScore, &p.ProductExchangePhone, &p.ProductCode)
 	if err != nil {
 		return nil, err
 	}
@@ -89,6 +89,26 @@ func (m *MysqlService) FindAllProductByBusinessIdAndStatus(businessId int, statu
 	return products, nil
 }
 
+func (m *MysqlService) FindAllProductCountByBusinessIdAndStatus(businessId int, status int) (int, error) {
+	var row *sql.Row
+	var err error
+	sqlStr := "SELECT COUNT(*) FROM product WHERE business_id=? "
+	if status != -1 {
+		sqlStr += " AND product_status=?"
+		row = m.Db.QueryRow(sqlStr, businessId, status)
+	} else {
+		//All product
+		row = m.Db.QueryRow(sqlStr, businessId)
+	}
+	var count int
+	row.Scan(&count)
+	if err != nil {
+		return 0, err
+	}
+
+	return count, nil
+}
+
 // 添加商品
 func (m *MysqlService) AddProduct(p *models.Product) error {
 	tx, err := m.Db.Begin()
@@ -98,11 +118,11 @@ func (m *MysqlService) AddProduct(p *models.Product) error {
 	// s1. update online book's last_op_time、last_op_phone_number、online_status
 	r, err := tx.Exec("INSERT INTO product(product_item_statement, product_name, product_info,product_status,business_id,"+
 		"product_category,product_subtitle,product_price,product_start_time,product_end_time,product_alert_count,"+
-		"product_online_time,product_bound_count, product_score, exchange_info) "+
-		"VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+		"product_online_time,product_bound_count, product_score, exchange_info,product_exchange_phone,product_code) "+
+		"VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
 		p.ProductItemStatement, p.ProductName, p.ProductInfo, models.ProductReviewing, p.BusinessId,
 		p.ProductCategory, p.ProductSubtitle, p.ProductPrice, p.ProductStartTime, p.ProductEndTime, p.ProductAlertCount,
-		time.Now().Format("2006-01-02 15:04:05"), p.ProductBoundCount, p.ProductScore, p.ExchangeInfo)
+		time.Now().Format("2006-01-02 15:04:05"), p.ProductBoundCount, p.ProductScore, p.ExchangeInfo, p.ProductExchangePhone, p.ProductCode)
 	if err != nil {
 		rollBackErr := tx.Rollback()
 		if rollBackErr != nil {
@@ -176,10 +196,12 @@ func (m *MysqlService) UpdateProductById(p *models.Product) error {
 		return err
 	}
 	_, err = tx.Exec("UPDATE product SET product_name=?, product_info=?,product_category=?,product_subtitle=?,product_price=?,"+
-		"product_start_time=?,product_end_time=?,product_alert_count=?,product_bound_count=?, exchange_info=? "+
+		"product_start_time=?,product_end_time=?,product_alert_count=?,product_bound_count=?, exchange_info=?, "+
+		"product_code=?,product_exchange_phone=? "+
 		"WHERE product_id=?",
 		p.ProductName, p.ProductInfo, p.ProductCategory, p.ProductSubtitle, p.ProductPrice,
 		p.ProductStartTime, p.ProductEndTime, p.ProductAlertCount, p.ProductBoundCount, p.ExchangeInfo,
+		p.ProductCode, p.ProductExchangePhone,
 		p.ProductId)
 	if err != nil {
 		rollBackErr := tx.Rollback()
@@ -201,13 +223,14 @@ func (m *MysqlService) UpdateProductById(p *models.Product) error {
 }
 
 //根据积分查询所有商品,降序 or 升序
-func (m *MysqlService) FindAllProductsOrderByScore(pageNum, pageCount int, isDesc bool) ([]*models.Product, error) {
+func (m *MysqlService) FindAllProductsOrderByScore(pageNum, pageCount int, isDesc bool, status int) ([]*models.Product, error) {
 	sql := "SELECT product_id, product_item_statement,product_name, product_status, product_item_statement, product_score, exchange_time " +
-		" FROM product ORDER BY product_score "
+		" FROM product WHERE product_status=? " +
+		"ORDER BY product_score "
 	if isDesc {
 		sql += "DESC"
 	}
-	rows, err := m.Db.Query(sql+" LIMIT ?,?", (pageNum-1)*pageCount, pageCount)
+	rows, err := m.Db.Query(sql+" LIMIT ?,?", status, (pageNum-1)*pageCount, pageCount)
 	if err != nil {
 		return nil, nil
 	}
@@ -229,10 +252,10 @@ func (m *MysqlService) FindAllProductsOrderByScore(pageNum, pageCount int, isDes
 }
 
 //根据最新商品查询所有商品
-func (m *MysqlService) FindAllProductsOrderByOnlineTime(pageNum, pageCount int) ([]*models.Product, error) {
+func (m *MysqlService) FindAllProductsOrderByOnlineTime(pageNum, pageCount int, status int) ([]*models.Product, error) {
 	rows, err := m.Db.Query("SELECT product_id, product_item_statement,product_name, product_status, product_item_statement, product_score, exchange_time "+
-		" FROM product ORDER BY product_online_time DESC"+
-		" LIMIT ?,?", (pageNum-1)*pageCount, pageCount)
+		" FROM product WHERE product_status=? ORDER BY product_online_time DESC"+
+		" LIMIT ?,?", status, (pageNum-1)*pageCount, pageCount)
 	if err != nil {
 		return nil, nil
 	}
@@ -254,10 +277,10 @@ func (m *MysqlService) FindAllProductsOrderByOnlineTime(pageNum, pageCount int) 
 }
 
 //根据兑换次数查询所有商品
-func (m *MysqlService) FindAllProductsOrderByExchangeTime(pageNum, pageCount int) ([]*models.Product, error) {
+func (m *MysqlService) FindAllProductsOrderByExchangeTime(pageNum, pageCount, status int) ([]*models.Product, error) {
 	rows, err := m.Db.Query("SELECT product_id, product_item_statement,product_name, product_status, product_item_statement, product_score, exchange_time "+
-		" FROM product ORDER BY exchange_time DESC"+
-		" LIMIT ?,?", (pageNum-1)*pageCount, pageCount)
+		" FROM product WHERE product_status=? ORDER BY exchange_time DESC"+
+		" LIMIT ?,?", status, (pageNum-1)*pageCount, pageCount)
 	if err != nil {
 		return nil, nil
 	}

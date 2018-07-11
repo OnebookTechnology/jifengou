@@ -15,13 +15,13 @@ type Product struct {
 	ProductEndTime       string   `json:"product_end_time"`
 	ProductAlertCount    int      `json:"product_alert_count"`
 	ProductOnlineTime    string   `json:"product_online_time"`
-	ProductBoundCount    int      `json:"product_bound_count"`    // 平台券所绑定商家券的数量
-	ProductScore         int      `json:"product_score"`          //积分
-	ProductCode          string   `json:"product_code"`           // 积分购平台代码
-	ProductPics          []string `json:"product_pics"`           // 商品图片
-	ExchangeTime         int      `json:"exchange_time"`          //兑换次数
-	ExchangeInfo         string   `json:"exchange_info"`          //兑换说明
-	ProductExchangePhone string   `json:"product_exchange_phone"` //兑换电话
+	ProductBoundCount    int      `json:"product_bound_count"` // 平台券所绑定商家券的数量
+	ProductScore         int      `json:"product_score"`       //积分
+	ProductCode          string   `json:"product_code"`        // 积分购平台代码
+	ProductPics          []string `json:"product_pics"`        // 商品图片
+	ExchangeTime         int      `json:"exchange_time"`       //兑换次数
+	ExchangeInfo         string   `json:"exchange_info"`       //兑换说明
+	ProductExchangePhone string   `json:"phone"`               //兑换电话
 }
 
 const (

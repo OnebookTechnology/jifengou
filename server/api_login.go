@@ -17,7 +17,7 @@ const SessionPrefix = "/session/"
 const UserSessionPrefix = "/usession/"
 const VerifyCodePrefix = "/vcode/"
 const CaptchaPrefix = "/captcha/"
-const MaxSessionTimeout = 60 //1 minute for test
+const MaxSessionTimeout = 7200 //2 hours
 
 func Login(ctx *gin.Context) {
 	crossDomain(ctx)

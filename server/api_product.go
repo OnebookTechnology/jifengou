@@ -13,22 +13,23 @@ const (
 )
 
 type ProductReq struct {
-	ProductId         int      `json:"p_id" form:"p_id"`
-	ProductName       string   `json:"p_name"`
-	ProductInfo       string   `json:"p_info,omitempty"`
-	BusinessId        int      `json:"b_id" form:"b_id"`
-	ProductCategory   int      `json:"p_category"` //类型
-	ProductStatus     int      `json:"p_status" form:"p_status"`
-	ProductSubtitle   string   `json:"p_subtitle,omitempty"`
-	ProductPrice      float64  `json:"p_price"`
-	ProductStartTime  string   `json:"p_start_time"`
-	ProductEndTime    string   `json:"p_end_time"`
-	ProductAlertCount int      `json:"p_alert_count"`
-	ProductBoundCount int      `json:"p_bound_count"`
-	ProductScore      int      `json:"p_score"`
-	ProductCode       string   `json:"p_code"`
-	ProductPics       []string `json:"p_pics"`
-	ExchangeInfo      string   `json:"p_ex_info"`
+	ProductId            int      `json:"p_id" form:"p_id"`
+	ProductName          string   `json:"p_name"`
+	ProductInfo          string   `json:"p_info,omitempty"`
+	BusinessId           int      `json:"b_id" form:"b_id"`
+	ProductCategory      int      `json:"p_category"` //类型
+	ProductStatus        int      `json:"p_status" form:"p_status"`
+	ProductSubtitle      string   `json:"p_subtitle,omitempty"`
+	ProductPrice         float64  `json:"p_price"`
+	ProductStartTime     string   `json:"p_start_time"`
+	ProductEndTime       string   `json:"p_end_time"`
+	ProductAlertCount    int      `json:"p_alert_count"`
+	ProductBoundCount    int      `json:"p_bound_count"`
+	ProductScore         int      `json:"p_score"`
+	ProductCode          string   `json:"p_code"`
+	ProductPics          []string `json:"p_pics"`
+	ExchangeInfo         string   `json:"p_ex_info"`
+	ProductExchangePhone string   `json:"phone"`
 
 	PageNum   int `json:"page_num,omitempty" form:"page_num"`
 	PageCount int `json:"page_count,omitempty" form:"page_count"`
@@ -82,18 +83,19 @@ func UpdateProduct(ctx *gin.Context) {
 	var req ProductReq
 	if err := ctx.BindJSON(&req); err == nil {
 		p := &models.Product{
-			ProductId:         req.ProductId,
-			ProductName:       req.ProductName,
-			ProductInfo:       req.ProductInfo,
-			ProductCategory:   req.ProductCategory,
-			ProductSubtitle:   req.ProductSubtitle,
-			ProductPrice:      req.ProductPrice,
-			ProductStartTime:  req.ProductStartTime,
-			ProductEndTime:    req.ProductEndTime,
-			ProductAlertCount: req.ProductAlertCount,
-			ProductScore:      req.ProductScore,
-			ProductPics:       req.ProductPics,
-			ExchangeInfo:      req.ExchangeInfo,
+			ProductId:            req.ProductId,
+			ProductName:          req.ProductName,
+			ProductInfo:          req.ProductInfo,
+			ProductCategory:      req.ProductCategory,
+			ProductSubtitle:      req.ProductSubtitle,
+			ProductPrice:         req.ProductPrice,
+			ProductStartTime:     req.ProductStartTime,
+			ProductEndTime:       req.ProductEndTime,
+			ProductAlertCount:    req.ProductAlertCount,
+			ProductScore:         req.ProductScore,
+			ProductPics:          req.ProductPics,
+			ExchangeInfo:         req.ExchangeInfo,
+			ProductExchangePhone: req.ProductExchangePhone,
 		}
 		info, err := base64.StdEncoding.DecodeString(p.ProductInfo)
 		if err != nil {
@@ -125,8 +127,10 @@ func FindAllProductByBusiness(ctx *gin.Context) {
 			sendFailedResponse(ctx, Err, "FindAllProductByBusinessIdAndStatus err:", err)
 			return
 		}
+		count, err := server.DB.FindAllProductCountByBusinessIdAndStatus(req.BusinessId, req.ProductStatus)
 		res := &ResData{
-			Products: ps,
+			Products:   ps,
+			TotalCount: count,
 		}
 		sendSuccessResponse(ctx, res)
 		return
@@ -199,25 +203,25 @@ func FindAllProductByCondition(ctx *gin.Context) {
 	if err := ctx.ShouldBindQuery(&req); err == nil {
 		switch cond {
 		case "score_aesc":
-			ps, err = server.DB.FindAllProductsOrderByScore(req.PageNum, req.PageCount, false)
+			ps, err = server.DB.FindAllProductsOrderByScore(req.PageNum, req.PageCount, false, models.ProductSaling)
 			if err != nil {
 				sendFailedResponse(ctx, Err, "FindAllProductsOrderByScore AESC err:", err)
 				return
 			}
 		case "score_desc":
-			ps, err = server.DB.FindAllProductsOrderByScore(req.PageNum, req.PageCount, true)
+			ps, err = server.DB.FindAllProductsOrderByScore(req.PageNum, req.PageCount, true, models.ProductSaling)
 			if err != nil {
 				sendFailedResponse(ctx, Err, "FindAllProductsOrderByScore DESC err:", err)
 				return
 			}
 		case "exchange":
-			ps, err = server.DB.FindAllProductsOrderByExchangeTime(req.PageNum, req.PageCount)
+			ps, err = server.DB.FindAllProductsOrderByExchangeTime(req.PageNum, req.PageCount, models.ProductSaling)
 			if err != nil {
 				sendFailedResponse(ctx, Err, "FindAllProductsOrderByExchangeTime err:", err)
 				return
 			}
 		case "latest":
-			ps, err = server.DB.FindAllProductsOrderByOnlineTime(req.PageNum, req.PageCount)
+			ps, err = server.DB.FindAllProductsOrderByOnlineTime(req.PageNum, req.PageCount, models.ProductSaling)
 			if err != nil {
 				sendFailedResponse(ctx, Err, "FindAllProductsOrderByOnlineTime err:", err)
 				return

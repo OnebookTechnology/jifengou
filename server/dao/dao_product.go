@@ -11,8 +11,9 @@ type ProductDao interface {
 	FindAllCategory() ([]*models.Category, error)
 	FindProductById(productId int) (*models.Product, error)
 	FindAllProductByBusinessIdAndStatus(businessId int, status int, pageNum, pageCount int) ([]*models.Product, error)
+	FindAllProductCountByBusinessIdAndStatus(businessId int, status int) (int, error)
 
-	FindAllProductsOrderByScore(pageNum, pageCount int, isDesc bool) ([]*models.Product, error)
-	FindAllProductsOrderByOnlineTime(pageNum, pageCount int) ([]*models.Product, error)
-	FindAllProductsOrderByExchangeTime(pageNum, pageCount int) ([]*models.Product, error)
+	FindAllProductsOrderByScore(pageNum, pageCount int, isDesc bool, status int) ([]*models.Product, error)
+	FindAllProductsOrderByOnlineTime(pageNum, pageCount, status int) ([]*models.Product, error)
+	FindAllProductsOrderByExchangeTime(pageNum, pageCount, status int) ([]*models.Product, error)
 }
