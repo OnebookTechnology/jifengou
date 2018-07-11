@@ -57,6 +57,8 @@ func AddProduct(ctx *gin.Context) {
 			ProductScore:         req.ProductScore,
 			ProductPics:          req.ProductPics,
 			ExchangeInfo:         req.ExchangeInfo,
+			ProductCode:          req.ProductCode,
+			ProductExchangePhone: req.ProductExchangePhone,
 		}
 		info, err := base64.StdEncoding.DecodeString(p.ProductInfo)
 		if err != nil {
@@ -96,6 +98,7 @@ func UpdateProduct(ctx *gin.Context) {
 			ProductPics:          req.ProductPics,
 			ExchangeInfo:         req.ExchangeInfo,
 			ProductExchangePhone: req.ProductExchangePhone,
+			ProductCode:          req.ProductCode,
 		}
 		info, err := base64.StdEncoding.DecodeString(p.ProductInfo)
 		if err != nil {

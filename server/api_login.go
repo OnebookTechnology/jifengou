@@ -2,6 +2,7 @@ package server
 
 import (
 	"database/sql"
+	"errors"
 	"github.com/OnebookTechnology/jifengou/server/models"
 	"github.com/cxt90730/xxtea-go/xxtea"
 	"github.com/gin-gonic/gin"
@@ -34,15 +35,75 @@ func Login(ctx *gin.Context) {
 		return
 	}
 
-	session := xxtea.EncryptStdToURLString(SessionPrefix+user+"/"+nowTimestampString(), XXTEA_KEY)
+	session := xxtea.EncryptStdToURLString(user+"/"+nowTimestampString(), XXTEA_KEY)
 
 	ts := strconv.FormatInt(time.Now().Add(MaxSessionTimeout*time.Second).Unix(), 10)
-	err = server.Consist.Put(session, ts, MaxSessionTimeout*time.Second)
+	err = server.Consist.Put(SessionPrefix+session, ts, MaxSessionTimeout*time.Second)
 	if err != nil {
 		ctx.String(http.StatusInternalServerError, "err: %s", err)
 	}
 	ctx.Header("SESSION", session)
 	ctx.String(http.StatusOK, "%s", u.UserName)
+}
+
+func CheckUserSession(c *gin.Context) error {
+	session := c.GetHeader("SESSION")
+	if len(session) == 0 {
+		sendFailedResponse(c, SessionErr, "invalid session.")
+		return errors.New("invalid session.")
+	}
+
+	//TODO: Consist session
+	// Check if etcd contain this sessionKey
+	outTime, err := server.Consist.Get(UserSessionPrefix + session)
+	if len(outTime) == 0 {
+		sendFailedResponse(c, SessionErr, "invalid session key:", session)
+		return errors.New("invalid session key.")
+	}
+	if err != nil {
+		sendFailedResponse(c, SessionErr, "Consist.Get err:", err)
+		return errors.New("Consist.Get err.")
+	}
+	// check if login object's timestamp is over time
+	now := time.Now().Unix()
+	sessionTime, _ := strconv.ParseInt(outTime, 10, 64)
+	diff := now - sessionTime
+	if diff > MaxSessionTimeout {
+		// over time means current user without any operation over 30 minutes
+		sendFailedResponse(c, SessionErr, "session time out")
+		return errors.New("Csession time out.")
+	}
+	return nil
+}
+
+func CheckSession(c *gin.Context) error {
+	session := c.GetHeader("SESSION")
+	if len(session) == 0 {
+		sendFailedResponse(c, SessionErr, "invalid session.")
+		return errors.New("invalid session.")
+	}
+
+	//TODO: Consist session
+	// Check if etcd contain this sessionKey
+	outTime, err := server.Consist.Get(SessionPrefix + session)
+	if len(outTime) == 0 {
+		sendFailedResponse(c, SessionErr, "invalid session key:", session)
+		return errors.New("invalid session key.")
+	}
+	if err != nil {
+		sendFailedResponse(c, SessionErr, "Consist.Get err:", err)
+		return errors.New("Consist.Get err.")
+	}
+	// check if login object's timestamp is over time
+	now := time.Now().Unix()
+	sessionTime, _ := strconv.ParseInt(outTime, 10, 64)
+	diff := now - sessionTime
+	if diff > MaxSessionTimeout {
+		// over time means current user without any operation over 30 minutes
+		sendFailedResponse(c, SessionErr, "session time out")
+		return errors.New("Csession time out.")
+	}
+	return nil
 }
 
 func TokenAuthMiddleware() gin.HandlerFunc {
@@ -58,7 +119,7 @@ func TokenAuthMiddleware() gin.HandlerFunc {
 
 		//TODO: Consist session
 		// Check if etcd contain this sessionKey
-		outTime, err := server.Consist.Get(session)
+		outTime, err := server.Consist.Get(SessionPrefix + session)
 		if len(outTime) == 0 {
 			sendFailedResponse(c, SessionErr, "invalid session key:", session)
 			c.Abort()
