@@ -146,6 +146,11 @@ func FindAllProductByBusiness(ctx *gin.Context) {
 //根据id查找商品
 func FindProductById(ctx *gin.Context) {
 	crossDomain(ctx)
+	var err = CheckSession(ctx)
+	if err2 := CheckUserSession(ctx); err != nil && err2 != nil {
+		sendFailedResponse(ctx, SessionErr, "invalid session. err:", err, err2)
+		return
+	}
 	var req ProductReq
 	if err := ctx.ShouldBindQuery(&req); err == nil {
 		ps, err := server.DB.FindProductById(req.ProductId)
@@ -199,6 +204,10 @@ func UpdateProductStatus(ctx *gin.Context) {
 //根据条件查找商品
 func FindAllProductByCondition(ctx *gin.Context) {
 	crossDomain(ctx)
+	if err2 := CheckUserSession(ctx); err2 != nil {
+		sendFailedResponse(ctx, SessionErr, "invalid session. err:", err2)
+		return
+	}
 	cond := ctx.Param("condition")
 
 	var req ProductReq

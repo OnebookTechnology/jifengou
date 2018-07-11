@@ -49,7 +49,6 @@ func Login(ctx *gin.Context) {
 func CheckUserSession(c *gin.Context) error {
 	session := c.GetHeader("SESSION")
 	if len(session) == 0 {
-		sendFailedResponse(c, SessionErr, "invalid session.")
 		return errors.New("invalid session.")
 	}
 
@@ -57,11 +56,9 @@ func CheckUserSession(c *gin.Context) error {
 	// Check if etcd contain this sessionKey
 	outTime, err := server.Consist.Get(UserSessionPrefix + session)
 	if len(outTime) == 0 {
-		sendFailedResponse(c, SessionErr, "invalid session key:", session)
 		return errors.New("invalid session key.")
 	}
 	if err != nil {
-		sendFailedResponse(c, SessionErr, "Consist.Get err:", err)
 		return errors.New("Consist.Get err.")
 	}
 	// check if login object's timestamp is over time
@@ -70,7 +67,6 @@ func CheckUserSession(c *gin.Context) error {
 	diff := now - sessionTime
 	if diff > MaxSessionTimeout {
 		// over time means current user without any operation over 30 minutes
-		sendFailedResponse(c, SessionErr, "session time out")
 		return errors.New("Csession time out.")
 	}
 	return nil
@@ -79,7 +75,6 @@ func CheckUserSession(c *gin.Context) error {
 func CheckSession(c *gin.Context) error {
 	session := c.GetHeader("SESSION")
 	if len(session) == 0 {
-		sendFailedResponse(c, SessionErr, "invalid session.")
 		return errors.New("invalid session.")
 	}
 
@@ -87,11 +82,9 @@ func CheckSession(c *gin.Context) error {
 	// Check if etcd contain this sessionKey
 	outTime, err := server.Consist.Get(SessionPrefix + session)
 	if len(outTime) == 0 {
-		sendFailedResponse(c, SessionErr, "invalid session key:", session)
 		return errors.New("invalid session key.")
 	}
 	if err != nil {
-		sendFailedResponse(c, SessionErr, "Consist.Get err:", err)
 		return errors.New("Consist.Get err.")
 	}
 	// check if login object's timestamp is over time
@@ -100,7 +93,6 @@ func CheckSession(c *gin.Context) error {
 	diff := now - sessionTime
 	if diff > MaxSessionTimeout {
 		// over time means current user without any operation over 30 minutes
-		sendFailedResponse(c, SessionErr, "session time out")
 		return errors.New("Csession time out.")
 	}
 	return nil
