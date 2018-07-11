@@ -2,7 +2,7 @@ package server
 
 import (
 	"fmt"
-	"github.com/OnebookTechnology/jifengou/consitence"
+	csst "github.com/OnebookTechnology/etcd-sdk"
 	"github.com/OnebookTechnology/jifengou/mysqlservice"
 	"github.com/OnebookTechnology/jifengou/server/interface"
 	sms "github.com/OnebookTechnology/smssdk/sdk"
@@ -92,7 +92,11 @@ func NewService(confPath, serverName string, mode string) (*Server, error) {
 	server.DB = db
 
 	//Consistence
-	server.Consist = new(consitence.TempConsist)
+	consistService, err := csst.NewEtcdService(confPath)
+	if err != nil {
+		return nil, err
+	}
+	server.Consist = consistService
 
 	//SMS
 	smsService, err := sms.NewSMSService(confPath)
