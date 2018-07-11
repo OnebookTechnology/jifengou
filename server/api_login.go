@@ -2,6 +2,7 @@ package server
 
 import (
 	"database/sql"
+	"fmt"
 	"github.com/OnebookTechnology/jifengou/server/models"
 	"github.com/cxt90730/xxtea-go/xxtea"
 	"github.com/gin-gonic/gin"
@@ -91,29 +92,17 @@ type CaptchaInfo struct {
 
 func GetKey(ctx *gin.Context) {
 	crossDomain(ctx)
-
-	if server == nil {
-		sendFailedResponse(ctx, Err, "fuck?")
-		return
-	}
-
-	if server.Captcha == nil {
-		sendFailedResponse(ctx, Err, "no captcha service")
-		return
-	}
 	origin, key, err := server.Captcha.GetKey(4)
 	if err != nil {
 		sendFailedResponse(ctx, Err, err.Error())
 		return
 	}
-
 	info := &CaptchaInfo{
 		Text:       origin,
 		CreateTime: time.Now(),
 		ShownTimes: 0,
 	}
 	infoJson, _ := jsoniter.MarshalToString(info)
-
 	err = server.Consist.Put(CaptchaPrefix+key, infoJson, 3*time.Minute)
 	if err != nil {
 		sendFailedResponse(ctx, Err, err.Error())

@@ -28,6 +28,6 @@ func (c *TempConsist) Del(key string) error {
 	return nil
 }
 
-func (c *TempConsist) GetWithPrefix(key string) ([]string, error) {
+func (c *TempConsist) GetWithPrefix(key string) (map[string]string, error) {
 	return nil, nil
 }
