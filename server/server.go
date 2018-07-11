@@ -2,6 +2,7 @@ package server
 
 import (
 	"fmt"
+	captcha "github.com/OnebookTechnology/captcha-sdk"
 	csst "github.com/OnebookTechnology/etcd-sdk"
 	"github.com/OnebookTechnology/jifengou/mysqlservice"
 	"github.com/OnebookTechnology/jifengou/server/interface"
@@ -104,6 +105,13 @@ func NewService(confPath, serverName string, mode string) (*Server, error) {
 		return nil, err
 	}
 	server.SMS = smsService
+
+	//Captcha
+	capt, err := captcha.NewCaptchaService(confPath)
+	if err != nil {
+		return nil, err
+	}
+	server.Captcha = capt
 
 	//Env
 	server.Env = testEnv

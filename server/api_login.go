@@ -245,22 +245,21 @@ func SendVerifyCode(ctx *gin.Context) {
 		sendFailedResponse(ctx, Err, "empty verify code. key:", key)
 		return
 	}
-	vi := new(VerifyCodeInfo)
-	err = jsoniter.UnmarshalFromString(viJson, vi)
-	if err != nil {
-		sendFailedResponse(ctx, Err, "unmarshal SendVerifyCode data err:", err.Error(), "data:", viJson, "key:", key)
+	var vReq VerifyCodeInfo
+	if err := ctx.ShouldBindJSON(&vReq); err == nil {
+		go func(phone, code string) {
+			success, msg, err := server.SMS.SendVerificationCode(phone, code)
+			if err != nil {
+				logger.Error("SendIdentifyingCode err:", err, "phone:", phone, "code:", code)
+			}
+			if !success {
+				logger.Warning("SendIdentifyingCode Failed!", "phone:", phone, "msg:", msg, "code:", code)
+			}
+		}(strconv.Itoa(int(vReq.PhoneNumber)), vReq.Code)
+	} else {
+		sendFailedResponse(ctx, Err, "bind request parameter err:", err)
 		return
 	}
-
-	go func(phone, code string) {
-		success, msg, err := server.SMS.SendVerificationCode(phone, code)
-		if err != nil {
-			logger.Error("SendIdentifyingCode err:", err, "phone:", phone, "code:", code)
-		}
-		if !success {
-			logger.Warning("SendIdentifyingCode Failed!", "phone:", phone, "msg:", msg, "code:", code)
-		}
-	}(strconv.Itoa(int(vi.PhoneNumber)), vi.Code)
 	sendSuccessResponse(ctx, nil)
 }
 
