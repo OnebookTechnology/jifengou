@@ -252,13 +252,6 @@ func SendVerifyCode(ctx *gin.Context) {
 		return
 	}
 
-	if err := ctx.ShouldBindJSON(&vReq); err == nil {
-
-	} else {
-		sendFailedResponse(ctx, Err, "bind request parameter err:", err)
-		return
-	}
-
 	go func(phone, code string) {
 		success, msg, err := server.SMS.SendVerificationCode(phone, code)
 		if err != nil {
