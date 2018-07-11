@@ -92,7 +92,7 @@ type CaptchaInfo struct {
 func GetKey(ctx *gin.Context) {
 	crossDomain(ctx)
 
-	if server.Captcha == nil {
+	if server == nil {
 		sendFailedResponse(ctx, Err, "fuck?")
 		return
 	}
