@@ -11,13 +11,13 @@ import (
 func (m *MysqlService) FindProductById(productId int) (*models.Product, error) {
 	row := m.Db.QueryRow("SELECT product_id,product_item_statement, product_name, product_info,product_status,product_category,"+
 		"product_subtitle,product_price,product_start_time,product_end_time,product_alert_count,product_online_time,product_bound_count,"+
-		"exchange_time,exchange_info"+
+		"exchange_time,exchange_info,product_score"+
 		" FROM product WHERE product_id=?",
 		productId)
 	p := new(models.Product)
 	err := row.Scan(&p.ProductId, &p.ProductItemStatement, &p.ProductName, &p.ProductInfo, &p.ProductStatus, &p.ProductCategory,
 		&p.ProductSubtitle, &p.ProductPrice, &p.ProductStartTime, &p.ProductEndTime, &p.ProductAlertCount, &p.ProductOnlineTime, &p.ProductBoundCount,
-		&p.ExchangeTime, &p.ExchangeInfo)
+		&p.ExchangeTime, &p.ExchangeInfo, &p.ProductScore)
 	if err != nil {
 		return nil, err
 	}
