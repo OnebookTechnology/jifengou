@@ -2,8 +2,11 @@ package server
 
 import (
 	"database/sql"
+	"github.com/OnebookTechnology/jifengou/server/models"
 	"github.com/cxt90730/xxtea-go/xxtea"
 	"github.com/gin-gonic/gin"
+	"github.com/json-iterator/go"
+	"image/png"
 	"net/http"
 	"strconv"
 	"time"
@@ -11,6 +14,9 @@ import (
 
 const XXTEA_KEY = "JiFenGou"
 const SessionPrefix = "/session/"
+const UserSessionPrefix = "/usession/"
+const VerifyCodePrefix = "/vcode/"
+const CaptchaPrefix = "/captcha/"
 const MaxSessionTimeout = 60 //1 minute for test
 
 func Login(ctx *gin.Context) {
@@ -75,4 +81,265 @@ func TokenAuthMiddleware() gin.HandlerFunc {
 		}
 		c.Next()
 	}
+}
+
+type CaptchaInfo struct {
+	Text       string
+	CreateTime time.Time
+	ShownTimes int
+}
+
+func GetKey(ctx *gin.Context) {
+	crossDomain(ctx)
+	origin, key, err := server.Captcha.GetKey(4)
+	if err != nil {
+		sendFailedResponse(ctx, Err, err.Error())
+		return
+	}
+
+	info := &CaptchaInfo{
+		Text:       origin,
+		CreateTime: time.Now(),
+		ShownTimes: 0,
+	}
+	infoJson, _ := jsoniter.MarshalToString(info)
+
+	err = server.Consist.Put(CaptchaPrefix+key, infoJson, 3*time.Minute)
+	if err != nil {
+		sendFailedResponse(ctx, Err, err.Error())
+		return
+	}
+	sendSuccessResponseWithMessage(ctx, key, nil)
+	return
+}
+
+// 返回图片验证码
+func ShowImage(ctx *gin.Context) {
+	crossDomain(ctx)
+	key := ctx.Param("key")
+	codeJson, err := server.Consist.Get(CaptchaPrefix + key)
+	if err != nil {
+		sendFailedResponse(ctx, Err, err.Error())
+		return
+	}
+	if len(codeJson) == 0 {
+		logger.Error("empty captcha code. key:", key)
+		sendFailedResponse(ctx, Err, "empty captcha code. key: %s", key)
+		return
+	}
+
+	//Text       string
+	//CreateTime time.Time
+	//ShownTimes int
+	i := new(CaptchaInfo)
+	err = jsoniter.UnmarshalFromString(codeJson, i)
+	if err != nil {
+		sendFailedResponse(ctx, Err, "unmarshal ShowImage data err", err.Error(), "data:", codeJson)
+		return
+	}
+
+	//If duplicate request
+	if i.ShownTimes > 0 {
+		origin, _, _ := server.Captcha.GetKey(len(i.Text))
+		i.Text = origin
+	}
+
+	i.ShownTimes++
+	newInfo, _ := jsoniter.MarshalToString(i)
+	err = server.Consist.Put(CaptchaPrefix+key, newInfo, 3*time.Minute)
+	if err != nil {
+		sendFailedResponse(ctx, Err, err.Error())
+		return
+	}
+
+	img, err := server.Captcha.GetImage(i.Text)
+	if err != nil {
+		sendFailedResponse(ctx, Err, err.Error())
+		return
+	}
+
+	ctx.Header("Content-Type", "image/png")
+	png.Encode(ctx.Writer, img)
+}
+
+type VerifyRequest struct {
+	Code        string `json:"code"`
+	Key         string `json:"key"`
+	PhoneNumber uint64 `json:"phone_number"`
+}
+
+type VerifyCodeInfo struct {
+	Code        string        `json:"code"`
+	PhoneNumber uint64        `json:"phone_number"`
+	CreateTime  time.Duration `json:"create_time"`
+	UserInfo    string        `json:"user_info"`
+}
+
+// VerifyCaptcha
+func Verify(ctx *gin.Context) {
+	crossDomain(ctx)
+	var vReq VerifyRequest
+	if err := ctx.ShouldBindJSON(&vReq); err == nil {
+		infoJson, err := server.Consist.Get(CaptchaPrefix + vReq.Key)
+		if err != nil {
+			sendFailedResponse(ctx, Err, err.Error())
+			return
+		}
+		if len(infoJson) == 0 {
+			sendFailedResponse(ctx, Err, "empty captcha. key:", vReq.Key)
+			return
+		}
+
+		info := new(CaptchaInfo)
+		err = jsoniter.Unmarshal([]byte(infoJson), info)
+		if err != nil {
+			sendFailedResponse(ctx, Err, "unmarshal infoJson data err", err.Error(), " data:", infoJson)
+			return
+		}
+
+		if vReq.Code != info.Text {
+			logger.Warning("captcha info is not match!", "req.code:", vReq.Code, "code", info.Text)
+			sendFailedResponse(ctx, Err, "captcha info is not match!")
+			return
+		}
+
+		//Generate SMS verify code
+		phoneNumber := vReq.PhoneNumber
+		vcode, key, err := server.Captcha.GetKey(6)
+		if err != nil {
+			sendFailedResponse(ctx, Err, err.Error())
+			return
+		}
+		logger.Info("get verify code. phone:", phoneNumber, "key:", key, "code:", vcode)
+
+		vi := &VerifyCodeInfo{
+			Code:        vcode,
+			PhoneNumber: phoneNumber,
+		}
+		viJson, _ := jsoniter.MarshalToString(vi)
+
+		err = server.Consist.Put(VerifyCodePrefix+key, viJson, 3*time.Minute)
+		if err != nil {
+			sendFailedResponse(ctx, Err, err.Error())
+			return
+		}
+
+		sendSuccessResponseWithMessage(ctx, key, nil)
+		return
+	} else {
+		sendFailedResponse(ctx, Err, "bind request parameter err:", err)
+		return
+	}
+
+}
+
+//发送短信验证码
+func SendVerifyCode(ctx *gin.Context) {
+	key := ctx.Param("key")
+	viJson, err := server.Consist.Get(VerifyCodePrefix + key)
+	if err != nil {
+		sendFailedResponse(ctx, Err, err.Error())
+		return
+	}
+	if len(viJson) == 0 {
+		sendFailedResponse(ctx, Err, "empty verify code. key:", key)
+		return
+	}
+	vi := new(VerifyCodeInfo)
+	err = jsoniter.UnmarshalFromString(viJson, vi)
+	if err != nil {
+		sendFailedResponse(ctx, Err, "unmarshal SendVerifyCode data err:", err.Error(), "data:", viJson, "key:", key)
+		return
+	}
+	go func(phone, code string) {
+		success, msg, err := server.SMS.SendVerificationCode(phone, code)
+		if err != nil {
+			logger.Error("SendIdentifyingCode err:", err, "phone:", phone, "code:", code)
+		}
+		if !success {
+			logger.Warning("SendIdentifyingCode Failed!", "phone:", phone, "msg:", msg, "code:", code)
+		}
+	}(strconv.Itoa(int(vi.PhoneNumber)), vi.Code)
+	sendSuccessResponse(ctx, nil)
+}
+
+//验证短信验证码
+func VerifyVCode(ctx *gin.Context) {
+	crossDomain(ctx)
+	var vReq VerifyRequest
+	if err := ctx.ShouldBindJSON(&vReq); err == nil {
+		viJson, err := server.Consist.Get(VerifyCodePrefix + vReq.Key)
+		if err != nil {
+			sendFailedResponse(ctx, Err, err.Error())
+			return
+		}
+		if len(viJson) == 0 {
+			sendFailedResponse(ctx, Err, "empty verify code. key:", vReq.Key)
+			return
+		}
+
+		vi := new(VerifyCodeInfo)
+		err = jsoniter.Unmarshal([]byte(viJson), vi)
+		if err != nil {
+			sendFailedResponse(ctx, Err, "unmarshal viJson data err:", err.Error(), "data:", viJson)
+			return
+		}
+
+		if vReq.Code != vi.Code {
+			logger.Warning("SMS info is not match!", "req.code:", vReq.Code, "code", vi.Code)
+			sendFailedResponse(ctx, Err, "captcha info is not match!")
+			return
+		}
+		_, err = server.DB.FindMobileUser(vi.PhoneNumber)
+		if err != nil {
+			//if NO user found, register user
+			if err == sql.ErrNoRows {
+				_, err = registerUser(vi)
+				if err != nil {
+					sendFailedResponse(ctx, Err, "db error when AddUser err:", err.Error(), "Phone:",
+						vi.PhoneNumber)
+					return
+				}
+				goto SUCCESS
+			} else {
+				sendFailedResponse(ctx, Err, "db error when AddUser Phone:", vi.PhoneNumber, "err:",
+					err.Error())
+				return
+			}
+		}
+
+		//if user can be found, update user login time
+		goto SUCCESS
+	} else {
+		sendFailedResponse(ctx, Err, "bind request parameter err:", err)
+		return
+	}
+
+SUCCESS:
+	userSession := xxtea.EncryptStdToURLString(strconv.FormatUint(vReq.PhoneNumber, 10)+":"+nowTimestampString(), XXTEA_KEY)
+	//Save session
+	err := server.Consist.Put(UserSessionPrefix+userSession, "", time.Duration(86400*time.Second))
+	if err != nil {
+		sendFailedResponse(ctx, Err, err.Error())
+		return
+	}
+	ctx.Header("SESSION", userSession)
+	sendSuccessResponse(ctx, nil)
+	return
+}
+
+func registerUser(vi *VerifyCodeInfo) (*models.MobileUser, error) {
+	now := time.Now().Format("2006-01-02 15:04:05")
+	logger.Info("New User! phone:", vi.PhoneNumber, "time:", now)
+
+	//phone_number,login_time,register_time,balance,deposit,credit
+	newUser := &models.MobileUser{
+		PhoneNumber:  vi.PhoneNumber,
+		RegisterTime: now,
+	}
+	err := server.DB.RegisterMobileUser(newUser)
+	if err != nil {
+		return nil, err
+	}
+	return newUser, nil
 }

@@ -5,6 +5,7 @@ import (
 	"github.com/OnebookTechnology/jifengou/consitence"
 	"github.com/OnebookTechnology/jifengou/mysqlservice"
 	"github.com/OnebookTechnology/jifengou/server/interface"
+	sms "github.com/OnebookTechnology/smssdk/sdk"
 	levelLogger "github.com/cxt90730/LevelLogger-go"
 	"github.com/gin-gonic/gin"
 	"github.com/robfig/config"
@@ -47,6 +48,8 @@ type Server struct {
 	TcpListener *net.TCPListener
 	DB          _interface.ServerDB
 	Consist     _interface.Consistence
+	Captcha     _interface.Captcha
+	SMS         _interface.SMS
 
 	accessLog *os.File
 	errorLog  *os.File
@@ -90,6 +93,13 @@ func NewService(confPath, serverName string, mode string) (*Server, error) {
 
 	//Consistence
 	server.Consist = new(consitence.TempConsist)
+
+	//SMS
+	smsService, err := sms.NewSMSService(confPath)
+	if err != nil {
+		return nil, err
+	}
+	server.SMS = smsService
 
 	//Env
 	server.Env = testEnv

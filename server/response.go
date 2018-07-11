@@ -60,7 +60,17 @@ func sendSuccessResponse(ctx *gin.Context, data *ResData) {
 	})
 	s, _ := jsoniter.MarshalToString(data)
 	logger.Info("[", ctx.Request.RequestURI, "]", "response:", s)
+}
 
+func sendSuccessResponseWithMessage(ctx *gin.Context, msg string, data *ResData) {
+	ctx.JSON(http.StatusOK, Response{
+		Code:    Ok,
+		Uri:     ctx.Request.RequestURI,
+		Message: msg,
+		Data:    data,
+	})
+	s, _ := jsoniter.MarshalToString(data)
+	logger.Info("[", ctx.Request.RequestURI, "]", "response:", s)
 }
 
 func resFormat(v ...interface{}) string {
