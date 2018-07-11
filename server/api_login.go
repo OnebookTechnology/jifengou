@@ -233,6 +233,7 @@ func Verify(ctx *gin.Context) {
 
 //发送短信验证码
 func SendVerifyCode(ctx *gin.Context) {
+	crossDomain(ctx)
 	key := ctx.Param("key")
 	viJson, err := server.Consist.Get(VerifyCodePrefix + key)
 	if err != nil {
@@ -295,13 +296,13 @@ func VerifyVCode(ctx *gin.Context) {
 			if err == sql.ErrNoRows {
 				_, err = registerUser(vi)
 				if err != nil {
-					sendFailedResponse(ctx, Err, "db error when AddUser err:", err.Error(), "Phone:",
+					sendFailedResponse(ctx, Err, "db error when RegisterMobileUser err:", err.Error(), "Phone:",
 						vi.PhoneNumber)
 					return
 				}
 				goto SUCCESS
 			} else {
-				sendFailedResponse(ctx, Err, "db error when AddUser Phone:", vi.PhoneNumber, "err:",
+				sendFailedResponse(ctx, Err, "db error when RegisterMobileUser Phone:", vi.PhoneNumber, "err:",
 					err.Error())
 				return
 			}
