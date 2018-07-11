@@ -91,6 +91,10 @@ type CaptchaInfo struct {
 
 func GetKey(ctx *gin.Context) {
 	crossDomain(ctx)
+	if server.Captcha == nil {
+		sendFailedResponse(ctx, Err, "no captcha service")
+		return
+	}
 	origin, key, err := server.Captcha.GetKey(4)
 	if err != nil {
 		sendFailedResponse(ctx, Err, err.Error())
