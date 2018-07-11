@@ -74,4 +74,22 @@ func LoadRouter(router *gin.Engine) {
 		couponRouter.OPTIONS("/update", Options)
 	}
 
+	captchaGroup := myRouter.Group("/captcha")
+	{
+		captchaGroup.GET("/getkey", GetKey)
+		captchaGroup.GET("/image/:key", ShowImage)
+		captchaGroup.POST("/verify", Verify)
+		captchaGroup.OPTIONS("/getkey", Options)
+		captchaGroup.OPTIONS("/image/:key", Options)
+		captchaGroup.OPTIONS("/verify", Options)
+	}
+
+	vcodeGroup := myRouter.Group("/vcode")
+	{
+		vcodeGroup.POST("/send/:key", SendVerifyCode)
+		vcodeGroup.POST("/verify", VerifyVCode)
+		vcodeGroup.OPTIONS("/send/:key", Options)
+		vcodeGroup.OPTIONS("/verify", Options)
+	}
+
 }
