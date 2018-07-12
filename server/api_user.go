@@ -16,9 +16,16 @@ func ListAllUser(ctx *gin.Context) {
 			sendFailedResponse(ctx, Err, "ListAllUser err:", err)
 			return
 		}
-		res := &ResData{
-			Users: us,
+		c, err := server.DB.QueryMobileUserCount()
+		if err != nil {
+			sendFailedResponse(ctx, Err, "QueryMobileUserCount err:", err)
+			return
 		}
+		res := &ResData{
+			Users:      us,
+			TotalCount: c,
+		}
+
 		sendSuccessResponse(ctx, res)
 		return
 	} else {
