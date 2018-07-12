@@ -41,7 +41,7 @@ func AddProduct(ctx *gin.Context) {
 	var req ProductReq
 	if err := ctx.BindJSON(&req); err == nil {
 		p := &models.Product{
-			ProductItemStatement: "JFG_" + strconv.Itoa(req.BusinessId) + "_" + nowTimestampString(),
+			ProductItemStatement: "JFGB" + strconv.Itoa(req.BusinessId) + "T" + nowTimestampString(),
 			ProductName:          req.ProductName,
 			ProductInfo:          req.ProductInfo,
 			ProductStatus:        models.ProductReviewing,
@@ -66,6 +66,12 @@ func AddProduct(ctx *gin.Context) {
 			return
 		}
 		p.ProductInfo = string(info)
+		eInfo, err := base64.StdEncoding.DecodeString(p.ExchangeInfo)
+		if err != nil {
+			sendFailedResponse(ctx, Err, "DecodeString err:", err, "data:", p.ProductInfo)
+			return
+		}
+		p.ExchangeInfo = string(eInfo)
 		err = server.DB.AddProduct(p)
 		if err != nil {
 			sendFailedResponse(ctx, Err, "AddProduct err:", err)
@@ -106,7 +112,12 @@ func UpdateProduct(ctx *gin.Context) {
 			return
 		}
 		p.ProductInfo = string(info)
-		fmt.Println(*p)
+		eInfo, err := base64.StdEncoding.DecodeString(p.ExchangeInfo)
+		if err != nil {
+			sendFailedResponse(ctx, Err, "DecodeString err:", err, "data:", p.ProductInfo)
+			return
+		}
+		p.ExchangeInfo = string(eInfo)
 		err = server.DB.UpdateProductById(p)
 		if err != nil {
 			sendFailedResponse(ctx, Err, "UpdateProductById err:", err)
