@@ -72,8 +72,8 @@ func LoadRouter(router *gin.Engine) {
 		couponRouter.OPTIONS("/query", Options)
 	}
 
-	couponRouter.POST("/update", UpdateCodeStatus)
-	couponRouter.OPTIONS("/update", Options)
+	myRouter.POST("/coupon/update", UpdateCodeStatus)
+	myRouter.OPTIONS("/coupon/update", Options)
 
 	captchaGroup := myRouter.Group("/captcha")
 	{
