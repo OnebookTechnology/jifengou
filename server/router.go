@@ -92,4 +92,10 @@ func LoadRouter(router *gin.Engine) {
 		vcodeGroup.OPTIONS("/verify", Options)
 	}
 
+	userRouter := myRouter.Group("/user")
+	userRouter.Use(TokenAuthMiddleware())
+	{
+		userRouter.GET("/list", ListAllUser)
+	}
+
 }

@@ -43,7 +43,7 @@ func (m *MysqlService) FindProductByItemStatement(itemStatement string) (p *mode
 func (m *MysqlService) FindAllProducts() ([]*models.Product, error) {
 	rows, err := m.Db.Query("SELECT product_id, product_item_statement,product_name, product_status, product_item_statement, product_price FROM product")
 	if err != nil {
-		return nil, nil
+		return nil, err
 	}
 	var products []*models.Product
 	for rows.Next() {
@@ -232,7 +232,7 @@ func (m *MysqlService) FindAllProductsOrderByScore(pageNum, pageCount int, isDes
 	}
 	rows, err := m.Db.Query(sql+" LIMIT ?,?", status, (pageNum-1)*pageCount, pageCount)
 	if err != nil {
-		return nil, nil
+		return nil, err
 	}
 	var products []*models.Product
 	for rows.Next() {
@@ -257,7 +257,7 @@ func (m *MysqlService) FindAllProductsOrderByOnlineTime(pageNum, pageCount int, 
 		" FROM product WHERE product_status=? ORDER BY product_online_time DESC"+
 		" LIMIT ?,?", status, (pageNum-1)*pageCount, pageCount)
 	if err != nil {
-		return nil, nil
+		return nil, err
 	}
 	var products []*models.Product
 	for rows.Next() {
@@ -282,7 +282,7 @@ func (m *MysqlService) FindAllProductsOrderByExchangeTime(pageNum, pageCount, st
 		" FROM product WHERE product_status=? ORDER BY exchange_time DESC"+
 		" LIMIT ?,?", status, (pageNum-1)*pageCount, pageCount)
 	if err != nil {
-		return nil, nil
+		return nil, err
 	}
 	var products []*models.Product
 	for rows.Next() {

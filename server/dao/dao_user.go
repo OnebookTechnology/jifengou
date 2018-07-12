@@ -8,4 +8,6 @@ type UserDao interface {
 
 	FindMobileUser(phoneNumber uint64) (*models.MobileUser, error)
 	RegisterMobileUser(newUser *models.MobileUser) error
+	ListAllUser(pageNum, pageCount int) ([]*models.MobileUser, error)
+	QueryMobileUserCount() (int, error)
 }

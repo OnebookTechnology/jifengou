@@ -46,7 +46,7 @@ func (m *MysqlService) FindBCouponByStatus(status, productId, pageNum, pageCount
 		" WHERE bc_status=? AND product_id=? "+
 		" LIMIT ?,?", status, productId, (pageNum-1)*pageCount, pageCount)
 	if err != nil {
-		return nil, nil
+		return nil, err
 	}
 	var bs []*models.BCoupon
 	for rows.Next() {
@@ -66,7 +66,7 @@ func (m *MysqlService) FindBCouponByCouponCode(couponCode string) ([]*models.BCo
 		" FROM bcoupon b LEFT JOIN coupon c ON b.pc_id = c.coupon_id "+
 		" WHERE c.coupon_code=? ", couponCode)
 	if err != nil {
-		return nil, nil
+		return nil, err
 	}
 	var bs []*models.BCoupon
 	for rows.Next() {
@@ -113,7 +113,7 @@ func (m *MysqlService) FindBCouponsByCoupon(code string) ([]*models.BCoupon, err
 	rows, err := m.Db.Query("SELECT bc_id,bc.bc_cart_id,bc.bc_code,bc.b_id,bc.product_id,bc.pc_id,bc.bc_start,bc.bc_end,bc.bc_status,bc.bc_update_time "+
 		" FROM JiFenGou.bcoupon bc LEFT JOIN JiFenGou.coupon c ON bc.pc_id = c.coupon_id WHERE c.coupon_code = ? ", code)
 	if err != nil {
-		return nil, nil
+		return nil, err
 	}
 	var bs []*models.BCoupon
 	for rows.Next() {

@@ -6,7 +6,7 @@ import "github.com/OnebookTechnology/jifengou/server/models"
 func (m *MysqlService) FindAllCategory() ([]*models.Category, error) {
 	rows, err := m.Db.Query("SELECT category_id,category_name FROM category ")
 	if err != nil {
-		return nil, nil
+		return nil, err
 	}
 	var cs []*models.Category
 	for rows.Next() {

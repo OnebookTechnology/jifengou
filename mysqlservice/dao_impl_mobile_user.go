@@ -37,3 +37,32 @@ func (m *MysqlService) RegisterMobileUser(newUser *models.MobileUser) error {
 	}
 	return nil
 }
+
+func (m *MysqlService) ListAllUser(pageNum, pageCount int) ([]*models.MobileUser, error) {
+	rows, err := m.Db.Query("SELECT phone_number,register_time "+
+		" FROM mobile_user "+
+		" LIMIT ?,? ", (pageNum-1)*pageCount, pageCount)
+	if err != nil {
+		return nil, err
+	}
+	var us []*models.MobileUser
+	for rows.Next() {
+		u := new(models.MobileUser)
+		err := rows.Scan(&u.PhoneNumber, &u.RegisterTime)
+		if err != nil {
+			return nil, err
+		}
+		us = append(us, u)
+	}
+	return us, nil
+}
+
+func (m *MysqlService) QueryMobileUserCount() (int, error) {
+	row := m.Db.QueryRow("SELECT count(*) mobile_user business")
+	var c int
+	err := row.Scan(&c)
+	if err != nil {
+		return 0, err
+	}
+	return c, nil
+}

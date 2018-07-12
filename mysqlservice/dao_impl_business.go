@@ -87,7 +87,7 @@ func (m *MysqlService) FindBusinessByKeyword(keyword string, pageNum, pageCount 
 	rows, err := m.Db.Query("SELECT business_id,business_no,business_name,business_register_time,business_auth,business_avail FROM business "+
 		"WHERE business_name LIKE '%?%' LIMIT ?,?", keyword, (pageNum-1)*pageCount, pageCount)
 	if err != nil {
-		return nil, nil
+		return nil, err
 	}
 	var bs []*models.Business
 	for rows.Next() {
@@ -110,7 +110,7 @@ func (m *MysqlService) FindAllBusiness(pageNum, pageCount int) ([]*models.Busine
 	rows, err := m.Db.Query("SELECT business_id,business_no,business_name,business_register_time,business_auth,business_avail FROM business "+
 		"LIMIT ?,?", (pageNum-1)*pageCount, pageCount)
 	if err != nil {
-		return nil, nil
+		return nil, err
 	}
 	var bs []*models.Business
 	for rows.Next() {
