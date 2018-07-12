@@ -279,7 +279,7 @@ func (m *MysqlService) FindAllProductsOrderByOnlineTime(pageNum, pageCount int, 
 //根据兑换次数查询所有商品
 func (m *MysqlService) FindAllProductsOrderByExchangeTime(pageNum, pageCount, status int) ([]*models.Product, error) {
 	rows, err := m.Db.Query("SELECT product_id, product_item_statement,product_name, product_status, product_item_statement, product_score, exchange_time "+
-		" FROM product WHERE product_status=? ORDER BY exchange_time DESC"+
+		" FROM product WHERE product_status=? ORDER BY exchange_time DESC, product_online_time DESC"+
 		" LIMIT ?,?", status, (pageNum-1)*pageCount, pageCount)
 	if err != nil {
 		return nil, err
