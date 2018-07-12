@@ -148,8 +148,9 @@ func (m *MysqlService) FindCouponsByItemStatement(itemStatement string, count in
 
 // 查询券码库存
 func (m *MysqlService) FindCouponCountByItemStatement(itemStatement string) (count int, err error) {
-	row := m.Db.QueryRow("SELECT COUNT(coupon_id) AS count 	FROM coupon c LEFT JOIN product p ON c.product_id=p.product_id 	WHERE p.product_item_statement = ?",
-		itemStatement)
+	row := m.Db.QueryRow("SELECT COUNT(coupon_id) AS count 	FROM coupon c LEFT JOIN product p ON c.product_id=p.product_id 	"+
+		" WHERE p.product_item_statement = ? AND c.coupon_status=?",
+		itemStatement, models.CouponNotReleased)
 	err = row.Scan(&count)
 	return
 }
