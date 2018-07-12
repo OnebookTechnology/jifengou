@@ -58,7 +58,7 @@ func (m *MysqlService) ListAllUser(pageNum, pageCount int) ([]*models.MobileUser
 }
 
 func (m *MysqlService) QueryMobileUserCount() (int, error) {
-	row := m.Db.QueryRow("SELECT count(*) mobile_user business")
+	row := m.Db.QueryRow("SELECT count(*) FROM mobile_user")
 	var c int
 	err := row.Scan(&c)
 	if err != nil {
