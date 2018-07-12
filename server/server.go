@@ -114,13 +114,12 @@ func NewService(confPath, serverName string, mode string) (*Server, error) {
 	server.Captcha = capt
 
 	//Env
-	server.Env = testEnv
-	if mode == "online" {
-		server.Env = onlineEnv
-		server.Conf.port = 80
-	}
-
-	//Load router
+	//server.Env = testEnv
+	//if mode == "online" {
+	//	server.Env = onlineEnv
+	//	server.Conf.port = 80
+	//}
+	server.Env = onlineEnv
 	LoadRouter(router)
 
 	//Start Bridge

@@ -20,12 +20,6 @@ type JFGEnv struct {
 }
 
 var (
-	testEnv = JFGEnv{
-		BusinessId:         "279916728",
-		BusinessKey:        "d29a2850596496ad0a0b9821747d80b4",
-		GetCouponStatusUrl: "http://api.cwidp.com/1/get_coupon_status",
-		UseCouponUrl:       "http://api.cwidp.com/1/use_coupon",
-	}
 	onlineEnv = JFGEnv{
 		BusinessId:         "3866229787",
 		BusinessKey:        "96e295d126829290dc6e906133d6a1cd",
@@ -240,6 +234,7 @@ func QueryCouponStatus(ctx *gin.Context) {
 		handleError(ctx, err)
 		return
 	}
+	logger.Info("AESDecryptHexStringToOrigin code:", code)
 	// 在数据库中查询指定coupon
 	coupon, err := server.DB.FindCouponByCode(code)
 	if err != nil {
