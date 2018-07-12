@@ -181,6 +181,10 @@ func BindCoupon(ctx *gin.Context) {
 // 更新券码状态
 func UpdateCodeStatus(ctx *gin.Context) {
 	crossDomain(ctx)
+	if err2 := CheckUserSession(ctx); err2 != nil {
+		sendFailedResponse(ctx, SessionErr, "invalid session. err:", err2)
+		return
+	}
 	var req CouponReq
 	if err := ctx.ShouldBindJSON(&req); err == nil {
 

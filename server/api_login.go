@@ -49,17 +49,17 @@ func Login(ctx *gin.Context) {
 func CheckUserSession(c *gin.Context) error {
 	session := c.GetHeader("SESSION")
 	if len(session) == 0 {
-		return errors.New("invalid session.")
+		return errors.New("empty session.")
 	}
 
 	//TODO: Consist session
 	// Check if etcd contain this sessionKey
 	outTime, err := server.Consist.Get(UserSessionPrefix + session)
 	if len(outTime) == 0 {
-		return errors.New("invalid session key.")
+		return errors.New("invalid session key:" + session)
 	}
 	if err != nil {
-		return errors.New("Consist.Get err.")
+		return errors.New("Consist.Get err:" + session)
 	}
 	// check if login object's timestamp is over time
 	now := time.Now().Unix()
@@ -67,7 +67,7 @@ func CheckUserSession(c *gin.Context) error {
 	diff := now - sessionTime
 	if diff > MaxSessionTimeout {
 		// over time means current user without any operation over 30 minutes
-		return errors.New("Csession time out.")
+		return errors.New("Usession time out:" + session)
 	}
 	return nil
 }
@@ -75,17 +75,17 @@ func CheckUserSession(c *gin.Context) error {
 func CheckSession(c *gin.Context) error {
 	session := c.GetHeader("SESSION")
 	if len(session) == 0 {
-		return errors.New("invalid session.")
+		return errors.New("empty session:" + session)
 	}
 
 	//TODO: Consist session
 	// Check if etcd contain this sessionKey
 	outTime, err := server.Consist.Get(SessionPrefix + session)
 	if len(outTime) == 0 {
-		return errors.New("invalid session key.")
+		return errors.New("invalid session key:" + session)
 	}
 	if err != nil {
-		return errors.New("Consist.Get err.")
+		return errors.New("Consist.Get err:" + session)
 	}
 	// check if login object's timestamp is over time
 	now := time.Now().Unix()
@@ -93,7 +93,7 @@ func CheckSession(c *gin.Context) error {
 	diff := now - sessionTime
 	if diff > MaxSessionTimeout {
 		// over time means current user without any operation over 30 minutes
-		return errors.New("Csession time out.")
+		return errors.New("Csession time out:" + session)
 	}
 	return nil
 }
