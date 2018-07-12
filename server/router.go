@@ -97,7 +97,7 @@ func LoadRouter(router *gin.Engine) {
 	userRouter.Use(TokenAuthMiddleware())
 	{
 		userRouter.GET("/list", ListAllUser)
-		userRouter.GET("/list", Options)
+		userRouter.OPTIONS("/list", Options)
 	}
 
 }
