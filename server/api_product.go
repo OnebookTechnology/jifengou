@@ -2,7 +2,6 @@ package server
 
 import (
 	"encoding/base64"
-	"fmt"
 	"github.com/OnebookTechnology/jifengou/server/models"
 	"github.com/gin-gonic/gin"
 	"strconv"
