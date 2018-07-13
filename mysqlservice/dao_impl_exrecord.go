@@ -35,7 +35,7 @@ func (m *MysqlService) AddExchangeRecord(e *models.ExchangeRecord) error {
 
 // 查询记录
 func (m *MysqlService) FindExchangeRecordByPhone(phoneNumber int) ([]*models.ExchangeRecord, error) {
-	rows, err := m.Db.Query("SELECT p.product_name, e.b_codes, e.p_code, e.ex_time, e.p_id FROM ex_record e"+
+	rows, err := m.Db.Query("SELECT p.product_name, e.b_codes, e.p_code, e.ex_time, e.p_id FROM ex_record e "+
 		"LEFT JOIN product p ON p.product_id=e.p_id where e.phone_number=?", phoneNumber)
 	if err != nil {
 		return nil, err
