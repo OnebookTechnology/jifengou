@@ -35,7 +35,7 @@ func (m *MysqlService) FindProductById(productId int) (*models.Product, error) {
 func (m *MysqlService) FindProductByItemStatement(itemStatement string) (*models.Product, error) {
 	row := m.Db.QueryRow("SELECT product_id, product_name, exchange_info  FROM product WHERE product_item_statement = ?", itemStatement)
 	p := new(models.Product)
-	err := row.Scan(&p.ProductId, &p.ProductName, &p.ProductInfo)
+	err := row.Scan(&p.ProductId, &p.ProductName, &p.ExchangeInfo)
 	if err != nil {
 		return nil, err
 	}
