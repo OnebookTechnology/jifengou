@@ -1,7 +1,6 @@
 package server
 
 import (
-	"encoding/base64"
 	"github.com/OnebookTechnology/jifengou/server/models"
 	"github.com/gin-gonic/gin"
 	"strconv"
@@ -60,18 +59,6 @@ func AddProduct(ctx *gin.Context) {
 			ProductCode:          req.ProductCode,
 			ProductExchangePhone: req.ProductExchangePhone,
 		}
-		info, err := base64.StdEncoding.DecodeString(p.ProductInfo)
-		if err != nil {
-			sendFailedResponse(ctx, Err, "DecodeString err:", err, "data:", p.ProductInfo)
-			return
-		}
-		p.ProductInfo = string(info)
-		eInfo, err := base64.StdEncoding.DecodeString(p.ExchangeInfo)
-		if err != nil {
-			sendFailedResponse(ctx, Err, "DecodeString err:", err, "data:", p.ProductInfo)
-			return
-		}
-		p.ExchangeInfo = string(eInfo)
 		err = server.DB.AddProduct(p)
 		if err != nil {
 			sendFailedResponse(ctx, Err, "AddProduct err:", err)
@@ -106,18 +93,7 @@ func UpdateProduct(ctx *gin.Context) {
 			ProductExchangePhone: req.ProductExchangePhone,
 			ProductCode:          req.ProductCode,
 		}
-		info, err := base64.StdEncoding.DecodeString(p.ProductInfo)
-		if err != nil {
-			sendFailedResponse(ctx, Err, "DecodeString err:", err, "data:", p.ProductInfo)
-			return
-		}
-		p.ProductInfo = string(info)
-		eInfo, err := base64.StdEncoding.DecodeString(p.ExchangeInfo)
-		if err != nil {
-			sendFailedResponse(ctx, Err, "DecodeString err:", err, "data:", p.ProductInfo)
-			return
-		}
-		p.ExchangeInfo = string(eInfo)
+
 		err = server.DB.UpdateProductById(p)
 		if err != nil {
 			sendFailedResponse(ctx, Err, "UpdateProductById err:", err)
