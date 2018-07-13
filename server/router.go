@@ -102,4 +102,7 @@ func LoadRouter(router *gin.Engine) {
 		userRouter.OPTIONS("/list", Options)
 	}
 
+	myRouter.GET("/exrecord/query", QueryExRecord)
+	myRouter.OPTIONS("/exrecord/query", Options)
+
 }

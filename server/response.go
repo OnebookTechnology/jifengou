@@ -25,17 +25,18 @@ type Response struct {
 
 //注册返回数据结构
 type ResData struct {
-	Businesses []*models.Business   `json:"businesses,omitempty"`
-	Business   *models.Business     `json:"business,omitempty"`
-	Categories []*models.Category   `json:"categories,omitempty"`
-	Products   []*models.Product    `json:"products,omitempty"`
-	Product    *models.Product      `json:"product,omitempty"`
-	BCoupons   []*models.BCoupon    `json:"b_coupons,omitempty"`
-	Coupons    []*models.Coupon     `json:"coupons,omitempty"`
-	Coupon     *models.Coupon       `json:"coupon,omitempty"`
-	Image      *models.Image        `json:"image,omitempty"`
-	Users      []*models.MobileUser `json:"users,omitempty"`
-	TotalCount int                  `json:"total_count,omitempty"`
+	Businesses []*models.Business       `json:"businesses,omitempty"`
+	Business   *models.Business         `json:"business,omitempty"`
+	Categories []*models.Category       `json:"categories,omitempty"`
+	Products   []*models.Product        `json:"products,omitempty"`
+	Product    *models.Product          `json:"product,omitempty"`
+	BCoupons   []*models.BCoupon        `json:"b_coupons,omitempty"`
+	Coupons    []*models.Coupon         `json:"coupons,omitempty"`
+	Coupon     *models.Coupon           `json:"coupon,omitempty"`
+	Image      *models.Image            `json:"image,omitempty"`
+	Users      []*models.MobileUser     `json:"users,omitempty"`
+	ExRecords  []*models.ExchangeRecord `json:"ex_records,omitempty"`
+	TotalCount int                      `json:"total_count,omitempty"`
 }
 
 func Options(ctx *gin.Context) {

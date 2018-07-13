@@ -181,8 +181,14 @@ func BindCoupon(ctx *gin.Context) {
 // 更新券码状态
 func UpdateCodeStatus(ctx *gin.Context) {
 	crossDomain(ctx)
-	if err2 := CheckUserSession(ctx); err2 != nil {
-		sendFailedResponse(ctx, SessionErr, "invalid session. err:", err2)
+	var phoneNumber int
+	var err error
+	var bcodes string
+	var e *models.ExchangeRecord
+	var bs []*models.BCoupon
+	var p *models.Product
+	if phoneNumber, err = CheckUserSessionWithPhone(ctx); err != nil {
+		sendFailedResponse(ctx, SessionErr, "invalid session. err:", err)
 		return
 	}
 	var req CouponReq
@@ -194,15 +200,44 @@ func UpdateCodeStatus(ctx *gin.Context) {
 			return
 		}
 
+		//如果请求更新为已使用，但券不是为使用状态，则忽略
 		if req.Status == models.CouponUsed && c.CouponStatus != models.CouponNotUsed {
 			goto RETURN
 		}
 
+		bs, err = server.DB.FindBCouponsByCoupon(req.CouponCode)
+		if err != nil || len(bs) == 0 {
+			sendFailedResponse(ctx, Err, "FindBCouponsByCoupon err:", err, "data:", req.CouponCode)
+			return
+		}
+
+		for _, b := range bs {
+			bcodes = bcodes + b.BCCode + ","
+		}
+
+		p, err = server.DB.FindProductById(bs[0].ProductId)
+		if err != nil {
+			sendFailedResponse(ctx, Err, "FindBCouponsByCoupon err:", err, "data:", req.CouponCode)
+			return
+		}
+		e = &models.ExchangeRecord{
+			PhoneNumber: phoneNumber,
+			BCodes:      bcodes[:len(bcodes)-1],
+			PCode:       p.ProductCode,
+			ExTime:      nowTimestampString(),
+			PId:         p.ProductId,
+		}
+		err = server.DB.AddExchangeRecord(e)
+		if err != nil {
+			sendFailedResponse(ctx, Err, "AddExchangeRecord err:", err, "data:", req.CouponCode)
+			return
+		}
 		err = server.DB.UpdateCouponStatus(req.CouponCode, req.Status, req.UpdateTime)
 		if err != nil {
 			sendFailedResponse(ctx, Err, "UpdateCouponStatus err:", err)
 			return
 		}
+
 		// 已使用，则通知积分购
 		go func() {
 			if req.Status == models.CouponUsed {
@@ -212,9 +247,9 @@ func UpdateCodeStatus(ctx *gin.Context) {
 				}
 			}
 		}()
-
+		goto RETURN
 	RETURN:
-		p, err := server.DB.FindProductById(c.ProductID)
+		p, err = server.DB.FindProductById(c.ProductID)
 		if err != nil {
 			sendFailedResponse(ctx, Err, "FindProductById err:", err)
 			return

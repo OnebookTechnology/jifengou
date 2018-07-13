@@ -9,6 +9,7 @@ type ServerDB interface {
 	dao.ProductDao
 	dao.CouponDao
 	dao.BusinessDao
+	dao.ExRecordDao
 	//dao.BookDao
 	//dao.BookListDao
 	//dao.DiscoverDao

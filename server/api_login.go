@@ -10,6 +10,7 @@ import (
 	"image/png"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -70,6 +71,45 @@ func CheckUserSession(c *gin.Context) error {
 		return errors.New("Usession time out:" + session)
 	}
 	return nil
+}
+
+func CheckUserSessionWithPhone(c *gin.Context) (int, error) {
+	session := c.GetHeader("SESSION")
+	if len(session) == 0 {
+		return 0, errors.New("empty session.")
+	}
+
+	//TODO: Consist session
+	// Check if etcd contain this sessionKey
+	outTime, err := server.Consist.Get(UserSessionPrefix + session)
+	if len(outTime) == 0 {
+		return 0, errors.New("invalid session key:" + session)
+	}
+	if err != nil {
+		return 0, errors.New("Consist.Get err:" + session)
+	}
+
+	// check if login object's timestamp is over time
+	now := time.Now().Unix()
+	sessionTime, _ := strconv.ParseInt(outTime, 10, 64)
+	diff := now - sessionTime
+	if diff > MaxSessionTimeout {
+		// over time means current user without any operation over 30 minutes
+		return 0, errors.New("Usession time out:" + session)
+	}
+
+	//strconv.FormatUint(vReq.PhoneNumber, 10)+":"+nowTimestampString(), XXTEA_KEY
+	s, err := xxtea.DecryptURLToStdString(session, XXTEA_KEY)
+	if err != nil {
+		return 0, errors.New("invalid session:" + session)
+	}
+
+	phoneStr := strings.Split(s, ":")[0]
+	phoneNumber, err := strconv.Atoi(phoneStr)
+	if err != nil {
+		return 0, errors.New("invalid session:" + session)
+	}
+	return phoneNumber, nil
 }
 
 func CheckSession(c *gin.Context) error {
