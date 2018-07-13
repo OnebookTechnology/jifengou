@@ -224,7 +224,7 @@ func UpdateCodeStatus(ctx *gin.Context) {
 			PhoneNumber: phoneNumber,
 			BCodes:      bcodes[:len(bcodes)-1],
 			PCode:       p.ProductCode,
-			ExTime:      nowTimestampString(),
+			ExTime:      nowFormat(),
 			PId:         p.ProductId,
 		}
 		err = server.DB.AddExchangeRecord(e)
