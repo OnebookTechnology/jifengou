@@ -186,7 +186,6 @@ func UpdateCodeStatus(ctx *gin.Context) {
 	var bcodes string
 	var e *models.ExchangeRecord
 	var bs []*models.BCoupon
-	var p *models.Product
 	if phoneNumber, err = CheckUserSessionWithPhone(ctx); err != nil {
 		sendFailedResponse(ctx, SessionErr, "invalid session. err:", err)
 		return
@@ -215,17 +214,12 @@ func UpdateCodeStatus(ctx *gin.Context) {
 			bcodes = bcodes + b.BCCode + ","
 		}
 
-		p, err = server.DB.FindProductById(bs[0].ProductId)
-		if err != nil {
-			sendFailedResponse(ctx, Err, "FindBCouponsByCoupon err:", err, "data:", req.CouponCode)
-			return
-		}
 		e = &models.ExchangeRecord{
 			PhoneNumber: phoneNumber,
 			BCodes:      bcodes[:len(bcodes)-1],
-			PCode:       p.ProductCode,
+			PCode:       c.CouponCode,
 			ExTime:      nowFormat(),
-			PId:         p.ProductId,
+			PId:         c.ProductID,
 		}
 		err = server.DB.AddExchangeRecord(e)
 		if err != nil {
@@ -249,7 +243,7 @@ func UpdateCodeStatus(ctx *gin.Context) {
 		}()
 		goto RETURN
 	RETURN:
-		p, err = server.DB.FindProductById(c.ProductID)
+		p, err := server.DB.FindProductById(c.ProductID)
 		if err != nil {
 			sendFailedResponse(ctx, Err, "FindProductById err:", err)
 			return
