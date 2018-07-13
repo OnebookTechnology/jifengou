@@ -37,6 +37,7 @@ type ResData struct {
 	Users      []*models.MobileUser     `json:"users,omitempty"`
 	ExRecords  []*models.ExchangeRecord `json:"ex_records,omitempty"`
 	TotalCount int                      `json:"total_count,omitempty"`
+	Name       string                   `json:"name,omitempty"`
 }
 
 func Options(ctx *gin.Context) {

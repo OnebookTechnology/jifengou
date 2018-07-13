@@ -8,4 +8,5 @@ type ExchangeRecord struct {
 	PCode       string   `json:"p_code"`
 	ExTime      string   `json:"ex_time"`
 	PId         int      `json:"p_id"`
+	Name        string   `json:"name,omitempty"`
 }
