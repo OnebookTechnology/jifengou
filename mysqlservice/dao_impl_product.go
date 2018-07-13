@@ -32,11 +32,19 @@ func (m *MysqlService) FindProductById(productId int) (*models.Product, error) {
 }
 
 // 根据ItemStatement查询商品
-func (m *MysqlService) FindProductByItemStatement(itemStatement string) (p *models.Product, err error) {
-	row := m.Db.QueryRow("SELECT product_name, product_info FROM product WHERE product_item_statement = ?", itemStatement)
-	p = new(models.Product)
-	err = row.Scan(&p.ProductName, &p.ProductInfo)
-	return
+func (m *MysqlService) FindProductByItemStatement(itemStatement string) (*models.Product, error) {
+	row := m.Db.QueryRow("SELECT product_id, product_name, exchange_info  FROM product WHERE product_item_statement = ?", itemStatement)
+	p := new(models.Product)
+	err := row.Scan(&p.ProductId, &p.ProductName, &p.ProductInfo)
+	if err != nil {
+		return nil, err
+	}
+	pics, err := m.FindPicturesByProductId(p.ProductId)
+	if err != nil {
+		return nil, err
+	}
+	p.ProductPics = pics
+	return p, nil
 }
 
 // 查找所有商品

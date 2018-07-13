@@ -29,6 +29,7 @@ type ProductReq struct {
 	ProductPics          []string `json:"p_pics"`
 	ExchangeInfo         string   `json:"p_ex_info"`
 	ProductExchangePhone string   `json:"phone"`
+	ProductItemStatement string   `json:"p_item_statement" form:"p_item_statement"` //商品在积分购的编号
 
 	PageNum   int `json:"page_num,omitempty" form:"page_num"`
 	PageCount int `json:"page_count,omitempty" form:"page_count"`
@@ -214,8 +215,8 @@ func UpdateProductStatus(ctx *gin.Context) {
 //根据条件查找商品
 func FindAllProductByCondition(ctx *gin.Context) {
 	crossDomain(ctx)
-	if err2 := CheckUserSession(ctx); err2 != nil {
-		sendFailedResponse(ctx, SessionErr, "invalid session. err:", err2)
+	if err := CheckUserSession(ctx); err != nil {
+		sendFailedResponse(ctx, SessionErr, "invalid session. err:", err)
 		return
 	}
 	cond := ctx.Param("condition")
@@ -254,6 +255,30 @@ func FindAllProductByCondition(ctx *gin.Context) {
 		}
 		res := &ResData{
 			Products: ps,
+		}
+		sendSuccessResponse(ctx, res)
+		return
+	} else {
+		sendFailedResponse(ctx, Err, "bind request parameter err:", err)
+		return
+	}
+}
+
+func FindProductByStatement(ctx *gin.Context) {
+	crossDomain(ctx)
+	if err := CheckUserSession(ctx); err != nil {
+		sendFailedResponse(ctx, SessionErr, "invalid session. err:", err)
+		return
+	}
+	var req ProductReq
+	if err := ctx.ShouldBindQuery(&req); err == nil {
+		p, err := server.DB.FindProductByItemStatement(req.ProductItemStatement)
+		if err != nil {
+			sendFailedResponse(ctx, Err, "FindProductByItemStatement err:", err)
+			return
+		}
+		res := &ResData{
+			Product: p,
 		}
 		sendSuccessResponse(ctx, res)
 		return
