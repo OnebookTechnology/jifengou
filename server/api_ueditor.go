@@ -92,7 +92,7 @@ func SavePics(ctx *gin.Context) {
 		}
 		res := &PicResponse{
 			State: "SUCCESS",
-			Url:   server.Conf.domain + "/images/" + pic.Filename,
+			Url:   "http://"+server.Conf.domain + "/images/" + pic.Filename,
 		}
 		s, _ := jsoniter.MarshalToString(res)
 		ctx.Writer.WriteHeader(http.StatusOK)
