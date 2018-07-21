@@ -9,7 +9,6 @@ import (
 
 func AddProductPic(ctx *gin.Context) {
 	crossDomain(ctx)
-
 	form, _ := ctx.MultipartForm()
 	for _, pic := range form.File["file"] {
 		file, err := pic.Open()
