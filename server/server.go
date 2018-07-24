@@ -162,7 +162,7 @@ func loadByConf(confPath string) error {
 
 	ec := new(UEditorConfig)
 	imageUri, _ := c.String("ueditor", "ImageUri")
-	ec.ImageUrl = "http://" + server.Conf.domain + ":8081" + imageUri
+	ec.ImageUrl = "http://" + server.Conf.domain + imageUri
 	ec.ImagePath, _ = c.String("ueditor", "ImagePath")
 	ec.ImageFieldName, _ = c.String("ueditor", "ImageFieldName")
 	ec.ImageMaxSize, _ = c.Int("ueditor", "ImageMaxSize")
