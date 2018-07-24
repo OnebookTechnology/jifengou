@@ -222,25 +222,25 @@ func UpdateCodeStatus(ctx *gin.Context) {
 				sendFailedResponse(ctx, Err, "AddExchangeRecord err:", err, "data:", req.CouponCode)
 				return
 			}
-		}
-
-		err = server.DB.UpdateCouponStatus(req.CouponCode, req.Status, req.UpdateTime)
-		if err != nil {
-			sendFailedResponse(ctx, Err, "UpdateCouponStatus err:", err)
-			return
-		}
-
-		// 已使用，则通知积分购
-		go func() {
-			if req.Status == models.CouponUsed {
-				err := notifyJFGUseCoupon(req.CouponCode, req.UpdateTime, "")
-				if err != nil {
-					logger.Error("notifyJFGUseCoupon err:", err)
+			// 已使用，则通知积分购
+			go func() {
+				if req.Status == models.CouponUsed {
+					err := notifyJFGUseCoupon(req.CouponCode, req.UpdateTime, "")
+					if err != nil {
+						logger.Error("notifyJFGUseCoupon err:", err)
+					}
 				}
+			}()
+		}
+
+		if req.Status > c.CouponStatus {
+			err = server.DB.UpdateCouponStatus(req.CouponCode, req.Status, req.UpdateTime)
+			if err != nil {
+				sendFailedResponse(ctx, Err, "UpdateCouponStatus err:", err)
+				return
 			}
-		}()
-		goto RETURN
-	RETURN:
+		}
+
 		p, err := server.DB.FindProductById(c.ProductID)
 		if err != nil {
 			sendFailedResponse(ctx, Err, "FindProductById err:", err)
