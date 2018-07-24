@@ -199,33 +199,31 @@ func UpdateCodeStatus(ctx *gin.Context) {
 			return
 		}
 
-		//如果请求更新为已使用，但券不是为使用状态，则忽略
-		if req.Status == models.CouponUsed && c.CouponStatus != models.CouponNotUsed {
-			goto RETURN
+		//添加兑换记录
+		if c.CouponStatus < models.CouponUsed && req.Status == models.CouponUsed {
+			bs, err = server.DB.FindBCouponsByCoupon(req.CouponCode)
+			if err != nil || len(bs) == 0 {
+				sendFailedResponse(ctx, Err, "FindBCouponsByCoupon err:", err, "data:", req.CouponCode)
+				return
+			}
+			for _, b := range bs {
+				bcodes = bcodes + b.BCCode + ","
+			}
+
+			e = &models.ExchangeRecord{
+				PhoneNumber: phoneNumber,
+				BCodes:      bcodes[:len(bcodes)-1],
+				PCode:       c.CouponCode,
+				ExTime:      nowFormat(),
+				PId:         c.ProductID,
+			}
+			err = server.DB.AddExchangeRecord(e)
+			if err != nil {
+				sendFailedResponse(ctx, Err, "AddExchangeRecord err:", err, "data:", req.CouponCode)
+				return
+			}
 		}
 
-		bs, err = server.DB.FindBCouponsByCoupon(req.CouponCode)
-		if err != nil || len(bs) == 0 {
-			sendFailedResponse(ctx, Err, "FindBCouponsByCoupon err:", err, "data:", req.CouponCode)
-			return
-		}
-
-		for _, b := range bs {
-			bcodes = bcodes + b.BCCode + ","
-		}
-
-		e = &models.ExchangeRecord{
-			PhoneNumber: phoneNumber,
-			BCodes:      bcodes[:len(bcodes)-1],
-			PCode:       c.CouponCode,
-			ExTime:      nowFormat(),
-			PId:         c.ProductID,
-		}
-		err = server.DB.AddExchangeRecord(e)
-		if err != nil {
-			sendFailedResponse(ctx, Err, "AddExchangeRecord err:", err, "data:", req.CouponCode)
-			return
-		}
 		err = server.DB.UpdateCouponStatus(req.CouponCode, req.Status, req.UpdateTime)
 		if err != nil {
 			sendFailedResponse(ctx, Err, "UpdateCouponStatus err:", err)
