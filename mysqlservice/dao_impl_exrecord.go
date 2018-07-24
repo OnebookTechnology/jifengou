@@ -54,7 +54,7 @@ func (m *MysqlService) FindExchangeRecordByPhone(phoneNumber int) ([]*models.Exc
 }
 
 func (m *MysqlService) FindAllExchangeRecord(pageNum, pageCount int) ([]*models.ExchangeRecord, error) {
-	rows, err := m.Db.Query("SELECT p.product_name, e.b_codes, e.p_code, e.ex_time, e.p_id FROM ex_record e "+
+	rows, err := m.Db.Query("SELECT e.phone_number,p.product_name, e.b_codes, e.p_code, e.ex_time, e.p_id FROM ex_record e "+
 		"LEFT JOIN product p ON p.product_id=e.p_id ORDER BY e.ex_time DESC LIMIT ?,? ", (pageNum-1)*pageCount, pageCount)
 	if err != nil {
 		return nil, err
@@ -62,7 +62,7 @@ func (m *MysqlService) FindAllExchangeRecord(pageNum, pageCount int) ([]*models.
 	var es []*models.ExchangeRecord
 	for rows.Next() {
 		e := new(models.ExchangeRecord)
-		err := rows.Scan(&e.Name, &e.BCodes, &e.PCode, &e.ExTime, &e.PId)
+		err := rows.Scan(&e.PhoneNumber, &e.Name, &e.BCodes, &e.PCode, &e.ExTime, &e.PId)
 		if err != nil {
 			return nil, err
 		}
