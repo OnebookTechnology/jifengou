@@ -52,3 +52,32 @@ func (m *MysqlService) FindExchangeRecordByPhone(phoneNumber int) ([]*models.Exc
 	}
 	return es, nil
 }
+
+func (m *MysqlService) FindAllExchangeRecord(pageNum, pageCount int) ([]*models.ExchangeRecord, error) {
+	rows, err := m.Db.Query("SELECT p.product_name, e.b_codes, e.p_code, e.ex_time, e.p_id FROM ex_record e "+
+		"LEFT JOIN product p ON p.product_id=e.p_id ORDER BY e.ex_time DESC LIMIT ?,? ", (pageNum-1)*pageCount, pageCount)
+	if err != nil {
+		return nil, err
+	}
+	var es []*models.ExchangeRecord
+	for rows.Next() {
+		e := new(models.ExchangeRecord)
+		err := rows.Scan(&e.Name, &e.BCodes, &e.PCode, &e.ExTime, &e.PId)
+		if err != nil {
+			return nil, err
+		}
+		e.BCodeArray = strings.Split(e.BCodes, ",")
+		es = append(es, e)
+	}
+	return es, nil
+}
+
+func (m *MysqlService) FindAllExchangeCount() (int, error) {
+	rows := m.Db.QueryRow("SELECT COUNT(*) FROM ex_record e LEFT JOIN product p ON p.product_id=e.p_id ")
+	var c int
+	err := rows.Scan(&c)
+	if err != nil {
+		return 0, err
+	}
+	return c, nil
+}
