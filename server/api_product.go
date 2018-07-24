@@ -40,7 +40,7 @@ func AddProduct(ctx *gin.Context) {
 	var req ProductReq
 	if err := ctx.BindJSON(&req); err == nil {
 		p := &models.Product{
-			ProductItemStatement: "JFGB" + strconv.Itoa(req.BusinessId) + "T" + nowTimestampString(),
+			ProductItemStatement: strconv.Itoa(req.BusinessId) + "T" + nowTimestampString(),
 			ProductName:          req.ProductName,
 			ProductInfo:          req.ProductInfo,
 			ProductStatus:        models.ProductReviewing,
