@@ -152,7 +152,7 @@ func BindCoupon(ctx *gin.Context) {
 		}
 		c := &models.Coupon{
 			ProductID:       req.ProductId,
-			CouponCode:      "JFG" + nowTimestampString() + RandText(4),
+			CouponCode:      nowTimestampString() + RandText(3),
 			CouponStartTime: p.ProductStartTime,
 			CouponEndTime:   p.ProductEndTime,
 			CouponStatus:    models.CouponNotReleased,

@@ -127,3 +127,14 @@ func (m *MysqlService) FindAllBusiness(pageNum, pageCount int) ([]*models.Busine
 	}
 	return bs, nil
 }
+
+// 查找所有商户
+func (m *MysqlService) FindAllBusinessCount() (int, error) {
+	rows := m.Db.QueryRow("SELECT COUNT(*) FROM business ")
+	var c int
+	err := rows.Scan(&c)
+	if err != nil {
+		return 0, err
+	}
+	return c, nil
+}

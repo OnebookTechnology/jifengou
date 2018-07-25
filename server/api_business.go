@@ -104,8 +104,14 @@ func QueryAllBusiness(ctx *gin.Context) {
 			sendFailedResponse(ctx, Err, "FindAllBusiness err:", err)
 			return
 		}
+		c, err := server.DB.FindAllBusinessCount()
+		if err != nil {
+			sendFailedResponse(ctx, Err, "FindAllBusinessCount err:", err)
+			return
+		}
 		res := &ResData{
 			Businesses: bs,
+			TotalCount: c,
 		}
 		sendSuccessResponse(ctx, res)
 		return
@@ -122,7 +128,7 @@ func QueryBusinessByNo(ctx *gin.Context) {
 	if err := ctx.ShouldBindQuery(&req); err == nil {
 		bs, err := server.DB.FindBusinessByNo(req.BNo)
 		if err != nil {
-			sendFailedResponse(ctx, Err, "FindBusinessById err:", err)
+			sendFailedResponse(ctx, Err, "FindBusinessByNo err:", err)
 			return
 		}
 		res := &ResData{
