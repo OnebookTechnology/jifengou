@@ -52,7 +52,6 @@ func sendFailedResponse(ctx *gin.Context, code int, v ...interface{}) {
 		Message: msg,
 	})
 	logger.Error("[", ctx.Request.RequestURI, "]", "ErrCode:", code, "response:", msg)
-
 }
 
 func sendSuccessResponse(ctx *gin.Context, data *ResData) {

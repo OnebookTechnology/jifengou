@@ -22,7 +22,7 @@ func AddProductPic(ctx *gin.Context) {
 			sendFailedResponse(ctx, Err, "save pics:", err)
 			return
 		}
-		picName := nowTimestampString() + "_" + url.PathEscape(pic.Filename)
+		picName := nowTimestampString() + "_" + pic.Filename
 
 		err = ioutil.WriteFile(server.ueditorConf.ImagePath+picName, data, 0777)
 		if err != nil {
