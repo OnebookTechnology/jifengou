@@ -84,7 +84,7 @@ func SavePics(ctx *gin.Context) {
 			ctx.String(http.StatusOK, "%s", err.Error())
 			return
 		}
-		picName := url.PathEscape(pic.Filename)
+		picName := nowTimestampString()+"_"+url.PathEscape(pic.Filename)
 		err = ioutil.WriteFile(server.ueditorConf.ImagePath+picName, data, 0777)
 		if err != nil {
 			logger.Error("save pics:", err)
