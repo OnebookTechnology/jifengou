@@ -4,7 +4,6 @@ import (
 	"github.com/OnebookTechnology/jifengou/server/models"
 	"github.com/gin-gonic/gin"
 	"io/ioutil"
-	"net/url"
 )
 
 func AddProductPic(ctx *gin.Context) {

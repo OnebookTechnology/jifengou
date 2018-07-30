@@ -5,7 +5,6 @@ import (
 	"github.com/json-iterator/go"
 	"io/ioutil"
 	"net/http"
-	"net/url"
 )
 
 var ImageAllowFiles = []string{".png", ".jpg", ".jpeg", ".gif", ".bmp"}
