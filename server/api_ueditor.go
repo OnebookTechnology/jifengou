@@ -84,7 +84,8 @@ func SavePics(ctx *gin.Context) {
 			ctx.String(http.StatusOK, "%s", err.Error())
 			return
 		}
-		err = ioutil.WriteFile(server.ueditorConf.ImagePath+url.PathEscape(pic.Filename), data, 0777)
+		picName := url.PathEscape(pic.Filename)
+		err = ioutil.WriteFile(server.ueditorConf.ImagePath+picName, data, 0777)
 		if err != nil {
 			logger.Error("save pics:", err)
 			ctx.String(http.StatusOK, "%s", err.Error())
@@ -92,7 +93,7 @@ func SavePics(ctx *gin.Context) {
 		}
 		res := &PicResponse{
 			State: "SUCCESS",
-			Url:   "http://" + server.Conf.domain + "/images/" + pic.Filename,
+			Url:   "http://" + server.Conf.domain + "/images/" + picName,
 		}
 		s, _ := jsoniter.MarshalToString(res)
 		ctx.Writer.WriteHeader(http.StatusOK)
