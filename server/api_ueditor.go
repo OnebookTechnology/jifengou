@@ -5,7 +5,6 @@ import (
 	"github.com/json-iterator/go"
 	"io/ioutil"
 	"net/http"
-	"net/url"
 )
 
 var ImageAllowFiles = []string{".png", ".jpg", ".jpeg", ".gif", ".bmp"}
@@ -84,7 +83,7 @@ func SavePics(ctx *gin.Context) {
 			ctx.String(http.StatusOK, "%s", err.Error())
 			return
 		}
-		picName := nowTimestampString()+"_"+url.PathEscape(pic.Filename)
+		picName := nowTimestampString() + "_" + doMD5FromString(pic.Filename)
 		err = ioutil.WriteFile(server.ueditorConf.ImagePath+picName, data, 0777)
 		if err != nil {
 			logger.Error("save pics:", err)
