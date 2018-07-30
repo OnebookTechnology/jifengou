@@ -4,6 +4,7 @@ import (
 	"github.com/OnebookTechnology/jifengou/server/models"
 	"github.com/gin-gonic/gin"
 	"io/ioutil"
+	"net/url"
 )
 
 func AddProductPic(ctx *gin.Context) {
@@ -21,7 +22,7 @@ func AddProductPic(ctx *gin.Context) {
 			sendFailedResponse(ctx, Err, "save pics:", err)
 			return
 		}
-		picName := nowTimestampString() + "_" + pic.Filename
+		picName := nowTimestampString() + "_" + url.PathEscape(pic.Filename)
 
 		err = ioutil.WriteFile(server.ueditorConf.ImagePath+picName, data, 0777)
 		if err != nil {
