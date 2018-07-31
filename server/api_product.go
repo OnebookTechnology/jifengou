@@ -41,10 +41,10 @@ func AddProduct(ctx *gin.Context) {
 	if err := ctx.BindJSON(&req); err == nil {
 		p := &models.Product{
 			ProductItemStatement: strconv.Itoa(req.BusinessId) + "T" + nowTimestampString(),
+			BusinessId:           req.BusinessId,
 			ProductName:          req.ProductName,
 			ProductInfo:          req.ProductInfo,
 			ProductStatus:        models.ProductReviewing,
-			BusinessId:           req.BusinessId,
 			ProductCategory:      req.ProductCategory,
 			ProductSubtitle:      req.ProductSubtitle,
 			ProductPrice:         req.ProductPrice,
@@ -87,6 +87,7 @@ func UpdateProduct(ctx *gin.Context) {
 			ProductStartTime:     req.ProductStartTime,
 			ProductEndTime:       req.ProductEndTime,
 			ProductAlertCount:    req.ProductAlertCount,
+			ProductBoundCount:    req.ProductBoundCount,
 			ProductScore:         req.ProductScore,
 			ProductPics:          req.ProductPics,
 			ExchangeInfo:         req.ExchangeInfo,
