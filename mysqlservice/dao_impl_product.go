@@ -221,7 +221,7 @@ func (m *MysqlService) UpdateProductById(p *models.Product) error {
 	// 添加图片
 	if len(p.ProductPics) != 0 {
 		for i := range p.ProductPics {
-			_, err := tx.Exec("UPDATE image SET product_id=0 WHERE product_id=? ", p.ProductId, p.ProductId)
+			_, err := tx.Exec("UPDATE image SET product_id=0 WHERE product_id=? ", p.ProductId)
 			if err != nil {
 				rollBackErr := tx.Rollback()
 				if rollBackErr != nil {
