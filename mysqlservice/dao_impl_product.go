@@ -218,7 +218,27 @@ func (m *MysqlService) UpdateProductById(p *models.Product) error {
 		}
 		return err
 	}
-
+	// 添加图片
+	if len(p.ProductPics) != 0 {
+		for i := range p.ProductPics {
+			_, err := tx.Exec("UPDATE image SET product_id=0 WHERE product_id=? ", p.ProductId, p.ProductId)
+			if err != nil {
+				rollBackErr := tx.Rollback()
+				if rollBackErr != nil {
+					return rollBackErr
+				}
+				return errors.New("UpdateImage err:" + err.Error())
+			}
+			_, err = tx.Exec("UPDATE image SET product_id=? WHERE image_url=? ", p.ProductId, p.ProductPics[i])
+			if err != nil {
+				rollBackErr := tx.Rollback()
+				if rollBackErr != nil {
+					return rollBackErr
+				}
+				return errors.New("UpdateImage err:" + err.Error())
+			}
+		}
+	}
 	err = tx.Commit()
 	if err != nil {
 		rollBackErr := tx.Rollback()
