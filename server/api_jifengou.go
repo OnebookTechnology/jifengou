@@ -41,15 +41,15 @@ type ResponseData struct {
 	//商品查询
 	ItemCount int        `json:"item_count,omitempty"`
 	ItemList  []ItemData `json:"item_list,omitempty"`
-	Status    int        `json:"status, omitempty"`
+	Status    int        `json:"status,omitempty"`
 
 	//券码信息查询
-	Statement   string       `json:"stamentet,omitempty"`
+	Statement   string       `json:"statement,omitempty"`
 	CouponCount int          `json:"coupon_count,omitempty"`
 	CouponList  []CouponData `json:"coupon_list,omitempty"`
 
 	// 库存
-	StockCount int `json:"stock_count, omitempty"`
+	StockCount int `json:"stock_count,omitempty"`
 }
 
 type CouponData struct {
