@@ -1,7 +1,6 @@
 package server
 
 import (
-	"fmt"
 	"github.com/OnebookTechnology/jifengou/server/models"
 	"github.com/gin-gonic/gin"
 	"strconv"
