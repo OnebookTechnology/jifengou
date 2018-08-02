@@ -1,6 +1,7 @@
 package server
 
 import (
+	"fmt"
 	"github.com/OnebookTechnology/jifengou/server/models"
 	"github.com/gin-gonic/gin"
 	"strconv"
@@ -147,7 +148,9 @@ func FindProductById(ctx *gin.Context) {
 			sendFailedResponse(ctx, Err, "FindProductById err:", err)
 			return
 		}
+		fmt.Println(ps.ProductInfo)
 		strings.Replace(ps.ProductInfo, "JFGTIMESTAMP", nowTimestampString(), -1)
+		fmt.Println(ps.ProductInfo)
 		strings.Replace(ps.ExchangeInfo, "JFGTIMESTAMP", nowTimestampString(), -1)
 		res := &ResData{
 			Product: ps,
