@@ -148,10 +148,8 @@ func FindProductById(ctx *gin.Context) {
 			sendFailedResponse(ctx, Err, "FindProductById err:", err)
 			return
 		}
-		fmt.Println(ps.ProductInfo)
-		strings.Replace(ps.ProductInfo, "JFGTIMESTAMP", nowTimestampString(), -1)
-		fmt.Println(ps.ProductInfo)
-		strings.Replace(ps.ExchangeInfo, "JFGTIMESTAMP", nowTimestampString(), -1)
+		ps.ProductInfo = strings.Replace(ps.ProductInfo, "JFGTIMESTAMP", nowTimestampString(), -1)
+		ps.ExchangeInfo = strings.Replace(ps.ExchangeInfo, "JFGTIMESTAMP", nowTimestampString(), -1)
 		res := &ResData{
 			Product: ps,
 		}
