@@ -4,6 +4,7 @@ import (
 	"github.com/OnebookTechnology/jifengou/server/models"
 	"github.com/gin-gonic/gin"
 	"strconv"
+	"strings"
 )
 
 const (
@@ -146,6 +147,8 @@ func FindProductById(ctx *gin.Context) {
 			sendFailedResponse(ctx, Err, "FindProductById err:", err)
 			return
 		}
+		strings.Replace(ps.ProductInfo, "t=JFGTIMESTAMP", "t="+nowTimestampString(), -1)
+		strings.Replace(ps.ExchangeInfo, "t=JFGTIMESTAMP", "t="+nowTimestampString(), -1)
 		res := &ResData{
 			Product: ps,
 		}
