@@ -93,7 +93,7 @@ func SavePics(ctx *gin.Context) {
 		res := &PicResponse{
 			State: "SUCCESS",
 			// 解决ue加载的问题
-			Url: "http://" + server.Conf.domain + "/images/" + picName + "&t=JFGTIMESTAMP",
+			Url: "http://" + server.Conf.domain + "/images/" + picName + "?t=JFGTIMESTAMP",
 		}
 		s, _ := jsoniter.MarshalToString(res)
 		ctx.Writer.WriteHeader(http.StatusOK)
