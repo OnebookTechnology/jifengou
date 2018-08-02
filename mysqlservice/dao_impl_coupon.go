@@ -128,9 +128,9 @@ func (m *MysqlService) FindCouponsByProductId(productId, status, pageNum, pageCo
 func (m *MysqlService) FindCouponsByItemStatement(itemStatement string, count int, buyTime string, startTime, endTime string) ([]*models.Coupon, error) {
 	rows, err := m.Db.Query("SELECT c.coupon_id, c.coupon_status, c.coupon_code, c.update_time, DATE(c.coupon_start_time), DATE(c.coupon_end_time) "+
 		"FROM coupon c LEFT JOIN product p ON c.product_id = p.product_id "+
-		"WHERE c.coupon_status = ? AND  c.update_time=? AND DATE(c.coupon_start_time)=? AND  DATE(c.coupon_end_time) = ? AND p.product_item_statement=?"+
+		"WHERE c.coupon_status = ? AND p.product_item_statement=?"+
 		" LIMIT ?",
-		models.CouponNotUsed, buyTime, startTime, endTime, itemStatement, count)
+		models.CouponNotUsed, itemStatement, count)
 	if err != nil {
 		return nil, err
 	}
