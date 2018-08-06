@@ -57,7 +57,7 @@ func AddBusinessCoupon(ctx *gin.Context) {
 				ProductId:    req.ProductId,
 				BCStart:      p.ProductStartTime,
 				BCEnd:        p.ProductEndTime,
-				BCStatus:     models.CouponNotBind,
+				BCStatus:     models.CouponNotReleased,
 				BCUpdateTime: nowTimestampString(),
 			}
 			bId, err := server.DB.AddBusinessCoupon(bc)

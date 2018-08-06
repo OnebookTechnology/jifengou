@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/hex"
 	"errors"
+	"github.com/OnebookTechnology/jifengou/server/models"
 	"github.com/gin-gonic/gin"
 	"github.com/json-iterator/go"
 	"io/ioutil"
@@ -182,6 +183,11 @@ func QueryCouponInfo(ctx *gin.Context) {
 
 	var cList []CouponData
 	for _, c := range coupons {
+		err := server.DB.UpdateCouponStatus(c.CouponCode, models.CouponNotUsed, nowFormat())
+		if err != nil {
+			handleError(ctx, err)
+			return
+		}
 		code, _ := AESEncryptToHexString([]byte(c.CouponCode), []byte(server.Env.BusinessKey))
 		coupon := CouponData{
 			CouponId:    c.CouponId,
@@ -189,7 +195,7 @@ func QueryCouponInfo(ctx *gin.Context) {
 			CreateTime:  c.UpdateTime,
 			ExpireStart: requestJson.ExpireStart,
 			ExpireEnd:   requestJson.ExpireEnd,
-			Status:      c.CouponStatus,
+			Status:      models.CouponNotUsed,
 		}
 		cList = append(cList, coupon)
 	}

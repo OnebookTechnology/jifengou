@@ -130,7 +130,7 @@ func (m *MysqlService) FindCouponsByItemStatement(itemStatement string, count in
 		"FROM coupon c LEFT JOIN product p ON c.product_id = p.product_id "+
 		"WHERE c.coupon_status = ? AND p.product_item_statement=?"+
 		" LIMIT ?",
-		models.CouponNotUsed, itemStatement, count)
+		models.CouponNotReleased, itemStatement, count)
 	if err != nil {
 		return nil, err
 	}
