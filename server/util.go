@@ -68,6 +68,7 @@ func doSHA1(b []byte) []byte {
 	h := sha1.New()
 	h.Write(b)
 	return h.Sum(nil)
+	//hex.EncodeToString()
 }
 
 func doHmacSHA1(b, sKey []byte) []byte {

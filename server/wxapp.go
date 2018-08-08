@@ -1,6 +1,7 @@
 package server
 
 import (
+	"encoding/hex"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/json-iterator/go"
@@ -124,7 +125,8 @@ func genSign(r *WxResponse) string {
 		"&noncestr=" + r.NonceStr +
 		"&timestamp=" + r.Timestamp +
 		"&url=" + strings.Split(r.Url, "#")[0]
-	return string(doSHA1([]byte(s)))
+
+	return hex.EncodeToString(doSHA1([]byte(s)))
 }
 
 func genNonceStr() string {
