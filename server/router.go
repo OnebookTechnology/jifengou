@@ -27,8 +27,8 @@ func LoadRouter(router *gin.Engine) {
 	wxRouter := myRouter.Group("/wxconfig")
 	wxRouter.Use(TokenAuthMiddleware())
 	{
-		wxRouter.GET("/", GetWxConfig)
-		wxRouter.OPTIONS("/", Options)
+		wxRouter.GET("", GetWxConfig)
+		wxRouter.OPTIONS("", Options)
 	}
 
 	businessRouter := myRouter.Group("/business")
