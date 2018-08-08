@@ -25,7 +25,6 @@ func LoadRouter(router *gin.Engine) {
 	myRouter.POST("/notify_jfg_used", NotifyCouponUsedToJFG)
 
 	wxRouter := myRouter.Group("/wxconfig")
-	wxRouter.Use(TokenAuthMiddleware())
 	{
 		wxRouter.GET("", GetWxConfig)
 		wxRouter.OPTIONS("", Options)

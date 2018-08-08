@@ -36,6 +36,11 @@ type WxResponse struct {
 
 func GetWxConfig(ctx *gin.Context) {
 	crossDomain(ctx)
+	err := CheckUserSession(ctx)
+	if err != nil {
+		sendFailedResponse(ctx, Err, "CheckUserSession error:", err)
+		return
+	}
 	shareUrl := strings.Split(ctx.Query("url"), "#")[0]
 	t, err := server.DB.FindToken()
 	if err != nil {
