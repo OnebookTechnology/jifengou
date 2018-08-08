@@ -10,10 +10,5 @@ type ServerDB interface {
 	dao.CouponDao
 	dao.BusinessDao
 	dao.ExRecordDao
-	//dao.BookDao
-	//dao.BookListDao
-	//dao.DiscoverDao
-	//dao.PressDao
-	//dao.RecordDao
-	//dao.ExpenseCalendar
+	dao.TokenDao
 }

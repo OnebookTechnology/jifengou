@@ -24,6 +24,8 @@ func LoadRouter(router *gin.Engine) {
 	myRouter.GET("/query_jfg_status", QueryCouponStatusFromJFG)
 	myRouter.POST("/notify_jfg_used", NotifyCouponUsedToJFG)
 
+	myRouter.GET("/wxconfig", GetWxConfig)
+
 	businessRouter := myRouter.Group("/business")
 	businessRouter.Use(TokenAuthMiddleware())
 	{
