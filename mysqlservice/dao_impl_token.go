@@ -8,7 +8,7 @@ func (m *MysqlService) UpdateToken(token, expireTime string) error {
 		return err
 	}
 	// s1. update online book's last_op_time、last_op_phone_number、online_status
-	_, err = tx.Exec("UPDATE token SET token=?, expireTime=?", token, expireTime)
+	_, err = tx.Exec("UPDATE token SET token=?, expire_time=?", token, expireTime)
 	if err != nil {
 		rollBackErr := tx.Rollback()
 		if rollBackErr != nil {
