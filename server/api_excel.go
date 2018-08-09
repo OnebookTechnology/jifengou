@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"github.com/360EntSecGroup-Skylar/excelize"
 	"github.com/gin-gonic/gin"
+	"os"
 	"strconv"
 )
 
@@ -40,9 +41,16 @@ func ExportUser(ctx *gin.Context) {
 		xlsx.SetCellValue("Sheet1", "F"+strconv.Itoa(i+2), record.BCodes)
 	}
 	xlsx.SetActiveSheet(sheet)
-	filePath := "/root/online/jifengou/images/ex_" + nowTimestampString() + ".xlsx"
+	fileName := "ex_" + nowTimestampString() + ".xlsx"
+	filePath := "/root/online/jifengou/images/" + fileName
 	xlsx.SaveAs(filePath)
 	// Save xlsx file by the given path.
-	ctx.File(filePath)
+	f, err := os.Open(filePath)
+	if err != nil {
+		sendFailedResponse(ctx, Err, "file load err:", err)
+		return
+	}
+	c := &BytesCounter{0}
+	ServeContent(ctx.Writer, ctx.Request, fileName, f, c)
 	return
 }
