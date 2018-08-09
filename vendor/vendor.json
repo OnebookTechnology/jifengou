@@ -3,6 +3,12 @@
 	"ignore": "test",
 	"package": [
 		{
+			"checksumSHA1": "cuD2Y+ofULRJMIG/dxCdIJ/nxss=",
+			"path": "github.com/360EntSecGroup-Skylar/excelize",
+			"revision": "ec37b114c3b704a84c66fcf3e135c9df88ffb24d",
+			"revisionTime": "2018-08-06T02:21:24Z"
+		},
+		{
 			"checksumSHA1": "wQ3uCVP7AB9W5L/UXEOeFqj8TyM=",
 			"path": "github.com/OnebookTechnology/captcha-sdk",
 			"revision": "6bd7a28cd4011fdaac1fdfa410ebd61b2ebaccff",
@@ -163,6 +169,12 @@
 			"path": "github.com/mattn/go-isatty",
 			"revision": "fc9e8d8ef48496124e79ae0df75490096eccf6fe",
 			"revisionTime": "2017-03-22T23:44:13Z"
+		},
+		{
+			"checksumSHA1": "2jsbDTvwxafPp7FJjJ8IIFlTLjs=",
+			"path": "github.com/mohae/deepcopy",
+			"revision": "c48cc78d482608239f6c4c92a4abd87eb8761c90",
+			"revisionTime": "2017-09-29T03:49:55Z"
 		},
 		{
 			"checksumSHA1": "UpD3DOBV4ke+MSUYOotu4qciG7A=",
