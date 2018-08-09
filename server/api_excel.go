@@ -40,7 +40,9 @@ func ExportUser(ctx *gin.Context) {
 		xlsx.SetCellValue("Sheet1", "F"+strconv.Itoa(i+2), record.BCodes)
 	}
 	xlsx.SetActiveSheet(sheet)
+	filePath := "/root/online/jifengou/images/ex_" + nowTimestampString() + ".xlsx"
+	xlsx.SaveAs(filePath)
 	// Save xlsx file by the given path.
-	ctx.Header("Content-Type", "application/vnd.ms-excel")
-	xlsx.Write(ctx.Writer)
+	ctx.File(filePath)
+	return
 }
