@@ -114,6 +114,8 @@ func LoadRouter(router *gin.Engine) {
 		exrecordRouter.OPTIONS("/query", Options)
 		exrecordRouter.GET("/query_all", QueryAllExRecord)
 		exrecordRouter.OPTIONS("/query_all", Options)
+		exrecordRouter.GET("/export", ExportUser)
+		exrecordRouter.OPTIONS("/export", Options)
 	}
 
 }
