@@ -2,6 +2,7 @@ package server
 
 import (
 	"database/sql"
+	"fmt"
 	"github.com/360EntSecGroup-Skylar/excelize"
 	"github.com/gin-gonic/gin"
 	"os"
@@ -50,6 +51,15 @@ func ExportUser(ctx *gin.Context) {
 		sendFailedResponse(ctx, Err, "file load err:", err)
 		return
 	}
+	defer f.Close()
+	i, err := f.Stat()
+	if err != nil {
+		sendFailedResponse(ctx, Err, "file Stat err:", err)
+		return
+	}
+	ctx.Header("Content-Type", "application/octet-stream")
+	ctx.Header("Content-Disposition", fmt.Sprintf("attachment; filename=%s", fileName))
+	ctx.Header("Content-Length", fmt.Sprintf("%d", i.Size()))
 	c := &BytesCounter{0}
 	ServeContent(ctx.Writer, ctx.Request, fileName, f, c)
 	return
