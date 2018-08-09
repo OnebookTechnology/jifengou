@@ -57,7 +57,7 @@ func ExportUser(ctx *gin.Context) {
 		sendFailedResponse(ctx, Err, "file Stat err:", err)
 		return
 	}
-	ctx.Header("Content-Type", "application/octet-stream")
+	ctx.Header("Content-Type", "application/x-download")
 	ctx.Header("Content-Disposition", fmt.Sprintf("attachment; filename=%s", fileName))
 	ctx.Header("Content-Length", fmt.Sprintf("%d", i.Size()))
 	c := &BytesCounter{0}
