@@ -70,7 +70,7 @@ func AddBusinessCoupon(ctx *gin.Context) {
 			if (i+1)%p.ProductBoundCount == 0 {
 				c := &models.Coupon{
 					ProductID:       req.ProductId,
-					CouponCode:      nowTimestampString() + RandText(4),
+					CouponCode:      nowTimestampString()[3:] + RandNumber(4),
 					CouponStartTime: p.ProductStartTime,
 					CouponEndTime:   p.ProductEndTime,
 					CouponStatus:    models.CouponNotReleased,
