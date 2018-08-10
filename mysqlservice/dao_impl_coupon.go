@@ -124,6 +124,17 @@ func (m *MysqlService) FindCouponsByProductId(productId, status, pageNum, pageCo
 	return coupons, nil
 }
 
+// 根据商品id和状态查询券码数量
+func (m *MysqlService) FindCouponsCountByProductId(productId, status int) (int, error) {
+	row := m.Db.QueryRow("SELECT COUNT(*) FROM coupon c WHERE c.product_id=? AND c.coupon_status = ? ", productId, status)
+	var c int
+	err := row.Scan(&c)
+	if err != nil {
+		return 0, err
+	}
+	return c, nil
+}
+
 // 根据商品编号查询所有券码
 func (m *MysqlService) FindCouponsByItemStatement(itemStatement string, count int, buyTime string, startTime, endTime string) ([]*models.Coupon, error) {
 	rows, err := m.Db.Query("SELECT c.coupon_id, c.coupon_status, c.coupon_code, c.update_time, DATE(c.coupon_start_time), DATE(c.coupon_end_time) "+

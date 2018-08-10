@@ -108,8 +108,14 @@ func QueryCouponByProductAndStatus(ctx *gin.Context) {
 			sendFailedResponse(ctx, Err, "FindCouponsByProductId err:", err)
 			return
 		}
+		c, err := server.DB.FindCouponsCountByProductId(req.ProductId, req.Status)
+		if err != nil {
+			sendFailedResponse(ctx, Err, "FindCouponsCountByProductId err:", err)
+			return
+		}
 		res := &ResData{
-			Coupons: cs,
+			Coupons:    cs,
+			TotalCount: c,
 		}
 		sendSuccessResponse(ctx, res)
 		return
@@ -129,8 +135,14 @@ func QueryBCouponByStatus(ctx *gin.Context) {
 			sendFailedResponse(ctx, Err, "FindBCouponByStatus err:", err)
 			return
 		}
+		c, err := server.DB.FindBCouponCountByStatus(req.Status, req.ProductId)
+		if err != nil {
+			sendFailedResponse(ctx, Err, "FindBCouponCountByStatus err:", err)
+			return
+		}
 		res := &ResData{
-			BCoupons: bs,
+			BCoupons:   bs,
+			TotalCount: c,
 		}
 		sendSuccessResponse(ctx, res)
 		return

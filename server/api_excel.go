@@ -80,7 +80,22 @@ func ExportCoupon(ctx *gin.Context) {
 		sendFailedResponse(ctx, SessionErr, "invalid p_id. p_id:", pIdStr)
 		return
 	}
+	p, err := server.DB.FindProductById(pId)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			sendSuccessResponse(ctx, nil)
+			return
+		}
+		sendFailedResponse(ctx, Err, "FindAllExchangeRecord. err:", err)
+		return
+	}
+
 	xlsx := excelize.NewFile()
+	xlsx.SetCellValue("Sheet1", "A1", "商品ID")
+	xlsx.SetCellValue("Sheet1", "B1", "商品名称")
+	xlsx.SetCellValue("Sheet1", "A2", pId)
+	xlsx.SetCellValue("Sheet1", "B2", p.ProductName)
+
 	for status := models.CouponNotReleased; status <= models.CouponLogOut; status++ {
 		records, err := server.DB.FindCouponsByProductId(pId, status, 1, 100000)
 		if err != nil {
@@ -156,6 +171,19 @@ func ExportBCoupon(ctx *gin.Context) {
 		return
 	}
 	xlsx := excelize.NewFile()
+	p, err := server.DB.FindProductById(pId)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			sendSuccessResponse(ctx, nil)
+			return
+		}
+		sendFailedResponse(ctx, Err, "FindAllExchangeRecord. err:", err)
+		return
+	}
+	xlsx.SetCellValue("Sheet1", "A1", "商品ID")
+	xlsx.SetCellValue("Sheet1", "B1", "商品名称")
+	xlsx.SetCellValue("Sheet1", "A2", pId)
+	xlsx.SetCellValue("Sheet1", "B2", p.ProductName)
 	for status := models.CouponNotReleased; status <= models.CouponLogOut; status++ {
 		records, err := server.DB.FindBCouponByStatus(status, pId, 1, 100000)
 		if err != nil {

@@ -11,8 +11,10 @@ type CouponDao interface {
 
 	AddBusinessCoupon(b *models.BCoupon) (int64, error)
 	FindBCouponByStatus(status, productId, pageNum, pageCount int) ([]*models.BCoupon, error)
+	FindBCouponCountByStatus(status, productId int) (int, error)
 	UpdateBCouponStatusAndCouponIdById(couponId, bcId, status int) error
 	FindCouponsByProductId(productId, status, pageNum, pageCount int) ([]*models.Coupon, error)
+	FindCouponsCountByProductId(productId, status int) (int, error)
 	FindBCouponsByCoupon(code string) ([]*models.BCoupon, error)
 	FindBCouponByCouponCode(couponCode string) ([]*models.BCoupon, error)
 }

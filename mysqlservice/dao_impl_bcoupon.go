@@ -60,6 +60,18 @@ func (m *MysqlService) FindBCouponByStatus(status, productId, pageNum, pageCount
 	return bs, nil
 }
 
+// 根据状态查询商家券码数量
+func (m *MysqlService) FindBCouponCountByStatus(status, productId int) (int, error) {
+	row := m.Db.QueryRow("SELECT COUNT(*) FROM bcoupon WHERE bc_status=? AND product_id=? ", status, productId)
+
+	var b int
+	err := row.Scan(&b)
+	if err != nil {
+		return 0, err
+	}
+	return b, nil
+}
+
 // 根据平台券码查询商家券码
 func (m *MysqlService) FindBCouponByCouponCode(couponCode string) ([]*models.BCoupon, error) {
 	rows, err := m.Db.Query("SELECT b.bc_id, b.bc_cart_id, b.bc_code, b.b_id, b.product_id,b.pc_id,b.bc_start,b.bc_end,b.bc_status,b.bc_update_time "+
