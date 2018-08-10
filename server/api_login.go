@@ -411,7 +411,7 @@ func VerifyVCode(ctx *gin.Context) {
 SUCCESS:
 	userSession := xxtea.EncryptStdToURLString(strconv.FormatUint(vReq.PhoneNumber, 10)+":"+nowTimestampString(), XXTEA_KEY)
 	//Save session
-	err := server.Consist.Put(UserSessionPrefix+userSession, nowTimestampString(), time.Duration(86400*time.Second))
+	err := server.Consist.Put(UserSessionPrefix+userSession, nowTimestampString(), time.Duration(720*time.Hour))
 	if err != nil {
 		sendFailedResponse(ctx, Err, err.Error())
 		return

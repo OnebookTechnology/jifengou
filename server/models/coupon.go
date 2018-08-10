@@ -20,3 +20,5 @@ const (
 	CouponLocked
 	CouponLogOut
 )
+
+var CouponStatusMap = [6]string{"已绑定", "未使用", "已使用", "已过期", "已锁定", "已注销"}

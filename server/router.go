@@ -72,10 +72,14 @@ func LoadRouter(router *gin.Engine) {
 		couponRouter.OPTIONS("/business/add", Options)
 		couponRouter.GET("/business/query", QueryBCouponByStatus)
 		couponRouter.OPTIONS("/business/query", Options)
+		couponRouter.GET("/business/export", ExportBCoupon)
+		couponRouter.OPTIONS("/business/export", Options)
 		couponRouter.POST("/bind", BindCoupon)
 		couponRouter.OPTIONS("/bind", Options)
 		couponRouter.GET("/query", QueryCouponByProductAndStatus)
 		couponRouter.OPTIONS("/query", Options)
+		couponRouter.GET("/export", ExportCoupon)
+		couponRouter.OPTIONS("/export", Options)
 	}
 
 	myRouter.POST("/coupon/update", UpdateCodeStatus)
