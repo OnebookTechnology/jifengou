@@ -19,7 +19,7 @@ const SessionPrefix = "/session/"
 const UserSessionPrefix = "/usession/"
 const VerifyCodePrefix = "/vcode/"
 const CaptchaPrefix = "/captcha/"
-const MaxSessionTimeout = 7200 //2 hours
+const MaxSessionTimeout = 60 * 60 * 720 //2 hours
 
 func Login(ctx *gin.Context) {
 	crossDomain(ctx)
@@ -68,7 +68,7 @@ func CheckUserSession(c *gin.Context) error {
 	diff := now - sessionTime
 	if diff > MaxSessionTimeout {
 		// over time means current user without any operation over 30 minutes
-		return errors.New("Usession time out:" + session)
+		return errors.New("User session time out:" + session)
 	}
 	return nil
 }
@@ -411,7 +411,7 @@ func VerifyVCode(ctx *gin.Context) {
 SUCCESS:
 	userSession := xxtea.EncryptStdToURLString(strconv.FormatUint(vReq.PhoneNumber, 10)+":"+nowTimestampString(), XXTEA_KEY)
 	//Save session
-	err := server.Consist.Put(UserSessionPrefix+userSession, nowTimestampString(), time.Duration(720*time.Hour))
+	err := server.Consist.Put(UserSessionPrefix+userSession, nowTimestampString(), time.Duration(MaxSessionTimeout)*time.Second)
 	if err != nil {
 		sendFailedResponse(ctx, Err, err.Error())
 		return
